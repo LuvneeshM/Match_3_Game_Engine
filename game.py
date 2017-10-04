@@ -13,6 +13,13 @@ class Board:
 		self.points = 0;
 		self.award_points = {}
 		self.set_up_award_points_dict()
+
+		tester = [
+				[1, 1, 0],
+				[0, 1, 1],
+				[1, 0, 1],
+				]
+		self.check_window(tester)
 		pass
 
 	def init(self):
@@ -288,7 +295,38 @@ class Board:
 		for board_pos_to_del in horizontal_pos_to_del:
 			self.board[board_pos_to_del[0]][board_pos_to_del[1]] = 0
 		
-			
+	def check_window(self, llist):
+		print("HELLO")
+		total = 0
+		exp = 8
+		for  i in range(len(llist)):
+			for j in range(len(llist[i])):
+				total += llist[i][j] * (2**exp)
+				exp -= 1
+
+		total_shift_left_1 = total << 1
+		total_shift_left_2 = total << 2
+		total_shift_left_3 = total << 3
+		total_shift_left_4 = total << 4
+		total_shift_right_1 = total >> 1
+		total_shift_right_2 = total >> 2
+		total_shift_right_3 = total >> 3
+		total_shift_right_4 = total >> 4
+
+		#if (total & total_shift_right_2 & total_shift_right_4 & 16):
+			#APPEND MOVE (X, Y) -> left | (x, y) -> right | (x, y) -> up | (x, y) -> down
+		print(total & total_shift_right_2 & total_shift_right_4 & 16)
+		print(total & total_shift_right_4 & total_shift_left_2 & 16)
+		print(total & total_shift_right_4 & total_shift_left_3 & 16)
+		print(total & total_shift_right_3 & total_shift_left_2 & 16)
+		print(total & total_shift_right_3 & total_shift_left_4 & 16)
+		print(total & total_shift_right_3 & total_shift_right_1 & 16)
+		print(total & total_shift_right_2 & total_shift_left_3 & 16)
+		print(total & total_shift_right_2 & total_shift_left_4 & 16)
+		print(total & total_shift_right_1 & total_shift_left_4 & 16)
+		print(total & total_shift_left_1 & total_shift_left_2 & 16)
+		print(total & total_shift_left_2 & total_shift_left_4 & 16)
+		
 if __name__ == '__main__':
 	main()
 
