@@ -1,12 +1,13 @@
 import numpy as np
+import random
 
 def main():
-	board = Board(5,5)
+	board = Board(7,7)
 	board.init()
 	
 class Board:
 	def __init__(self, rows, cols):
-		self.divisors = [3, 19, 43, 61, 163]
+		self.divisors = [3, 19, 43, 61, 163, 199]
 		self.rows = rows
 		self.cols = cols
 		self.board = []
@@ -14,12 +15,12 @@ class Board:
 		self.award_points = {}
 		self.set_up_award_points_dict()
 
-		tester = [
-				[1, 1, 0],
-				[0, 1, 1],
-				[1, 0, 1],
-				]
-		self.check_window(tester)
+	#	tester = [
+	#			[1, 1, 0],
+	#			[0, 1, 1],
+	#			[1, 0, 1],
+	#			]
+	#	self.check_window(tester)
 		pass
 
 	def init(self):
@@ -44,71 +45,85 @@ class Board:
 				]
 		'''
 		self.board = [
-				[3, 19, 43, 61, 163],
-				[3, 3, 163, 61, 19],
-				[3, 163, 61, 61, 61],
-				[3, 43, 61, 19, 19],
-				[163, 3, 3, 3, 19],
-				]	
+				[3, 19, 43, 61, 163, 199, 3],
+				[3, 3, 163, 61, 19, 43, 163],
+				[3, 163, 61, 61, 61, 199, 43],
+				[3, 43, 61, 19, 19, 61, 3],
+				[163, 3, 3, 3, 43, 43, 19],
+				[43, 19, 163, 61, 61, 199, 199],
+				[6, 61, 19, 3, 163, 43, 61]
+				]
+		self.board_two =  [[0 for x in range(self.cols)] for y in range(self.rows)] 
+		self.fill_board_two()
 
 		#check board for any pre matches
-		self.find_matches()
+		self.find_matches(1)
 
-		print("\n")
-		print("matches are removed, board updated")
+	def find_matches(self, multiplier):
+		print("GAMEBOARD")
 		print(np.matrix(self.board))
-		print("add new pieces to board")
 
-
-	def find_matches(self):
 		vertical_sum_matrix = self.sum_vertical(self.board)
-		print(np.matrix(vertical_sum_matrix))
+		#print(np.matrix(vertical_sum_matrix))
 		possible_vert_coll = self.get_vertical_sum_that_matter(vertical_sum_matrix)
 		
-		print()
+		#print()
 
 		horizontal_sum_matrix = self.sum_horizontal(self.board)
-		print(np.matrix(horizontal_sum_matrix))
+		#print(np.matrix(horizontal_sum_matrix))
 		possible_horizontal_coll = self.get_horizontal_sum_that_matter(horizontal_sum_matrix)
 
-		print()
+		#print()
 
 		#compare the two sets for intersections =
-		self.find_intersection(possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix)
-		print()
+		self.find_intersection(possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix, True)
+		#print()
 
 		#now we check for normal 3, normal 4, normal 5 in a row
-		print("Checked Vertical for Consecutives:")
-		self.normal_vert_check(vertical_sum_matrix, possible_vert_coll)
-		print(np.matrix(vertical_sum_matrix))
+		#print("Checked Vertical for Consecutives:")
+		self.normal_vert_check(vertical_sum_matrix, possible_vert_coll, True)
+		#print(np.matrix(vertical_sum_matrix))
 
 		print()
 
-		print("Checked Horizontal for Consecutives:")
-		self.normal_horiz_check(horizontal_sum_matrix, possible_horizontal_coll)
-		print(np.matrix(horizontal_sum_matrix))
+		#print("Checked Horizontal for Consecutives:")
+		self.normal_horiz_check(horizontal_sum_matrix, possible_horizontal_coll, True)
+		#print(np.matrix(horizontal_sum_matrix))
 		
-		print()
+		#print()
 
-		print("Board now clean of consecs, points to deliver")
-		print(self.award_points)
+		#print("Board now clean of consecs, points to deliver")
+		#print(self.award_points)
+		#print()
+		#print("matches are removed, board updated")
+		#print(np.matrix(self.board))
+		print("add new pieces to updated GAMEBOARD")
+		self.add_new_pieces()
+		print(np.matrix(self.board))
+		print ("award points, multiplier:", multiplier)
+		pointsToAdd = self.user_gets_points()
+		print("adding", pointsToAdd * multiplier, "points\n")
+		self.points = self.points + (pointsToAdd * multiplier)
+		multiplier += 1
+		if(pointsToAdd != 0):
+			self.find_matches(multiplier)
 
 	def sum_vertical(self, board):
 		return [ [ board[i][j]+board[i+1][j]+board[i+2][j]
 		 	for j in range(len(board[i]))] for i in range(len(board)-2) ]
-	'''
+		'''
 		vert_sun = []
 		for i in range(len(board)-2):
 			vert_sum.append([])
 			for j in range(len(board[i])):
 				vert_sum[i].append(board[i][j]+board[i+1][j]+board[i+2][j])
 		return vert_sum
-	'''
+		'''
 
 	def sum_horizontal(self, board):
 		return [ [ board[i][j]+board[i][j+1]+board[i][j
 			+2] for j in range(len(board[i])-2)] for i in range(len(board))]
-	'''
+		'''
 		horizontal_sum = []
 		for i in range(len(board)):
 			horizontal_sum.append([])
@@ -116,7 +131,7 @@ class Board:
 				horizontal_sum[i].append(board[i][j]+board[i][j+1]+board[i][j+2])
 
 		return horizontal_sum
-	'''
+		'''
 
 	#vertical sums that represent 3 of same item back to back in col
 	#return possible_vert_coll
@@ -131,7 +146,7 @@ class Board:
 						possible_vert_coll[(i,j)].add((i+1,j))
 						possible_vert_coll[(i,j)].add((i+2,j))
 
-						print("row",i,"col",j,"divisor",k,"sum", sum_matrix[i][j])
+		#				print("row",i,"col",j,"divisor",k,"sum", sum_matrix[i][j])
 
 		#for pos in possible_vert_coll:
 		#	print("match 3 vert",pos, possible_vert_coll[pos])
@@ -150,16 +165,16 @@ class Board:
 						possible_horizontal_coll[(i,j)].add((i,j+1))
 						possible_horizontal_coll[(i,j)].add((i,j+2))
 
-						print("row",i,"col",j,"divisor",k,"sum", sum_matrix[i][j])
+		#				print("row",i,"col",j,"divisor",k,"sum", sum_matrix[i][j])
 
-		for pos in possible_horizontal_coll:
-			print("match 3 horiz", pos, possible_horizontal_coll[pos])
+		#for pos in possible_horizontal_coll:
+		#	print("match 3 horiz", pos, possible_horizontal_coll[pos])
 
 		return possible_horizontal_coll
 
 	#looks for intersection between horizontal and vertical 
 	#will be for 5 pieces
-	def find_intersection(self, possible_vert_coll, possible_horizontal_coll,vertical_sum_matrix, horizontal_sum_matrix):
+	def find_intersection(self, possible_vert_coll, possible_horizontal_coll,vertical_sum_matrix, horizontal_sum_matrix, givePoints):
 		x_var = set()
 		y_var = set()
 
@@ -180,7 +195,7 @@ class Board:
 			for j in y_var:
 				possible_pairs_set.add((i,j))
 
-		print("possible pairs for intersection: ", possible_pairs_set)
+		#print("possible pairs for intersection: ", possible_pairs_set)
 
 		#check for intersection between possible permutations and possible_vert_coll
 		#if there is a coll, check to see if intersection in possible_hor_coll
@@ -218,17 +233,18 @@ class Board:
 						horizontal_sum_matrix[horiz_key[0]][horiz_key[1]] = 0
 
 						#for pos in possible_vert_coll:
-						print("match 3 vert after", possible_vert_coll)
-						print("match 3 horiz after", possible_horizontal_coll)
-						print ("deleted at: " ,intersection_pos_to_del)
+			#			print("match 3 vert after", possible_vert_coll)
+			#			print("match 3 horiz after", possible_horizontal_coll)
+			#			print ("deleted at: " ,intersection_pos_to_del)
 						#player got points of the intersection --> 5
 						#5, base value 40 * 5
-						self.award_points[5] += 1
+						if givePoints == True:
+							self.award_points[5] += 1
 					#else: 
 					#	print("Match failed")
 
 	#normal check for vertical matches of 3,4,5,6...
-	def normal_vert_check(self, vertical_sum_matrix, possible_vert_coll):
+	def normal_vert_check(self, vertical_sum_matrix, possible_vert_coll, givePoints):
 		consec_pieces = 2
 		vertical_pos_to_del = set()
 		for i in range(len(vertical_sum_matrix)):
@@ -254,16 +270,15 @@ class Board:
 						for pairs_to_del in possible_vert_coll[(i,j)]:
 							vertical_pos_to_del.add(pairs_to_del)
 						#track points for that single 3+ consecutive pieces
-						self.award_points[consec_pieces] += 1
+						if givePoints == True:
+							self.award_points[consec_pieces] += 1
 						break
 		#list of positions on game board to set to 0							
 		for board_pos_to_del in vertical_pos_to_del:
 			self.board[board_pos_to_del[0]][board_pos_to_del[1]] = 0
 		
-
-
 	#normal check for horizontal matches of 3,4,5,6...
-	def normal_horiz_check(self, horizontal_sum_matrix, possible_horizontal_coll):
+	def normal_horiz_check(self, horizontal_sum_matrix, possible_horizontal_coll, givePoints):
 		consec_pieces = 2
 		horizontal_pos_to_del = set()
 		for i in range(len(horizontal_sum_matrix)):
@@ -289,12 +304,124 @@ class Board:
 						for pairs_to_del in possible_horizontal_coll[(i,j)]:
 							horizontal_pos_to_del.add(pairs_to_del)
 						#track points for that single 3+ consecutive pieces
-						self.award_points[consec_pieces] += 1
+						if givePoints == True:
+							self.award_points[consec_pieces] += 1
 		
 		#list of positions on game board to set to 0							
 		for board_pos_to_del in horizontal_pos_to_del:
 			self.board[board_pos_to_del[0]][board_pos_to_del[1]] = 0
+
+	#board is updated
+	#add new pieces
+	def add_new_pieces(self):
+		#first move pieces down
+		self.drop_pieces()
+		#now add pieces
+		self.add_pieces()
+		#refill board two
+		self.fill_board_two()
+
+	def drop_pieces(self):
+		droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
+		#figure out which to drop and by how much 
+		for x in range(self.rows-1)[::-1]:
+			for y in range(self.cols)[::-1]:
+				if self.board[x][y] == 0 and self.board[x+1][y] == 0:
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+				elif self.board[x][y] == 0 and self.board[x+1][y] != 0:
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+				elif self.board[x][y] != 0 and self.board[x+1][y] == 0: 
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+				elif self.board[x][y] != 0 and self.board[x+1][y] != 0:
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+
+		#update board to drop things
+		for x in range(len(droppingAmountMaxtrix))[::-1]:
+			for y in range(len(droppingAmountMaxtrix[x]))[::-1]:
+				#only care about the non empty spots
+				if self.board[x][y] != 0:
+					#only care about the non empty spots that move
+					if droppingAmountMaxtrix[x][y] != 0:
+						dropping = droppingAmountMaxtrix[x][y]
+						self.board[x+dropping][y] = self.board[x][y]
+						self.board[x][y] = 0
 		
+	def add_pieces(self):
+		#add new numbers to board
+		#add to these spots
+		num_pieces_per_col = [0 for x in range(self.cols)]
+		for x in range(self.rows):
+			for y in range(self.cols):
+				if self.board[x][y] == 0:
+					num_pieces_per_col[y] += 1 
+		#actually add the pieces from second board
+		for x in range(len(num_pieces_per_col)):
+			y = num_pieces_per_col[x]-1
+			board_two_row = self.rows-1
+			while y >= 0:
+				self.board[y][x] = self.board_two[board_two_row][x]
+				self.board_two[board_two_row][x] = 0
+				board_two_row -= 1
+				y -= 1
+
+	def fill_board_two(self):
+		droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
+		#find how much to drop 
+		for x in range(self.rows-1)[::-1]:
+			for y in range(self.cols)[::-1]:
+				if self.board_two[x][y] == 0 and self.board_two[x+1][y] == 0:
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+				elif self.board_two[x][y] == 0 and self.board_two[x+1][y] != 0:
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+				elif self.board_two[x][y] != 0 and self.board_two[x+1][y] == 0: 
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+				elif self.board_two[x][y] != 0 and self.board_two[x+1][y] != 0:
+					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+		#drop em
+		for x in range(len(droppingAmountMaxtrix))[::-1]:
+			for y in range(len(droppingAmountMaxtrix[x]))[::-1]:
+				#only care about the non empty spots
+				if self.board_two[x][y] != 0:
+					#only care about the non empty spots that move
+					if droppingAmountMaxtrix[x][y] != 0:
+						dropping = droppingAmountMaxtrix[x][y]
+						self.board_two[x+dropping][y] = self.board_two[x][y]
+						self.board_two[x][y] = 0
+		#add to these spots
+		num_pieces_per_col = [0 for x in range(self.cols)]
+		#count number of 0 in each col
+		for x in range(self.rows):
+			for y in range(self.cols):
+				if self.board_two[x][y] == 0:
+					num_pieces_per_col[y] += 1 
+		#fill exmpty spots in 2nd board
+		for x in range(len(num_pieces_per_col)):
+			y = num_pieces_per_col[x]-1
+			while y >= 0:
+				self.board_two[y][x] = random.choice(self.divisors)
+				y -= 1
+		#rig board so that no groups of 3 in 2nd board
+		for x in range(1, len(self.board_two)-1):
+			for y in range(1, len(self.board_two)-1):
+				if y < (num_pieces_per_col[x]):
+				#horizontal groups
+					while self.board_two[x][y] == self.board_two[x-1][y] and self.board_two[x][y] == self.board_two[x+1][y]:
+						self.board_two[x+1][y] = random.choice(self.divisors)
+					#vertical groups
+					while self.board_two[x][y-1] == self.board_two[x][y] and self.board_two[x][y] == self.board_two[x][y+1]:
+						self.board_two[x][y+1] = random.choice(self.divisors)
+		
+	def user_gets_points(self):
+		total_points_earned = 0
+		base_value = 20
+		for i in (self.award_points):
+			print(i,self.award_points[i])
+			total_points_earned += i * base_value * self.award_points[i]
+			self.award_points[i] = 0
+			base_value += 10
+
+		return total_points_earned
+
 	def check_window(self, llist):
 		print("HELLO")
 		total = 0
