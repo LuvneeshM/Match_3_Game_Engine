@@ -17,7 +17,7 @@ class Board:
 		self.board[second_pos[0]][second_pos[1]] = temp_val
 		#update board stuff now
 		self.find_matches(1)
-		print("SCORE",self.points)
+		##print("SCORE",self.points)
 
 
 
@@ -32,6 +32,7 @@ class Board:
 		self.points = 0;
 		self.award_points = {}
 		self.set_up_award_points_dict()
+		self.possible_moves_to_make = MoveList()
 
 		#tester = [
 		#		[1, 1, 0],
@@ -64,7 +65,17 @@ class Board:
 				[199, 61, 43, 61, 61, 43, 3]
 				]
 		'''
-
+		'''
+		self.board = np.array(
+			[[163  61 163  19 163  43 163]
+		 [199  61   3  19 163 199  19]
+		 [ 19  43  19  19 163  19  61]
+		 [163   3  19 163 199  61  61]
+		 [199 163  61 163  19 199  43]
+		 [ 61 199 163  43  43   3   3]
+		 [ 61 163 199 199  43  61 163]]
+					)
+		'''
 		#self.board = [[random.choice(self.divisors) for x in range(self.cols)] for y in range(self.rows)]
 		self.board =  np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board(self.board)
@@ -79,7 +90,15 @@ class Board:
 					 [ 19 ,  3 ,  3, 163 , 19, 199 ,163],
 					 [  3 , 19, 163 , 61, 163 , 19 , 61]])
 		'''
-
+		'''
+		self.board = np.array = ([[  3,  19,  61,  43, 163, 163, 199],
+		 [ 43,  43 ,163 , 61 , 19,  43,  19],
+		 [199,  43   ,3,   0   ,3, 163   ,3],
+		 [ 19 , 19   ,0 ,  0   ,0, 199  , 3],
+		 [  3  , 3  ,61  , 0  , 3 ,  3 ,163],
+		 [163  ,61 ,163  ,19 ,199  , 3 , 43],
+		 [ 19  , 3,  61 ,163,  19  ,19,  61]])
+		 '''
 		#check board for any pre matches before game starts
 		self.find_matches(1)
 
@@ -90,57 +109,66 @@ class Board:
 	self.find_matches(1)
 	'''
 	def find_matches(self, multiplier):
-		print("GAMEBOARD")
-		print((self.board))
+		##print("GAMEBOARD")
+		##print((self.board))
 
 		vertical_sum_matrix = self.sum_vertical(self.board)
-		#print((vertical_sum_matrix))
+		##print((vertical_sum_matrix))
 		possible_vert_coll = self.get_vertical_sum_that_matter(vertical_sum_matrix)
-		
-		#print()
+		##print()
 
 		horizontal_sum_matrix = self.sum_horizontal(self.board)
-		#print((horizontal_sum_matrix))
+		##print((horizontal_sum_matrix))
 		possible_horizontal_coll = self.get_horizontal_sum_that_matter(horizontal_sum_matrix)
-
-		#print()
+		##print()
 
 		#compare the two sets for intersections =
 		self.find_intersection(possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix, True)
-		#print()
+		##print()
 
 		#now we check for normal 3, normal 4, normal 5 in a row
-		#print("Checked Vertical for Consecutives:")
+		##print("Checked Vertical for Consecutives:")
 		self.normal_vert_check(vertical_sum_matrix, possible_vert_coll, True)
-		#print((vertical_sum_matrix))
+		##print((vertical_sum_matrix))
 
-		print()
+		#print()
 
-		#print("Checked Horizontal for Consecutives:")
-		#print((horizontal_sum_matrix))
+		##print("Checked Horizontal for Consecutives:")
+		##print((horizontal_sum_matrix))
 		self.normal_horiz_check(horizontal_sum_matrix, possible_horizontal_coll, True)
 		
 		
-		#print()
+		##print()
 
-		#print("Board now clean of consecs, points to deliver")
-		#print(self.award_points)
-		#print()
-		#print("matches are removed, board updated")
-		#print((self.board))
+		##print("Board now clean of consecs, points to deliver")
+		##print(self.award_points)
+		##print()
+		##print("matches are removed, board updated")
+		##print((self.board))
+
+		#gave points, refill board
 		if(sum(self.award_points.values()) > 0):
-			print("add new pieces to updated GAMEBOARD")
+			##print("add new pieces to updated GAMEBOARD")
 			self.add_new_pieces()
-			print((self.board))
-			print ("award points, multiplier:", multiplier)
+			##print((self.board))
+			##print ("award points, multiplier:", multiplier)
 			pointsToAdd = self.user_gets_points()
-			print("adding", pointsToAdd * multiplier, "points\n")
+			##print("adding", pointsToAdd * multiplier, "points\n")
 			self.points = self.points + (pointsToAdd * multiplier)
 			multiplier += 1
 			if(pointsToAdd != 0):
 				self.find_matches(multiplier)
+
 		else: 
-			print("no matches, next")
+			##print("no matches, next")
+			pass
+		#moves_made is a MoveList
+		self.possible_moves_to_make = self.get_possible_moves(self.board)
+		if(self.possible_moves_to_make.move_list == { }):
+			self.random_board(self.board)
+
+	def random_board(self, board):
+		self.create_board()
 
 	def sum_vertical(self, board):
 		return [ [ board[i][j]+board[i+1][j]+board[i+2][j]
@@ -171,34 +199,62 @@ class Board:
 	#return possible_vert_coll
 	def get_vertical_sum_that_matter(self, sum_matrix):
 		possible_vert_coll = {}
-		for i in range(len(sum_matrix)):
-			for j in range(len(sum_matrix[i])):
+		for j in range(self.cols):
+			i = 0
+			while i < (self.rows - 2):
 				for k in self.divisors:
+					#print ("i: " + str(i))
+					#print ("j: " + str(j))
 					if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
 						possible_vert_coll[(i,j)] = set()
 						possible_vert_coll[(i,j)].add((i,j))
 						possible_vert_coll[(i,j)].add((i+1,j))
 						possible_vert_coll[(i,j)].add((i+2,j))
+						for x in range(i+1, self.rows):
+							if self.board[x][j] == k:
+								possible_vert_coll[(i, j)].add((x, j))
+								if x == self.rows - 1:
+									i = x
+							else:
+								i = x
+								break
+						break
+				i += 1
 
-		#				print("row",i,"col",j,"divisor",k,"sum", sum_matrix[i][j])
+		#				#print("row",i,"col",j,"divisor",k,"sum", sum_matrix[i][j])
 
 		#for pos in possible_vert_coll:
-		#	print("match 3 vert",pos, possible_vert_coll[pos])
+		#	#print("match 3 vert",pos, possible_vert_coll[pos])
+		#print("PVC: " + str(possible_vert_coll))
 		return possible_vert_coll
 
 	#horizontal sums that represent 3 of same item back to back in row
 	#return possible_horizontal_coll
 	def get_horizontal_sum_that_matter(self, sum_matrix):
 		possible_horizontal_coll = {}
-		for i in range(len(sum_matrix)):
-			for j in range(len(sum_matrix[i])):
+		for i in range(self.rows):
+			j = 0
+			while j < (self.cols - 2):
 				for k in self.divisors:
+					#print ("i: " + str(i))
+					#print ("j: " + str(j))
 					if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
 						possible_horizontal_coll[(i,j)] = set()
 						possible_horizontal_coll[(i,j)].add((i,j))
 						possible_horizontal_coll[(i,j)].add((i,j+1))
 						possible_horizontal_coll[(i,j)].add((i,j+2))
+						for x in range(j+1, self.cols):
+							if self.board[i][x] == k:
+								possible_horizontal_coll[(i, j)].add((i, x))
+								if x == self.cols - 1:
+									j = x
+							else:
+								j = x
+								break
+						break
+				j += 1
 
+		#print("PHC: " + str(possible_horizontal_coll))
 		return possible_horizontal_coll
 
 	#looks for intersection between horizontal and vertical 
@@ -224,7 +280,7 @@ class Board:
 			for j in y_var:
 				possible_pairs_set.add((i,j))
 
-		#print("possible pairs for intersection: ", possible_pairs_set)
+		##print("possible pairs for intersection: ", possible_pairs_set)
 
 		#check for intersection between possible permutations and possible_vert_coll
 		#if there is a coll, check to see if intersection in possible_hor_coll
@@ -235,11 +291,15 @@ class Board:
 			#if found a match
 			#CHECK THE HORIZONTAL 
 			if(match_found):
-				#print("matched in vert: match, vert_key:", match_found,vert_key)
+				##print("matched in vert: match, vert_key:", match_found,vert_key)
 				for horiz_key in list(possible_horizontal_coll.keys()):
 					second_match_found = possible_pairs_set.intersection(possible_horizontal_coll[horiz_key])
 					#the pair works is in both vertical and horizontal
 					if(second_match_found and second_match_found==match_found):
+						print ("vk: " + str(vert_key))
+						print ("pvc: " + str(possible_vert_coll))
+						print ("hk: " + str(horiz_key))
+						print ("phc: " + str(possible_horizontal_coll))
 						for pairs_to_del in possible_vert_coll[vert_key].symmetric_difference(possible_horizontal_coll[horiz_key]):
 							intersection_pos_to_del.add(pairs_to_del)
 							row = pairs_to_del[0]
@@ -266,12 +326,18 @@ class Board:
 						if givePoints == True:
 							self.award_points[5] += 1
 					#else: 
-					#	print("Match failed")
+					#	#print("Match failed")
 
 	#normal check for vertical matches of 3,4,5,6...
 	def normal_vert_check(self, vertical_sum_matrix, possible_vert_coll, givePoints):
 		consec_pieces = 2
 		vertical_pos_to_del = set()
+		for key_vert in possible_vert_coll:
+			if givePoints == True:
+				self.award_points[len(possible_vert_coll[key_vert])] += 1
+			for val_vert in possible_vert_coll[key_vert]:
+				vertical_pos_to_del.add(val_vert)
+		'''
 		for i in range(len(vertical_sum_matrix)):
 			consec_pieces = 2
 			for j in range(len(vertical_sum_matrix[i])):
@@ -298,6 +364,7 @@ class Board:
 						if givePoints == True:
 							self.award_points[consec_pieces] += 1
 						break
+		'''
 		#list of positions on game board to set to 0							
 		for board_pos_to_del in vertical_pos_to_del:
 			self.board[board_pos_to_del[0]][board_pos_to_del[1]] = 0
@@ -307,7 +374,14 @@ class Board:
 	def normal_horiz_check(self, horizontal_sum_matrix, possible_horizontal_coll, givePoints):
 		consec_pieces = 2
 		horizontal_pos_to_del = set()
-
+		for key_hor in possible_horizontal_coll:
+			if givePoints == True:
+				self.award_points[len(possible_horizontal_coll[key_hor])] += 1
+			for val_hor in possible_horizontal_coll[key_hor]:
+				horizontal_pos_to_del.add(val_hor)
+				#horizontal_sum_matrix[val_hor[0]][val_hor[1]] = 0
+			#horizontal_pos_to_del.add()
+		'''
 		#row
 		for i in range(len(horizontal_sum_matrix)):
 			consec_pieces = 2
@@ -340,7 +414,7 @@ class Board:
 						if j >=len(horizontal_sum_matrix[i]):
 							break 
 				j += 1
-			
+		'''	
 		#list of positions on game board to set to 0							
 		for board_pos_to_del in horizontal_pos_to_del:
 			self.board[board_pos_to_del[0]][board_pos_to_del[1]] = 0
@@ -403,6 +477,7 @@ class Board:
 	#refills the top of board two
 	#IF starting fresh game, used to fill board_one for the first time
 	def fill_board(self, board):
+		#random.seed(40)
 		#add to these spots
 		num_pieces_per_col = [0 for x in range(self.cols)]
 		#count number of 0 in each col
@@ -463,7 +538,7 @@ class Board:
 		total_points_earned = 0
 		base_value = 20
 		for i in (self.award_points):
-			print(i,self.award_points[i])
+			##print(i,self.award_points[i])
 			total_points_earned += i * base_value * self.award_points[i]
 			self.award_points[i] = 0
 			base_value += 10
@@ -472,7 +547,7 @@ class Board:
 
 	#returns all moves that makes a match
 	def get_possible_moves(self, board):
-		print((board))
+		##print((board))
 
 		list_of_moves_class = MoveList()
 
@@ -483,7 +558,7 @@ class Board:
 			for y in range(len(board[x])):
 				#top row guys
 				if x == 0 and y != 0 and y < (len(board[x])-1):
-					#print ("x: " + str(x) + " | y: " + str(y))
+					##print ("x: " + str(x) + " | y: " + str(y))
 					window = (board)[x:x+2, y-1:y+2]
 					temp_window = np.copy(window_zero)
 					for i in range(0, len(window)):
@@ -492,7 +567,7 @@ class Board:
 					window = np.copy(temp_window)
 				#left guy
 				elif x != 0 and y == 0 and x < (len(board)-1):
-					#print ("x: " + str(x) + " | y: " + str(y))
+					##print ("x: " + str(x) + " | y: " + str(y))
 					window = (board)[x-1:x+2, y:y+2]
 					temp_window = np.copy(window_zero)
 					for i in range(0, len(window)):
@@ -501,11 +576,11 @@ class Board:
 					window = np.copy(temp_window)
 				#last guy break
 				elif (x == (len(board)-1) and y == (len(board[x])-1)) or (x == 0 and y == 0) or (x == 0 and y == len(board[x])-1) or (x == len(board)-1 and y == 0):
-					#print ("KILL " + str(x) + "," + str(y))
+					##print ("KILL " + str(x) + "," + str(y))
 					continue
 				#x-1->x+1, y-1-<y+1
 				else:
-					#print ("x: " + str(x) + " | y: " + str(y))
+					##print ("x: " + str(x) + " | y: " + str(y))
 					window = (board)[x-1:x+2, y-1:y+2]
 					if y == (len(board[x])-1) or x == (len(board)-1):
 						temp_window = np.copy(window_zero)
@@ -514,7 +589,7 @@ class Board:
 								temp_window[i][j] = window[i][j]
 						window = np.copy(temp_window)
 
-				#print(window,"\n")				
+				##print(window,"\n")				
 				center_of_window_value = board[x][y]
 				result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
 				self.check_window(result, x,y, list_of_moves_class)
@@ -721,15 +796,15 @@ class Board:
 
 			list_of_moves_class.push(swap_1,swap_2)
 
-		#print(total & total_shift_right_2 & total_shift_right_4 & 16)
-		#print(total & total_shift_right_4 & total_shift_left_2 & 16)
-		#print(total & total_shift_right_4 & total_shift_left_3 & 16)
-		#print(total & total_shift_right_3 & total_shift_left_2 & 16)
-		#print(total & total_shift_right_3 & total_shift_left_4 & 16)
-		#print(total & total_shift_right_2 & total_shift_right_1 & 16)
-		#print(total & total_shift_right_2 & total_shift_left_3 & 16)
-		#print(total & total_shift_right_2 & total_shift_left_4 & 16)
-		#print(total & total_shift_right_1 & total_shift_left_4 & 16)
-		#print(total & total_shift_left_1 & total_shift_left_2 & 16)
-		#print(total & total_shift_left_2 & total_shift_left_4 & 16)
+		##print(total & total_shift_right_2 & total_shift_right_4 & 16)
+		##print(total & total_shift_right_4 & total_shift_left_2 & 16)
+		##print(total & total_shift_right_4 & total_shift_left_3 & 16)
+		##print(total & total_shift_right_3 & total_shift_left_2 & 16)
+		##print(total & total_shift_right_3 & total_shift_left_4 & 16)
+		##print(total & total_shift_right_2 & total_shift_right_1 & 16)
+		##print(total & total_shift_right_2 & total_shift_left_3 & 16)
+		##print(total & total_shift_right_2 & total_shift_left_4 & 16)
+		##print(total & total_shift_right_1 & total_shift_left_4 & 16)
+		##print(total & total_shift_left_1 & total_shift_left_2 & 16)
+		##print(total & total_shift_left_2 & total_shift_left_4 & 16)
 		

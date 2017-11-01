@@ -63,45 +63,54 @@ def matchMade(board, player_move):
 
 
 def main():
-	board = Board(7,7)
-	board.init()
+	results = []
 
 	random_ai = RandomAgent()
+	try:
+		for j in range(1000):
+			board = Board(7,7)
+			board.init()
+			for i in range(20):
+				#list of possible moves
+				list_of_moves = board.possible_moves_to_make
 
-	while True:
-		#list of possible moves
-		list_of_moves = board.get_possible_moves(board.board)
+				#player plays game
+				'''
+				#player makes move
+				print("Hint valid moves are")
+				
+				#print("list of moves")
+				#list_of_moves.to_string()
+				
+				player_move = makeMove()
+				print("player move is:", player_move)
+				is_pMove_a_match = checkMove(list_of_moves, player_move)
 
-		#player plays game
-		'''
-		#player makes move
-		print("Hint valid moves are")
-		
-		#print("list of moves")
-		#list_of_moves.to_string()
-		
-		player_move = makeMove()
-		print("player move is:", player_move)
-		is_pMove_a_match = checkMove(list_of_moves, player_move)
+				#if move made a match, update board
+				if(is_pMove_a_match):
+					matchMade(board, player_move)
+				#not a match, repeat
+				else:
+					print("jokes")
+				'''
 
-		#if move made a match, update board
-		if(is_pMove_a_match):
-			matchMade(board, player_move)
-		#not a match, repeat
-		else:
-			print("jokes")
-		'''
+				#print("list of moves")
+				#list_of_moves.to_string()
 
-		print("list of moves")
-		list_of_moves.to_string()
-
-		#ai plays game
-		#ai_move is (tuple_1, tuple_2)
-		#tuple_1 and tuple_2 are the positions of the numbers to swap
-		ai_move = random_ai.pick_random_move(list_of_moves)
-		matchMade(board, ai_move)
-		input()
-
+				#ai plays game
+				#ai_move is (tuple_1, tuple_2)
+				#tuple_1 and tuple_2 are the positions of the numbers to swap
+				ai_move = random_ai.pick_random_move(list_of_moves)
+				matchMade(board, ai_move)
+			
+			results.append(board.points)
+			print(j)
+	except:
+		print(board.board)
+		raise
+	print(float(sum(results)) / float(len(results)))
+	print max(results)
+	print min(results)
 		
 if __name__ == '__main__':
 	main()

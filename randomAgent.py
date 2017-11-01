@@ -8,5 +8,5 @@ class RandomAgent:
 		tuple_2 = random.choice(list_of_possible_moves.move_list[tuple_1])
 
 		move = (tuple_1,tuple_2)
-		print("MY MOVE IS", move)
+		#print("MY MOVE IS", move)
 		return move
