@@ -1,0 +1,451 @@
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 60
+	1 Random Single Move: move: ((2, 3), (3, 3)) score: 120
+	2 Random Single Move: move: ((3, 2), (3, 3)) score: 240
+	3 Random Single Move: move: ((4, 3), (5, 3)) score: 300
+	4 Random Single Move: move: ((5, 4), (5, 3)) score: 360
+	5 Random Single Move: move: ((2, 3), (3, 3)) score: 420
+	6 Random Single Move: move: ((3, 5), (3, 6)) score: 480
+	7 Random Single Move: move: ((2, 5), (3, 5)) score: 660
+	8 Random Single Move: move: ((3, 5), (3, 6)) score: 960
+	9 Random Single Move: move: ((1, 4), (1, 5)) score: 1020
+	10 Random Single Move: move: ((0, 1), (0, 2)) score: 1200
+	11 Random Single Move: move: ((0, 4), (1, 4)) score: 1260
+	12 Random Single Move: move: ((4, 4), (5, 4)) score: 1860
+	13 Random Single Move: move: ((4, 3), (4, 2)) score: 1920
+	14 Random Single Move: move: ((3, 1), (4, 1)) score: 2100
+	15 Random Single Move: move: ((1, 4), (1, 5)) score: 2160
+	16 Random Single Move: move: ((4, 4), (5, 4)) score: 2760
+	17 Random Single Move: move: ((2, 4), (3, 4)) score: 2820
+	18 Random Single Move: move: ((5, 0), (5, 1)) score: 2880
+19 Random Result: move: ((0, 0), (1, 0)) score: 2940
+======MCTS======
+	0 MCTS Single Move: move: ((0, 0), (1, 0)) score: 60
+	1 MCTS Single Move: move: ((0, 0), (1, 0)) score: 120
+	2 MCTS Single Move: move: ((0, 0), (1, 0)) score: 240
+	3 MCTS Single Move: move: ((0, 0), (1, 0)) score: 300
+	4 MCTS Single Move: move: ((0, 0), (1, 0)) score: 480
+	5 MCTS Single Move: move: ((0, 0), (1, 0)) score: 540
+	6 MCTS Single Move: move: ((0, 0), (1, 0)) score: 660
+	7 MCTS Single Move: move: ((0, 0), (1, 0)) score: 780
+	8 MCTS Single Move: move: ((0, 0), (1, 0)) score: 840
+	9 MCTS Single Move: move: ((0, 0), (1, 0)) score: 900
+	10 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1020
+	11 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1200
+	12 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1380
+	13 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1440
+	14 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1500
+	15 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1560
+	16 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1620
+	17 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1680
+	18 MCTS Single Move: move: ((0, 0), (1, 0)) score: 1740
+19MCTS Results: move: ((0, 0), (1, 0)) score: 1800
+Winner Random
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 60
+	1 Random Single Move: move: ((1, 1), (2, 1)) score: 120
+	2 Random Single Move: move: ((1, 2), (1, 3)) score: 180
+	3 Random Single Move: move: ((0, 4), (1, 4)) score: 240
+	4 Random Single Move: move: ((1, 2), (1, 3)) score: 300
+	5 Random Single Move: move: ((0, 3), (1, 3)) score: 540
+	6 Random Single Move: move: ((3, 3), (3, 4)) score: 900
+	7 Random Single Move: move: ((1, 4), (2, 4)) score: 1020
+	8 Random Single Move: move: ((2, 0), (3, 0)) score: 1080
+	9 Random Single Move: move: ((0, 2), (0, 3)) score: 1140
+	10 Random Single Move: move: ((1, 0), (2, 0)) score: 1200
+	11 Random Single Move: move: ((5, 3), (5, 4)) score: 1440
+	12 Random Single Move: move: ((1, 5), (1, 4)) score: 1620
+	13 Random Single Move: move: ((1, 4), (2, 4)) score: 1740
+	14 Random Single Move: move: ((2, 3), (3, 3)) score: 1920
+	15 Random Single Move: move: ((2, 6), (3, 6)) score: 2100
+	16 Random Single Move: move: ((1, 0), (1, 1)) score: 2160
+	17 Random Single Move: move: ((3, 2), (3, 3)) score: 2220
+	18 Random Single Move: move: ((4, 3), (5, 3)) score: 2280
+19 Random Result: move: ((5, 3), (5, 4)) score: 2460
+======MCTS======
+	0 MCTS Single Move: move: ((5, 3), (5, 4)) score: 60
+	1 MCTS Single Move: move: ((5, 3), (5, 4)) score: 580
+	2 MCTS Single Move: move: ((5, 3), (5, 4)) score: 700
+	3 MCTS Single Move: move: ((5, 3), (5, 4)) score: 760
+	4 MCTS Single Move: move: ((5, 3), (5, 4)) score: 940
+	5 MCTS Single Move: move: ((5, 3), (5, 4)) score: 1120
+	6 MCTS Single Move: move: ((5, 3), (5, 4)) score: 1180
+	7 MCTS Single Move: move: ((5, 3), (5, 4)) score: 1360
+	8 MCTS Single Move: move: ((5, 3), (5, 4)) score: 1420
+	9 MCTS Single Move: move: ((5, 3), (5, 4)) score: 1480
+	10 MCTS Single Move: move: ((5, 3), (5, 4)) score: 1900
+	11 MCTS Single Move: move: ((5, 3), (5, 4)) score: 1960
+	12 MCTS Single Move: move: ((5, 3), (5, 4)) score: 2020
+	13 MCTS Single Move: move: ((5, 3), (5, 4)) score: 2080
+	14 MCTS Single Move: move: ((5, 3), (5, 4)) score: 2380
+	15 MCTS Single Move: move: ((5, 3), (5, 4)) score: 2560
+	16 MCTS Single Move: move: ((5, 3), (5, 4)) score: 2920
+	17 MCTS Single Move: move: ((5, 3), (5, 4)) score: 3100
+	18 MCTS Single Move: move: ((5, 3), (5, 4)) score: 3160
+19MCTS Results: move: ((5, 3), (5, 4)) score: 3220
+Winner MCTS
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 60
+	1 Random Single Move: move: ((0, 2), (1, 2)) score: 120
+	2 Random Single Move: move: ((1, 1), (2, 1)) score: 180
+	3 Random Single Move: move: ((0, 2), (1, 2)) score: 300
+	4 Random Single Move: move: ((2, 3), (2, 4)) score: 840
+	5 Random Single Move: move: ((5, 2), (5, 3)) score: 1420
+	6 Random Single Move: move: ((3, 4), (4, 4)) score: 1480
+	7 Random Single Move: move: ((2, 0), (3, 0)) score: 1540
+	8 Random Single Move: move: ((0, 0), (0, 1)) score: 1600
+	9 Random Single Move: move: ((0, 0), (1, 0)) score: 1660
+	10 Random Single Move: move: ((0, 2), (1, 2)) score: 1720
+	11 Random Single Move: move: ((5, 2), (6, 2)) score: 1780
+	12 Random Single Move: move: ((1, 2), (1, 3)) score: 1840
+	13 Random Single Move: move: ((2, 2), (3, 2)) score: 2020
+	14 Random Single Move: move: ((1, 0), (1, 1)) score: 2080
+	15 Random Single Move: move: ((2, 0), (3, 0)) score: 2140
+	16 Random Single Move: move: ((2, 3), (3, 3)) score: 2200
+	17 Random Single Move: move: ((3, 2), (4, 2)) score: 2260
+	18 Random Single Move: move: ((1, 1), (2, 1)) score: 2320
+19 Random Result: move: ((2, 5), (2, 6)) score: 2380
+======MCTS======
+	0 MCTS Single Move: move: ((2, 5), (2, 6)) score: 60
+	1 MCTS Single Move: move: ((2, 5), (2, 6)) score: 240
+	2 MCTS Single Move: move: ((2, 5), (2, 6)) score: 300
+	3 MCTS Single Move: move: ((2, 5), (2, 6)) score: 360
+	4 MCTS Single Move: move: ((2, 5), (2, 6)) score: 420
+	5 MCTS Single Move: move: ((2, 5), (2, 6)) score: 600
+	6 MCTS Single Move: move: ((2, 5), (2, 6)) score: 660
+	7 MCTS Single Move: move: ((2, 5), (2, 6)) score: 840
+	8 MCTS Single Move: move: ((2, 5), (2, 6)) score: 900
+	9 MCTS Single Move: move: ((2, 5), (2, 6)) score: 960
+	10 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1020
+	11 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1200
+	12 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1560
+	13 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1620
+	14 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1800
+	15 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1860
+	16 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1920
+	17 MCTS Single Move: move: ((2, 5), (2, 6)) score: 1980
+	18 MCTS Single Move: move: ((2, 5), (2, 6)) score: 2040
+19MCTS Results: move: ((2, 5), (2, 6)) score: 2400
+Winner MCTS
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 60
+	1 Random Single Move: move: ((2, 1), (3, 1)) score: 120
+	2 Random Single Move: move: ((2, 3), (2, 4)) score: 180
+	3 Random Single Move: move: ((2, 3), (3, 3)) score: 240
+	4 Random Single Move: move: ((3, 3), (3, 4)) score: 420
+	5 Random Single Move: move: ((4, 2), (4, 3)) score: 1080
+	6 Random Single Move: move: ((4, 5), (4, 4)) score: 1200
+	7 Random Single Move: move: ((4, 2), (5, 2)) score: 1260
+	8 Random Single Move: move: ((0, 6), (1, 6)) score: 1320
+	9 Random Single Move: move: ((6, 4), (6, 3)) score: 1380
+	10 Random Single Move: move: ((5, 5), (5, 4)) score: 1440
+	11 Random Single Move: move: ((1, 1), (1, 2)) score: 1500
+	12 Random Single Move: move: ((2, 2), (2, 1)) score: 1560
+	13 Random Single Move: move: ((5, 5), (6, 5)) score: 1620
+	14 Random Single Move: move: ((5, 2), (6, 2)) score: 1800
+	15 Random Single Move: move: ((6, 3), (6, 4)) score: 2160
+	16 Random Single Move: move: ((5, 5), (6, 5)) score: 2220
+	17 Random Single Move: move: ((3, 6), (4, 6)) score: 2280
+	18 Random Single Move: move: ((4, 3), (4, 2)) score: 2460
+19 Random Result: move: ((6, 6), (6, 5)) score: 2520
+======MCTS======
+	0 MCTS Single Move: move: ((6, 6), (6, 5)) score: 60
+	1 MCTS Single Move: move: ((6, 6), (6, 5)) score: 120
+	2 MCTS Single Move: move: ((6, 6), (6, 5)) score: 660
+	3 MCTS Single Move: move: ((6, 6), (6, 5)) score: 720
+	4 MCTS Single Move: move: ((6, 6), (6, 5)) score: 780
+	5 MCTS Single Move: move: ((6, 6), (6, 5)) score: 840
+	6 MCTS Single Move: move: ((6, 6), (6, 5)) score: 900
+	7 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1260
+	8 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1320
+	9 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1380
+	10 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1440
+	11 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1500
+	12 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1560
+	13 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1620
+	14 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1800
+	15 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1860
+	16 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1920
+	17 MCTS Single Move: move: ((6, 6), (6, 5)) score: 1980
+	18 MCTS Single Move: move: ((6, 6), (6, 5)) score: 2160
+19MCTS Results: move: ((6, 6), (6, 5)) score: 2220
+Winner Random
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 180
+	1 Random Single Move: move: ((2, 3), (3, 3)) score: 240
+	2 Random Single Move: move: ((1, 4), (2, 4)) score: 300
+	3 Random Single Move: move: ((2, 5), (2, 4)) score: 480
+	4 Random Single Move: move: ((0, 5), (1, 5)) score: 540
+	5 Random Single Move: move: ((2, 3), (3, 3)) score: 600
+	6 Random Single Move: move: ((4, 4), (5, 4)) score: 660
+	7 Random Single Move: move: ((4, 1), (4, 2)) score: 840
+	8 Random Single Move: move: ((3, 5), (4, 5)) score: 900
+	9 Random Single Move: move: ((3, 3), (4, 3)) score: 960
+	10 Random Single Move: move: ((5, 3), (5, 4)) score: 1020
+	11 Random Single Move: move: ((1, 1), (2, 1)) score: 1080
+	12 Random Single Move: move: ((2, 6), (3, 6)) score: 1140
+	13 Random Single Move: move: ((5, 4), (6, 4)) score: 1200
+	14 Random Single Move: move: ((4, 6), (4, 5)) score: 1260
+	15 Random Single Move: move: ((4, 2), (4, 1)) score: 1320
+	16 Random Single Move: move: ((3, 4), (4, 4)) score: 1380
+	17 Random Single Move: move: ((1, 2), (1, 3)) score: 1440
+	18 Random Single Move: move: ((4, 4), (4, 5)) score: 1620
+19 Random Result: move: ((3, 4), (4, 4)) score: 2520
+======MCTS======
+	0 MCTS Single Move: move: ((3, 4), (4, 4)) score: 180
+	1 MCTS Single Move: move: ((3, 4), (4, 4)) score: 240
+	2 MCTS Single Move: move: ((3, 4), (4, 4)) score: 420
+	3 MCTS Single Move: move: ((3, 4), (4, 4)) score: 480
+	4 MCTS Single Move: move: ((3, 4), (4, 4)) score: 540
+	5 MCTS Single Move: move: ((3, 4), (4, 4)) score: 600
+	6 MCTS Single Move: move: ((3, 4), (4, 4)) score: 780
+	7 MCTS Single Move: move: ((3, 4), (4, 4)) score: 840
+	8 MCTS Single Move: move: ((3, 4), (4, 4)) score: 1200
+	9 MCTS Single Move: move: ((3, 4), (4, 4)) score: 1260
+	10 MCTS Single Move: move: ((3, 4), (4, 4)) score: 1560
+	11 MCTS Single Move: move: ((3, 4), (4, 4)) score: 1620
+	12 MCTS Single Move: move: ((3, 4), (4, 4)) score: 1680
+	13 MCTS Single Move: move: ((3, 4), (4, 4)) score: 1980
+	14 MCTS Single Move: move: ((3, 4), (4, 4)) score: 2040
+	15 MCTS Single Move: move: ((3, 4), (4, 4)) score: 2220
+	16 MCTS Single Move: move: ((3, 4), (4, 4)) score: 2400
+	17 MCTS Single Move: move: ((3, 4), (4, 4)) score: 2640
+	18 MCTS Single Move: move: ((3, 4), (4, 4)) score: 2820
+19MCTS Results: move: ((3, 4), (4, 4)) score: 2940
+Winner MCTS
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 60
+	1 Random Single Move: move: ((2, 3), (3, 3)) score: 420
+	2 Random Single Move: move: ((0, 2), (0, 3)) score: 480
+	3 Random Single Move: move: ((2, 5), (2, 4)) score: 540
+	4 Random Single Move: move: ((2, 1), (2, 2)) score: 600
+	5 Random Single Move: move: ((2, 0), (2, 1)) score: 660
+	6 Random Single Move: move: ((2, 1), (3, 1)) score: 720
+	7 Random Single Move: move: ((1, 6), (2, 6)) score: 780
+	8 Random Single Move: move: ((2, 3), (2, 4)) score: 960
+	9 Random Single Move: move: ((2, 3), (3, 3)) score: 1080
+	10 Random Single Move: move: ((2, 3), (2, 4)) score: 1200
+	11 Random Single Move: move: ((3, 2), (4, 2)) score: 1500
+	12 Random Single Move: move: ((1, 4), (1, 5)) score: 1560
+	13 Random Single Move: move: ((0, 0), (0, 1)) score: 1620
+	14 Random Single Move: move: ((2, 1), (2, 0)) score: 1680
+	15 Random Single Move: move: ((5, 2), (6, 2)) score: 1980
+	16 Random Single Move: move: ((5, 2), (5, 3)) score: 2040
+	17 Random Single Move: move: ((2, 3), (2, 4)) score: 2100
+	18 Random Single Move: move: ((0, 4), (0, 3)) score: 2160
+19 Random Result: move: ((2, 1), (3, 1)) score: 2220
+======MCTS======
+	0 MCTS Single Move: move: ((2, 1), (3, 1)) score: 60
+	1 MCTS Single Move: move: ((2, 1), (3, 1)) score: 420
+	2 MCTS Single Move: move: ((2, 1), (3, 1)) score: 480
+	3 MCTS Single Move: move: ((2, 1), (3, 1)) score: 840
+	4 MCTS Single Move: move: ((2, 1), (3, 1)) score: 900
+	5 MCTS Single Move: move: ((2, 1), (3, 1)) score: 960
+	6 MCTS Single Move: move: ((2, 1), (3, 1)) score: 1140
+	7 MCTS Single Move: move: ((2, 1), (3, 1)) score: 1200
+	8 MCTS Single Move: move: ((2, 1), (3, 1)) score: 1260
+	9 MCTS Single Move: move: ((2, 1), (3, 1)) score: 1320
+	10 MCTS Single Move: move: ((2, 1), (3, 1)) score: 1440
+	11 MCTS Single Move: move: ((2, 1), (3, 1)) score: 1920
+	12 MCTS Single Move: move: ((2, 1), (3, 1)) score: 2220
+	13 MCTS Single Move: move: ((2, 1), (3, 1)) score: 2280
+	14 MCTS Single Move: move: ((2, 1), (3, 1)) score: 2340
+	15 MCTS Single Move: move: ((2, 1), (3, 1)) score: 2400
+	16 MCTS Single Move: move: ((2, 1), (3, 1)) score: 2460
+	17 MCTS Single Move: move: ((2, 1), (3, 1)) score: 2760
+	18 MCTS Single Move: move: ((2, 1), (3, 1)) score: 2820
+19MCTS Results: move: ((2, 1), (3, 1)) score: 2880
+Winner MCTS
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 60
+	1 Random Single Move: move: ((2, 2), (3, 2)) score: 600
+	2 Random Single Move: move: ((3, 2), (4, 2)) score: 780
+	3 Random Single Move: move: ((0, 3), (0, 2)) score: 840
+	4 Random Single Move: move: ((2, 5), (2, 4)) score: 1020
+	5 Random Single Move: move: ((0, 4), (1, 4)) score: 1080
+	6 Random Single Move: move: ((3, 3), (4, 3)) score: 1140
+	7 Random Single Move: move: ((1, 3), (1, 4)) score: 1200
+	8 Random Single Move: move: ((4, 3), (4, 4)) score: 1260
+	9 Random Single Move: move: ((0, 2), (1, 2)) score: 1320
+	10 Random Single Move: move: ((2, 0), (3, 0)) score: 1380
+	11 Random Single Move: move: ((1, 1), (2, 1)) score: 1440
+	12 Random Single Move: move: ((4, 5), (4, 6)) score: 1500
+	13 Random Single Move: move: ((2, 0), (2, 1)) score: 1560
+	14 Random Single Move: move: ((2, 0), (2, 1)) score: 1620
+	15 Random Single Move: move: ((0, 3), (0, 2)) score: 1680
+	16 Random Single Move: move: ((1, 0), (1, 1)) score: 1740
+	17 Random Single Move: move: ((4, 0), (5, 0)) score: 1920
+	18 Random Single Move: move: ((2, 5), (3, 5)) score: 1980
+19 Random Result: move: ((3, 2), (3, 3)) score: 2340
+======MCTS======
+	0 MCTS Single Move: move: ((3, 2), (3, 3)) score: 60
+	1 MCTS Single Move: move: ((3, 2), (3, 3)) score: 420
+	2 MCTS Single Move: move: ((3, 2), (3, 3)) score: 600
+	3 MCTS Single Move: move: ((3, 2), (3, 3)) score: 780
+	4 MCTS Single Move: move: ((3, 2), (3, 3)) score: 840
+	5 MCTS Single Move: move: ((3, 2), (3, 3)) score: 960
+	6 MCTS Single Move: move: ((3, 2), (3, 3)) score: 1800
+	7 MCTS Single Move: move: ((3, 2), (3, 3)) score: 1980
+	8 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2040
+	9 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2100
+	10 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2400
+	11 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2460
+	12 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2520
+	13 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2580
+	14 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2640
+	15 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2700
+	16 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2760
+	17 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2820
+	18 MCTS Single Move: move: ((3, 2), (3, 3)) score: 2940
+19MCTS Results: move: ((3, 2), (3, 3)) score: 3120
+Winner MCTS
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 60
+	1 Random Single Move: move: ((3, 2), (4, 2)) score: 240
+	2 Random Single Move: move: ((4, 1), (4, 2)) score: 420
+	3 Random Single Move: move: ((4, 1), (5, 1)) score: 480
+	4 Random Single Move: move: ((2, 3), (3, 3)) score: 540
+	5 Random Single Move: move: ((3, 4), (4, 4)) score: 600
+	6 Random Single Move: move: ((1, 2), (1, 3)) score: 660
+	7 Random Single Move: move: ((4, 4), (4, 5)) score: 720
+	8 Random Single Move: move: ((6, 4), (6, 3)) score: 780
+	9 Random Single Move: move: ((1, 2), (2, 2)) score: 900
+	10 Random Single Move: move: ((1, 4), (1, 3)) score: 960
+	11 Random Single Move: move: ((3, 0), (4, 0)) score: 1020
+	12 Random Single Move: move: ((3, 1), (3, 2)) score: 1140
+	13 Random Single Move: move: ((3, 4), (3, 5)) score: 1200
+	14 Random Single Move: move: ((3, 2), (4, 2)) score: 1260
+	15 Random Single Move: move: ((4, 2), (5, 2)) score: 1440
+	16 Random Single Move: move: ((3, 3), (4, 3)) score: 1740
+	17 Random Single Move: move: ((5, 4), (5, 5)) score: 1920
+	18 Random Single Move: move: ((2, 2), (2, 3)) score: 2520
+19 Random Result: move: ((4, 6), (5, 6)) score: 2580
+======MCTS======
+	0 MCTS Single Move: move: ((4, 6), (5, 6)) score: 60
+	1 MCTS Single Move: move: ((4, 6), (5, 6)) score: 7540
+	2 MCTS Single Move: move: ((4, 6), (5, 6)) score: 7720
+	3 MCTS Single Move: move: ((4, 6), (5, 6)) score: 7780
+	4 MCTS Single Move: move: ((4, 6), (5, 6)) score: 8140
+	5 MCTS Single Move: move: ((4, 6), (5, 6)) score: 8740
+	6 MCTS Single Move: move: ((4, 6), (5, 6)) score: 8800
+	7 MCTS Single Move: move: ((4, 6), (5, 6)) score: 8860
+	8 MCTS Single Move: move: ((4, 6), (5, 6)) score: 9220
+	9 MCTS Single Move: move: ((4, 6), (5, 6)) score: 9400
+	10 MCTS Single Move: move: ((4, 6), (5, 6)) score: 9460
+	11 MCTS Single Move: move: ((4, 6), (5, 6)) score: 9520
+	12 MCTS Single Move: move: ((4, 6), (5, 6)) score: 9580
+	13 MCTS Single Move: move: ((4, 6), (5, 6)) score: 9640
+	14 MCTS Single Move: move: ((4, 6), (5, 6)) score: 9820
+	15 MCTS Single Move: move: ((4, 6), (5, 6)) score: 10000
+	16 MCTS Single Move: move: ((4, 6), (5, 6)) score: 10060
+	17 MCTS Single Move: move: ((4, 6), (5, 6)) score: 10120
+	18 MCTS Single Move: move: ((4, 6), (5, 6)) score: 10300
+19MCTS Results: move: ((4, 6), (5, 6)) score: 10360
+Winner MCTS
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 180
+	1 Random Single Move: move: ((0, 3), (0, 4)) score: 240
+	2 Random Single Move: move: ((0, 4), (1, 4)) score: 300
+	3 Random Single Move: move: ((2, 3), (3, 3)) score: 360
+	4 Random Single Move: move: ((3, 2), (4, 2)) score: 720
+	5 Random Single Move: move: ((3, 0), (4, 0)) score: 780
+	6 Random Single Move: move: ((3, 3), (4, 3)) score: 840
+	7 Random Single Move: move: ((1, 4), (2, 4)) score: 900
+	8 Random Single Move: move: ((4, 4), (4, 5)) score: 960
+	9 Random Single Move: move: ((0, 3), (1, 3)) score: 1020
+	10 Random Single Move: move: ((3, 0), (4, 0)) score: 1080
+	11 Random Single Move: move: ((1, 5), (1, 4)) score: 1140
+	12 Random Single Move: move: ((3, 1), (3, 2)) score: 1320
+	13 Random Single Move: move: ((0, 1), (1, 1)) score: 1380
+	14 Random Single Move: move: ((3, 2), (3, 3)) score: 1680
+	15 Random Single Move: move: ((3, 3), (3, 4)) score: 1740
+	16 Random Single Move: move: ((0, 3), (0, 2)) score: 1800
+	17 Random Single Move: move: ((4, 3), (5, 3)) score: 1860
+	18 Random Single Move: move: ((2, 4), (3, 4)) score: 2220
+19 Random Result: move: ((1, 3), (2, 3)) score: 2280
+======MCTS======
+	0 MCTS Single Move: move: ((1, 3), (2, 3)) score: 180
+	1 MCTS Single Move: move: ((1, 3), (2, 3)) score: 240
+	2 MCTS Single Move: move: ((1, 3), (2, 3)) score: 300
+	3 MCTS Single Move: move: ((1, 3), (2, 3)) score: 360
+	4 MCTS Single Move: move: ((1, 3), (2, 3)) score: 420
+	5 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1080
+	6 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1140
+	7 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1560
+	8 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1620
+	9 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1680
+	10 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1860
+	11 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1920
+	12 MCTS Single Move: move: ((1, 3), (2, 3)) score: 1980
+	13 MCTS Single Move: move: ((1, 3), (2, 3)) score: 2340
+	14 MCTS Single Move: move: ((1, 3), (2, 3)) score: 2820
+	15 MCTS Single Move: move: ((1, 3), (2, 3)) score: 3700
+	16 MCTS Single Move: move: ((1, 3), (2, 3)) score: 3760
+	17 MCTS Single Move: move: ((1, 3), (2, 3)) score: 3820
+	18 MCTS Single Move: move: ((1, 3), (2, 3)) score: 3880
+19MCTS Results: move: ((1, 3), (2, 3)) score: 4060
+Winner MCTS
+
+
+======RANDOM ======
+	0 Random Single Move: move: ((5, 2), (5, 3)) score: 180
+	1 Random Single Move: move: ((2, 3), (3, 3)) score: 360
+	2 Random Single Move: move: ((3, 1), (3, 0)) score: 420
+	3 Random Single Move: move: ((1, 4), (1, 3)) score: 480
+	4 Random Single Move: move: ((2, 3), (3, 3)) score: 540
+	5 Random Single Move: move: ((1, 0), (2, 0)) score: 720
+	6 Random Single Move: move: ((2, 1), (3, 1)) score: 780
+	7 Random Single Move: move: ((4, 4), (5, 4)) score: 840
+	8 Random Single Move: move: ((2, 5), (2, 4)) score: 900
+	9 Random Single Move: move: ((5, 2), (5, 3)) score: 960
+	10 Random Single Move: move: ((1, 3), (1, 4)) score: 1140
+	11 Random Single Move: move: ((5, 2), (5, 3)) score: 1200
+	12 Random Single Move: move: ((1, 1), (1, 2)) score: 1260
+	13 Random Single Move: move: ((3, 1), (3, 2)) score: 1320
+	14 Random Single Move: move: ((4, 2), (4, 1)) score: 1500
+	15 Random Single Move: move: ((4, 0), (4, 1)) score: 1560
+	16 Random Single Move: move: ((0, 3), (1, 3)) score: 1620
+	17 Random Single Move: move: ((3, 1), (4, 1)) score: 1680
+	18 Random Single Move: move: ((0, 5), (1, 5)) score: 1740
+19 Random Result: move: ((2, 3), (2, 4)) score: 1800
+======MCTS======
+	0 MCTS Single Move: move: ((2, 3), (2, 4)) score: 180
+	1 MCTS Single Move: move: ((2, 3), (2, 4)) score: 240
+	2 MCTS Single Move: move: ((2, 3), (2, 4)) score: 840
+	3 MCTS Single Move: move: ((2, 3), (2, 4)) score: 960
+	4 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1140
+	5 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1320
+	6 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1380
+	7 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1440
+	8 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1560
+	9 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1620
+	10 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1680
+	11 MCTS Single Move: move: ((2, 3), (2, 4)) score: 1880
+	12 MCTS Single Move: move: ((2, 3), (2, 4)) score: 2060
+	13 MCTS Single Move: move: ((2, 3), (2, 4)) score: 2120
+	14 MCTS Single Move: move: ((2, 3), (2, 4)) score: 2300
+	15 MCTS Single Move: move: ((2, 3), (2, 4)) score: 2360
+	16 MCTS Single Move: move: ((2, 3), (2, 4)) score: 2420
+	17 MCTS Single Move: move: ((2, 3), (2, 4)) score: 2480
+	18 MCTS Single Move: move: ((2, 3), (2, 4)) score: 2540
+19MCTS Results: move: ((2, 3), (2, 4)) score: 2840
+Winner MCTS
+
+Random won: 2
+MCTS won: 8

@@ -1,3 +1,5 @@
+import copy
+
 class MoveList(object):
 	def __init__(self):
 		self.move_list = { }
@@ -10,6 +12,11 @@ class MoveList(object):
 	def __str__(self):
 		for m in self.move_list.keys():
 			yield (m, self.move_list[m])
+
+	def clone(self):
+		deep_tmp = MoveList()
+		deep_tmp.move_list = copy.deepcopy(self.move_list)
+		return deep_tmp
 
 	def to_string(self):
 		for m in self.move_list.keys():
