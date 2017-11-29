@@ -19,11 +19,11 @@ class MCTSAgent:
 		self.rootNode.get_state().set_board(board);
 
 		#need way to find terminating condition
-		end_time = 1
+		self.end_time = 1
 		start_time = time.time()
 		elapsed = 0
 		
-		while(elapsed < end_time):
+		while(elapsed < self.end_time):
 			#pick the promising node
 			
 			promising_node = self.select_promising_node(self.rootNode)

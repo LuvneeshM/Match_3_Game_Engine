@@ -13,6 +13,11 @@ class Board:
 		first_pos = player_move[0]
 		second_pos = player_move[1]
 		#make the swap
+		if(first_pos[0] >= self.rows or first_pos[1] >= self.rows):
+			print("ARG")
+			print(self.possible_moves_to_make.move_list)
+			input()
+
 		temp_val = board[first_pos[0]][first_pos[1]]
 		board[first_pos[0]][first_pos[1]] = board[second_pos[0]][second_pos[1]]
 		board[second_pos[0]][second_pos[1]] = temp_val
@@ -59,6 +64,12 @@ class Board:
 		return deep_tmp
 	
 	def init(self):
+		self.board = []
+		self.board_two = []
+		self.points = 0;
+		self.award_points = {}
+		self.set_up_award_points_dict()
+		self.possible_moves_to_make = MoveList()
 		self.create_board()
 
 	def set_up_award_points_dict(self):
@@ -160,10 +171,13 @@ class Board:
 		#moves_made is a MoveList
 		self.possible_moves_to_make = self.get_possible_moves(board)
 		if(self.possible_moves_to_make.move_list == { }):
-			self.random_board(board)
+			board = self.random_board(board)
+			self.possible_moves_to_make = self.get_possible_moves(board)
 
 	def random_board(self, board):
-		self.create_board()
+		board = np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
+		self.fill_board(board)
+		return board
 
 	def sum_vertical(self, board):
 		return [ [ board[i][j]+board[i+1][j]+board[i+2][j]

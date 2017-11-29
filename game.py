@@ -5,6 +5,9 @@ import copy
 import time
 import csv
 from mctsAgent import MCTSAgent
+import uuid
+import os, sys
+
 
 #player input for making a move
 #x1
@@ -64,20 +67,23 @@ def runGame(randomSeedNumber,trial):
 	random.seed(randomSeedNumber)
 	board = Board(7,7)
 	
+	game_id = uuid.uuid4()
+
 	results = []
 
 	#mcts
 	board.init()
+	print(board.board)
 	mcts_ai = MCTSAgent()
 	for i in range(20):
 		results_list = []
 		
-		start_time = time.time()
+		
 		mct_move = mcts_ai.find_next_move(board)
-		end_time = time.time()
+		
 		matchMade(board, mct_move)
 		#which trial we on
-		results_list.append(str(trial))
+		results_list.append(str(game_id))
 		#which move
 		results_list.append(str(i))
 		#type of ai
@@ -85,7 +91,7 @@ def runGame(randomSeedNumber,trial):
 		#point after turn
 		results_list.append(board.points)
 		#time
-		results_list.append(str(end_time-start_time))
+		results_list.append(str(mcts_ai.end_time))
 		#move ai makes
 		results_list.append(str(mct_move))		
 		#list of moves on the root
@@ -105,12 +111,10 @@ def runGame(randomSeedNumber,trial):
 		
 		#ai_move is (tuple_1, tuple_2)
 		#tuple_1 and tuple_2 are the positions of the numbers to swap
-		start_time = time.time()
 		ai_move = random_ai.pick_random_move(list_of_moves)
-		end_time = time.time()
 		matchMade(board, ai_move)
 		#which trial we on
-		results_list.append(str(trial))
+		results_list.append(str(game_id))
 		#which move
 		results_list.append(str(i))
 		#type of ai
@@ -118,7 +122,7 @@ def runGame(randomSeedNumber,trial):
 		#point after turn
 		results_list.append(board.points)
 		#time
-		results_list.append(str(end_time-start_time))
+		results_list.append(str(0))
 		#move ai makes
 		results_list.append(str(ai_move))		
 		#list of moves on the root
@@ -140,10 +144,20 @@ def main():
 		
 		list_of_results.append(results)
 
-	file = open('results.cvs', 'a')
+	file_name = 'results.csv'
+	file = None
+
+	if not os.path.isfile(file_name):
+		file = open(file_name, 'a')
+		header = "Game_Id, Turn_#, Agent, Points, Time_Limit, Move_Made, List_Of_Moves\n"
+		file.write(header)
+	else:
+		file = open(file_name, 'a')
+
 	wr = csv.writer(file, delimiter=",")
 
 	for each_trial in list_of_results:
+		#print(each_trial)
 		wr.writerows(each_trial)
 	
 	file.close()	
