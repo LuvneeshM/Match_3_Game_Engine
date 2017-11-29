@@ -1,6 +1,9 @@
 from board import Board
 from randomAgent import RandomAgent
+import random
 import copy
+import time
+import csv
 from mctsAgent import MCTSAgent
 
 #player input for making a move
@@ -56,89 +59,96 @@ def matchMade(board, player_move):
 	#will call the board swap_positions
 	board.swap_positions(board.board, player_move)
 
+def runGame(randomSeedNumber,trial):
+	
+	random.seed(randomSeedNumber)
+	board = Board(7,7)
+	
+	results = []
+
+	#mcts
+	board.init()
+	mcts_ai = MCTSAgent()
+	for i in range(20):
+		results_list = []
+		
+		start_time = time.time()
+		mct_move = mcts_ai.find_next_move(board)
+		end_time = time.time()
+		matchMade(board, mct_move)
+		#which trial we on
+		results_list.append(str(trial))
+		#which move
+		results_list.append(str(i))
+		#type of ai
+		results_list.append("MCTS")
+		#point after turn
+		results_list.append(board.points)
+		#time
+		results_list.append(str(end_time-start_time))
+		#move ai makes
+		results_list.append(str(mct_move))		
+		#list of moves on the root
+		results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list))
+		
+		results.append(results_list)
+	random.seed(randomSeedNumber)
+
+	#random
+	board.init()
+	random_ai = RandomAgent()
+	for i in range(20):
+		results_list = []
+
+		#list of possible moves
+		list_of_moves = board.possible_moves_to_make
+		
+		#ai_move is (tuple_1, tuple_2)
+		#tuple_1 and tuple_2 are the positions of the numbers to swap
+		start_time = time.time()
+		ai_move = random_ai.pick_random_move(list_of_moves)
+		end_time = time.time()
+		matchMade(board, ai_move)
+		#which trial we on
+		results_list.append(str(trial))
+		#which move
+		results_list.append(str(i))
+		#type of ai
+		results_list.append("Random")
+		#point after turn
+		results_list.append(board.points)
+		#time
+		results_list.append(str(end_time-start_time))
+		#move ai makes
+		results_list.append(str(ai_move))		
+		#list of moves on the root
+		results_list.append(str(list_of_moves.move_list))
+		
+		results.append(results_list)
+	
+	return results
+
+
 def main():
 
-	file = open('results_5.txt', 'a')
+	list_of_results = []
 
-	randWins = 0
-	mctsWins = 0
+	seed = 40
+	for trial in range(2):
+		
+		results = runGame(seed, trial)
+		
+		list_of_results.append(results)
+
+	file = open('results.cvs', 'a')
+	wr = csv.writer(file, delimiter=",")
+
+	for each_trial in list_of_results:
+		wr.writerows(each_trial)
 	
-	for trial in range(30):
-		print("START",trial)
+	file.close()	
 
-		toAppend = "======" + "TRIAL: " + str(trial) + "======\n"
-		file.write(toAppend)
-		board = Board(7,7)
-		board.init()
-		
-		rand_agent_board = board.clone()
-		mcts_agent_board = board.clone()
-		
-		#print ("=====BEFORE=====")
-		#print ("=====NORMAL=====")
-		#print(board.board)
-		#print ("=====RANDOM=====")
-		#print(rand_agent_board.board)
-		#print ("======MCTS======")
-		#print(mcts_agent_board.board)
 
-		random_ai = RandomAgent()
-		mcts_ai = MCTSAgent()
-
-		toAppend = "======RANDOM ======\n"	
-		file.write(toAppend)
-		#run random for 20 turns	
-		for i in range(20):
-			#list of possible moves
-			list_of_moves = rand_agent_board.possible_moves_to_make
-			
-			#ai_move is (tuple_1, tuple_2)
-			#tuple_1 and tuple_2 are the positions of the numbers to swap
-			ai_move = random_ai.pick_random_move(list_of_moves)
-			matchMade(rand_agent_board, ai_move)
-			if i != 19:
-				toAppend = ("\t" + str(i) + " Random Single Move: " + "move: " + str(ai_move) + " score: " + str(rand_agent_board.points) + "\n")
-			else:
-				toAppend = (str(i) + " Random Result: " + "move: " + str(ai_move) + " score: " + str(rand_agent_board.points) + "\n")
-			file.write(toAppend)
-		#print("Random Points:", rand_agent_board.points)
-		#toAppend = ("Random Results: " + str(rand_agent_board.points) + "\n")
-		
-		toAppend = "======MCTS======\n"	
-		file.write(toAppend)
-		for i in range(20):
-			mct_move = mcts_ai.find_next_move(mcts_agent_board)
-			matchMade(mcts_agent_board, mct_move)
-			if i != 19:
-				toAppend = ("\t"  + str(i) + " MCTS Single Move: " + "move: " + str(ai_move) + " score: " + str(mcts_agent_board.points) + "\n")
-			else: 
-				toAppend = (str(i) + " MCTS Results: " + "move: " + str(ai_move)	+ " score: " + str(mcts_agent_board.points) + "\n")
-			file.write(toAppend)
-		
-		#print ("=====AFTER======")
-		#print ("=====NORMAL=====")
-		#print(board.board)
-		#print ("=====RANDOM=====")
-		#print(rand_agent_board.board)
-		#print ("======MCTS======")
-		#print(mcts_agent_board.board)
-		
-		print("random ai", rand_agent_board.points)
-		print("mcts ai", mcts_agent_board.points)
-		if(rand_agent_board.points > mcts_agent_board.points): 
-			randWins = randWins + 1
-			file.write("Winner Random")
-			print("Winner Random")
-		else:
-			mctsWins = mctsWins + 1
-			file.write("Winner MCTS")
-			print("Winner MCTS")
-
-		file.write("\n\n")
-
-		print("END")
-	file.write("Random won: " + str(randWins) + "\n")
-	file.write("MCTS won: " + str(mctsWins))
 	'''	
 	#player plays game
 	#list_of_moves = board.possible_moves_to_make

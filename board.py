@@ -7,6 +7,7 @@ class Board:
 
 	#player move will make a match 3
 	#make the swap and update board, give points, etc
+	#player move --> ((#,#), (#,#))
 	def swap_positions(self, board, player_move):
 		#get the positions
 		first_pos = player_move[0]
@@ -78,19 +79,20 @@ class Board:
 		self.award_points[17] = 0
 		self.award_points[18] = 0
 		self.award_points[19] = 0
+		self.award_points[20] = 0
+		self.award_points[21] = 0
+		self.award_points[22] = 0
+		self.award_points[23] = 0
+		self.award_points[24] = 0
+		self.award_points[25] = 0
 		
 	def create_board(self):
 		#self.board = [[random.choice(self.divisors) for x in range(self.cols)] for y in range(self.rows)]
-		#self.board =  np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
-		#self.fill_board(self.board)
-		self.board = np.array(
-	[[163,  61,  19,  43, 199, 163,  19],
-	[ 61 , 61 ,199 ,  3, 163 ,163, 199],
-	[199 ,  3 ,163 , 19,  43 , 61 , 43],
-	[163,  19 ,163 , 43,  43 , 61 ,  3],
-	[ 61 , 43 , 61 ,  3,  19 ,163 ,199],
-	[163 , 19 , 3,  61, 163 ,  3 , 43],
-	[ 61 , 199 , 61, 199 , 19  , 3 ,199]])
+		
+		self.board = np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
+		self.fill_board(self.board)
+		
+
 		self.board_two =  np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board_two(self.board_two)
 
@@ -813,4 +815,4 @@ class Board:
 
 	#future state of board
 	def sim_next_state(self,move_made):
-		swap_positions(self.board,move_made)
+		self.swap_positions(self.board,move_made)

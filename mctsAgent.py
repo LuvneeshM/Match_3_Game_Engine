@@ -14,19 +14,19 @@ class MCTSAgent:
 	def find_next_move(self, board):
 		tree = Tree()
 		#get the root node
-		rootNode = tree.get_root_node()
+		self.rootNode = tree.get_root_node()
 		#set the state of the board
-		rootNode.get_state().set_board(board);
+		self.rootNode.get_state().set_board(board);
 
 		#need way to find terminating condition
-		end_time = 30
+		end_time = 1
 		start_time = time.time()
 		elapsed = 0
 		
 		while(elapsed < end_time):
 			#pick the promising node
 			
-			promising_node = self.select_promising_node(rootNode)
+			promising_node = self.select_promising_node(self.rootNode)
 			
 			#expand that node
 			#since game endless just check the level, if >= 20 dont expand
@@ -52,8 +52,8 @@ class MCTSAgent:
 		#winner_node = rootNode.get_child_with_max_score()
 		winner_node = None
 		max_ucb = 0
-		for child in rootNode.childArray:
-			UCB1 = self.UCB(child.get_win_score(), child.get_visit_count(), rootNode.get_visit_count())
+		for child in self.rootNode.childArray:
+			UCB1 = self.UCB(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
 			#print("child_win_score",child.get_win_score())
 			#print("child_visit_count", child.get_visit_count())
 			#print("rootMan_visit_count", rootNode.get_visit_count())
@@ -67,6 +67,7 @@ class MCTSAgent:
 		#tree.set_root(winner_node)
 		#return the winning Board
 		#print("move is",winner_node.get_state().move)
+		#print("Root visit count: ", rootNode.get_visit_count())
 		return winner_node.get_state().move
 
 	def UCB(self,child_win_score, child_visit_count, current_visit_count):
