@@ -64,46 +64,54 @@ def matchMade(board, player_move):
 
 def runGame(randomSeedNumber,trial):
 	
-	random.seed(randomSeedNumber)
-	board = Board(7,7)
-	
 	game_id = uuid.uuid4()
 
 	results = []
 
-	#mcts
-	board.init()
-	print(board.board)
+	number_of_moves_to_make = 20
+
+	random.seed(randomSeedNumber)
 	mcts_ai = MCTSAgent()
-	for i in range(20):
+	random_ai = RandomAgent()
+
+	#mcts
+	board = Board(7,7)
+	board.init()
+	for i in range(number_of_moves_to_make):
 		results_list = []
-		
 		
 		mct_move = mcts_ai.find_next_move(board)
 		
-		matchMade(board, mct_move)
 		#which trial we on
 		results_list.append(str(game_id))
 		#which move
 		results_list.append(str(i))
 		#type of ai
 		results_list.append("MCTS")
-		#point after turn
-		results_list.append(board.points)
 		#time
 		results_list.append(str(mcts_ai.end_time))
 		#move ai makes
 		results_list.append(str(mct_move))		
 		#list of moves on the root
-		results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list))
+		results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list)+ "\n")
+		#board
+		#print(board.board)
+		results_list.append(str(board.board))
 		
+		matchMade(board, mct_move)
+		#point after turn
+		results_list.append(board.points)
+		#print(results_list)
 		results.append(results_list)
+		
 	random.seed(randomSeedNumber)
 
+	#print("BB")
+	#print(board.board)
 	#random
+	board = Board(7,7)
 	board.init()
-	random_ai = RandomAgent()
-	for i in range(20):
+	for i in range(number_of_moves_to_make):
 		results_list = []
 
 		#list of possible moves
@@ -112,21 +120,26 @@ def runGame(randomSeedNumber,trial):
 		#ai_move is (tuple_1, tuple_2)
 		#tuple_1 and tuple_2 are the positions of the numbers to swap
 		ai_move = random_ai.pick_random_move(list_of_moves)
-		matchMade(board, ai_move)
+
 		#which trial we on
 		results_list.append(str(game_id))
 		#which move
 		results_list.append(str(i))
 		#type of ai
-		results_list.append("Random")
-		#point after turn
-		results_list.append(board.points)
+		results_list.append("RAND")
 		#time
 		results_list.append(str(0))
 		#move ai makes
 		results_list.append(str(ai_move))		
 		#list of moves on the root
-		results_list.append(str(list_of_moves.move_list))
+		results_list.append(str(list_of_moves.move_list) + "\n")
+		#board
+		results_list.append(str(board.board))
+
+		matchMade(board, ai_move)
+		
+		#point after turn
+		results_list.append(board.points)
 		
 		results.append(results_list)
 	
@@ -138,18 +151,19 @@ def main():
 	list_of_results = []
 
 	seed = 40
-	for trial in range(2):
+	for trial in range(5):
 		
 		results = runGame(seed, trial)
 		
 		list_of_results.append(results)
 
+	#print(((list_of_results[0])[0])[6])
 	file_name = 'results.csv'
 	file = None
 
 	if not os.path.isfile(file_name):
 		file = open(file_name, 'a')
-		header = "Game_Id, Turn_#, Agent, Points, Time_Limit, Move_Made, List_Of_Moves\n"
+		header = "Game_Id,Turn_#,Agent,Time_Limit,Move_Made,List_Of_Moves,Board,Points\n"
 		file.write(header)
 	else:
 		file = open(file_name, 'a')
@@ -157,7 +171,6 @@ def main():
 	wr = csv.writer(file, delimiter=",")
 
 	for each_trial in list_of_results:
-		#print(each_trial)
 		wr.writerows(each_trial)
 	
 	file.close()	

@@ -64,12 +64,7 @@ class Board:
 		return deep_tmp
 	
 	def init(self):
-		self.board = []
-		self.board_two = []
-		self.points = 0;
-		self.award_points = {}
-		self.set_up_award_points_dict()
-		self.possible_moves_to_make = MoveList()
+		
 		self.create_board()
 
 	def set_up_award_points_dict(self):
