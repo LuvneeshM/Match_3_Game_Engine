@@ -13,10 +13,10 @@ class Board:
 		first_pos = player_move[0]
 		second_pos = player_move[1]
 		#make the swap
-		if(first_pos[0] >= self.rows or first_pos[1] >= self.rows):
-			print("ARG")
-			print(self.possible_moves_to_make.move_list)
-			input()
+		#if(first_pos[0] >= self.rows or first_pos[1] >= self.rows):
+		#	print("ARG")
+		#	print(self.possible_moves_to_make.move_list)
+		#cm	input()
 
 		temp_val = board[first_pos[0]][first_pos[1]]
 		board[first_pos[0]][first_pos[1]] = board[second_pos[0]][second_pos[1]]
