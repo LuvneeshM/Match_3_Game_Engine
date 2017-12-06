@@ -142,15 +142,21 @@ def runGame(randomSeedNumber):
 	return results
 
 
-def main():
+def main(val):
 
 	list_of_results = []
 
 	#seed = 40
-	seeds = range(0,100)
+	#try:
+	seeds = val
 	pool = mp.Pool(10)
 	list_of_results = pool.map(runGame, seeds)
 	pool.terminate()
+	#except:
+	#	error_file = open("errors.csv", 'a')
+	#	error_file.write("Error\n")
+	#	error_file.close()
+	#	pass
 
 	#for trial in range(5):
 	#	results = runGame(seed, trial)
@@ -174,9 +180,11 @@ def main():
 	
 	file.close()	
 
-for i in range(0, 100):
-	main()
-		
+x = range(0, 10000)
+for i in range(0, 1000):
+	print x[(i*10):(i*10)+10] 
+	main(x[(i*10):(i*10)+10])
+
 #if __name__ == '__main__':
 #	main()
 
