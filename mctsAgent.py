@@ -19,7 +19,7 @@ class MCTSAgent:
 		self.rootNode.get_state().set_board(board);
 
 		#need way to find terminating condition
-		self.end_time = 1
+		self.end_time = 30
 		start_time = time.time()
 		elapsed = 0
 		

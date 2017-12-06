@@ -8,12 +8,8 @@ from mctsAgent import MCTSAgent
 import uuid
 import os, sys
 
+import multiprocessing as mp
 
-#player input for making a move
-#x1
-#y1
-#x2
-#y2
 def makeMove():
 	valid_move_made = False
 	input_valid_move = False
@@ -62,7 +58,7 @@ def matchMade(board, player_move):
 	#will call the board swap_positions
 	board.swap_positions(board.board, player_move)
 
-def runGame(randomSeedNumber,trial):
+def runGame(randomSeedNumber):
 	
 	game_id = uuid.uuid4()
 
@@ -150,12 +146,15 @@ def main():
 
 	list_of_results = []
 
-	seed = 40
-	for trial in range(5):
-		
-		results = runGame(seed, trial)
-		
-		list_of_results.append(results)
+	#seed = 40
+	seeds = range(0,100)
+	pool = mp.Pool(10)
+	list_of_results = pool.map(runGame, seeds)
+	pool.terminate()
+
+	#for trial in range(5):
+	#	results = runGame(seed, trial)
+	#	list_of_results.append(results)
 
 	#print(((list_of_results[0])[0])[6])
 	file_name = 'results.csv'
@@ -163,77 +162,21 @@ def main():
 
 	if not os.path.isfile(file_name):
 		file = open(file_name, 'a')
-		header = "Game_Id,Turn_#,Agent,Time_Limit,Move_Made,List_Of_Moves,Board,Points\n"
+		header = "Game_Id;Turn_#;Agent;Time_Limit;Move_Made;List_Of_Moves;Board;Points\n"
 		file.write(header)
 	else:
 		file = open(file_name, 'a')
 
-	wr = csv.writer(file, delimiter=",")
+	wr = csv.writer(file, delimiter=";")
 
 	for each_trial in list_of_results:
 		wr.writerows(each_trial)
 	
 	file.close()	
 
-
-	'''	
-	#player plays game
-	#list_of_moves = board.possible_moves_to_make
-
-	#player plays game
-	
-	#player makes move
-	print("Hint valid moves are")
-	list_of_moves.to_string()
-	
-	player_move = makeMove()
-	print("player move is:", player_move)
-	is_pMove_a_match = checkMove(list_of_moves, player_move)
-
-	#if move made a match, update board
-	if(is_pMove_a_match):
-		print("BOARD\n",board.board)
-		k = board.clone()
-		#k = copy.deepcopy(board)
-		matchMade(k,player_move)
-		print("copy\n",k.board)
-		print("BOARD\n",board.board)
-	#not a match, repeat
-	else:
-		print("jokes")
-
-	'''
-	'''
-	#Random Agent plays game
-	results = []
-
-	random_ai = RandomAgent()
-	try:
-		for j in range(1000):
-			board = Board(7,7)
-			board.init()
-			for i in range(20):
-				#list of possible moves
-				list_of_moves = board.possible_moves_to_make
-				
-				#ai plays game
-				#ai_move is (tuple_1, tuple_2)
-				#tuple_1 and tuple_2 are the positions of the numbers to swap
-				ai_move = random_ai.pick_random_move(list_of_moves)
-				matchMade(board, ai_move)
-			
-			results.append(board.points)
-			if (board.points == 0):
-					raise
-			print(j)
-	except:
-		print(board.board)
-		raise
-	print(float(sum(results)) / float(len(results)))
-	print (max(results))
-	print (min(results))
-	'''
-		
-if __name__ == '__main__':
+for i in range(0, 100):
 	main()
+		
+#if __name__ == '__main__':
+#	main()
 
