@@ -165,7 +165,7 @@ class Board:
 			pass
 		#moves_made is a MoveList
 		self.possible_moves_to_make = self.get_possible_moves(board)
-		if(self.possible_moves_to_make.move_list == { }):
+		while (self.possible_moves_to_make.move_list == { }):
 			board = self.random_board(board)
 			self.possible_moves_to_make = self.get_possible_moves(board)
 
