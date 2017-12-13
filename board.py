@@ -145,13 +145,9 @@ class Board:
 		###print()
 
 		###print("Board now clean of consecs, points to deliver")
-		###print(self.award_points)
-		###print()
-		#print("matches are removed, board updated")
-		#print((self.board))
+		self.add_new_pieces(board)
 		#gave points, refill board
 		if(sum(self.award_points.values()) > 0):
-			self.add_new_pieces(board)
 			pointsToAdd = self.user_gets_points()
 			###print("adding", pointsToAdd * multiplier, "points\n")
 			self.points = self.points + (pointsToAdd * multiplier)
@@ -166,12 +162,23 @@ class Board:
 		#moves_made is a MoveList
 		self.possible_moves_to_make = self.get_possible_moves(board)
 		while (self.possible_moves_to_make.move_list == { }):
-			board = self.random_board(board)
+			#input("NO MOVES")
+			#print("board before")
+			#print(board)
+			self.random_board(board)
+			#print("board After")
+			#print(board)
 			self.possible_moves_to_make = self.get_possible_moves(board)
 
 	def random_board(self, board):
-		board = np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
+		for x in range(self.cols): 
+			for y in range(self.rows):
+				board[x][y] = 0
+		#board = np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
+		#print("random calling fill_board")
 		self.fill_board(board)
+		#print ("after filled")
+		#print(board)
 		return board
 
 	def sum_vertical(self, board):
@@ -516,8 +523,8 @@ class Board:
 					if(y < len(board)-1):
 						while board[x][y-1] == board[x][y] and board[x][y] == board[x][y+1]:
 							board[x][y+1] = random.choice(self.divisors)
-		pass
-
+		#print("fill board")
+		#print(board)
 	#after taking from board_Two
 	#we update the board down and fill in the stuff on the top
 	def fill_board_two(self, board):

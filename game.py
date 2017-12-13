@@ -180,11 +180,21 @@ def main(val):
 	
 	file.close()	
 
-x = range(0, 10000)
-for i in range(0, 1000):
-	print x[(i*10):(i*10)+10] 
-	main(x[(i*10):(i*10)+10])
+#x = range(0, 10000)
+#for i in range(0, 1000):
+#	print x[(i*10):(i*10)+10] 
+#	main(x[(i*10):(i*10)+10])
 
+board = Board(7,7)
+board.init()
+print("Board in Main after sht happens")
+print(board.board)
+print(board.possible_moves_to_make.move_list)
+print(board.points)
+p = makeMove()
+matchMade(board, p)
+print("board after move")
+print(board.board)
 #if __name__ == '__main__':
 #	main()
 
