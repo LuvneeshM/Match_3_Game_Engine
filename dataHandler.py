@@ -27,10 +27,8 @@ def csv_to_dict_list(fileName):
 	return dict_list
 
 mctsVsRandom_dict_list = csv_to_dict_list('results.csv')
-#print(len(mctsVsRandom_dict_list)) #printed 3,200,000
-#print_data(mctsVsRandom_dict_list)
-
-#mcts points per game
+#mcts and rand points per game
+#looks at turn 19, since that signals the end of a game
 mcts_points_list = []
 random_points_list = []
 for data_line in mctsVsRandom_dict_list:
@@ -39,6 +37,7 @@ for data_line in mctsVsRandom_dict_list:
 	if (int(data_line['Turn_#'])==19 and data_line['Agent']=="RAND"):
 		random_points_list.append(int(data_line['Points']))
 
+#stats
 print ("******MCTS******")
 print ("Number of Games: {}".format(len(mcts_points_list)))
 print ("Mean: {}".format(np.mean(mcts_points_list)))
@@ -56,17 +55,26 @@ ties = len(set(mcts_points_list).intersection(random_points_list))
 print ("MCTS Lost: {} (Does not include Ties)".format(compareList.count(False) - ties))
 print ("MCTS Tied: {}".format(ties))
 
-colors = (0,0,0)
-area = np.pi*3
-
+#trying to have a nice visual
 xAxis = [a for a in range(len(compareList))]
 
-#plt.scatter(xAxis[0:5],mcts_points_list[0:5], color='b', marker='s', label='MCTS')
-#plt.scatter(xAxis[0:5],random_points_list[0:5], color='r', marker='o', label='RAND')
-plt.plot(xAxis,mcts_points_list, color='b', label='MCTS')
-plt.plot(xAxis,random_points_list, color='r', label='RAND')
+mcts_100_Avg = []
+rand_100_Avg = []
+for i in range(1, 11):
+	mcts_100_Avg.append(np.mean(mcts_points_list[ ((i-1)*100):(i*100) ]))
+	rand_100_Avg.append(np.mean(random_points_list[ ((i-1)*100):(i*100) ]))
+
+#plt.scatter(xAxis[0:10],mcts_points_list[0:10], color='b', marker='s', label='MCTS')
+#plt.scatter(xAxis[0:10],random_points_list[0:10], color='r', marker='o', label='RAND')
+#plt.plot(xAxis,mcts_points_list, color='b', label='MCTS')
+#plt.plot(xAxis,random_points_list, color='r', label='RAND')
+
+plt.scatter(xAxis[0:10],mcts_100_Avg, color='b', marker='s', label='MCTS')
+plt.scatter(xAxis[0:10],rand_100_Avg, color='r', marker='o', label='RAND')
+plt.plot(xAxis[0:10],mcts_100_Avg, color='b')
+plt.plot(xAxis[0:10],rand_100_Avg, color='r')
 plt.legend(loc='upper left');
-plt.title('wutface')
+plt.title('Average per 100 Games')
 plt.xlabel('GameNumber')
 plt.ylabel('Points')
 plt.show()

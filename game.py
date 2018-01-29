@@ -187,7 +187,7 @@ def main(val):
 
 board = Board(7,7)
 board.init()
-print("Board in Main after sht happens")
+print("Board in Main after stuff happens")
 print(board.board)
 print(board.possible_moves_to_make.move_list)
 print(board.points)
