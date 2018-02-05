@@ -7,8 +7,14 @@ import csv
 from mctsAgent import MCTSAgent
 import uuid
 import os, sys
-
+from functools import partial
+import marshal
 import multiprocessing as mp
+import types
+
+import operator, math
+
+import gpTesting
 
 def makeMove():
 	valid_move_made = False
@@ -58,7 +64,7 @@ def matchMade(board, player_move):
 	#will call the board swap_positions
 	board.swap_positions(board.board, player_move)
 
-def runGame(randomSeedNumber):
+def runGame(randomSeedNumber, UCBFunctionToGet):
 	
 	game_id = uuid.uuid4()
 
@@ -67,7 +73,16 @@ def runGame(randomSeedNumber):
 	number_of_moves_to_make = 20
 
 	random.seed(randomSeedNumber)
-	mcts_ai = MCTSAgent()
+
+	func_globals = globals()
+	func_globals['add'] = operator.add
+	func_globals['mul'] = operator.mul
+	func_globals['truediv'] = operator.truediv
+	func_globals['pow'] = operator.pow
+	func_globals['log'] = math.log
+	UCBFunc_code = marshal.loads(UCBFunctionToGet)
+	UCBFunc = types.FunctionType(UCBFunc_code, func_globals)
+	mcts_ai = MCTSAgent(UCBFunc)
 	random_ai = RandomAgent()
 
 	#mcts
@@ -97,8 +112,12 @@ def runGame(randomSeedNumber):
 		matchMade(board, mct_move)
 		#point after turn
 		results_list.append(board.points)
+
+		results_list.append(str(mcts_ai.getRootNode_VisitCount()))
+
 		#print(results_list)
 		results.append(results_list)
+		
 		
 	random.seed(randomSeedNumber)
 
@@ -142,15 +161,15 @@ def runGame(randomSeedNumber):
 	return results
 
 
-def main(val):
+def main(val, UCBFunctionToGet, logData):
 
 	list_of_results = []
 
 	#seed = 40
 	#try:
 	seeds = val
-	pool = mp.Pool(10)
-	list_of_results = pool.map(runGame, seeds)
+	pool = mp.Pool(mp.cpu_count())
+	list_of_results = pool.map(partial(runGame, UCBFunctionToGet=marshal.dumps(UCBFunctionToGet.__code__)), seeds)
 	pool.terminate()
 	#except:
 	#	error_file = open("errors.csv", 'a')
@@ -163,38 +182,56 @@ def main(val):
 	#	list_of_results.append(results)
 
 	#print(((list_of_results[0])[0])[6])
-	file_name = 'results.csv'
-	file = None
-
-	if not os.path.isfile(file_name):
-		file = open(file_name, 'a')
-		header = "Game_Id;Turn_#;Agent;Time_Limit;Move_Made;List_Of_Moves;Board;Points\n"
-		file.write(header)
-	else:
-		file = open(file_name, 'a')
-
-	wr = csv.writer(file, delimiter=";")
-
-	for each_trial in list_of_results:
-		wr.writerows(each_trial)
 	
-	file.close()	
+	if (logData):
+		file_name = 'results3.csv'
+		file = None
 
-#x = range(0, 10000)
-#for i in range(0, 1000):
-#	print x[(i*10):(i*10)+10] 
-#	main(x[(i*10):(i*10)+10])
+		if not os.path.isfile(file_name):
+			file = open(file_name, 'a')
+			header = "Game_Id;Turn_#;Agent;Time_Limit;Move_Made;List_Of_Moves;Board;Points;\n"
+			file.write(header)
+		else:
+			file = open(file_name, 'a')
+
+		wr = csv.writer(file, delimiter=";")
+
+		for each_trial in list_of_results:
+			wr.writerows(each_trial)
+		
+		file.close()	
+
+#if __name__ == '__main__':
+	#x = range(0, 10000)
+	#for i in range(0, 0):
+	#	print (x[(i*10):(i*10)+10])
+	#	main(x[(i*10):(i*10)+10])
+#	main([0, 0])
+
+'''
+print(gpTesting.UCBFunctionToGet)
 
 board = Board(7,7)
 board.init()
-print("Board in Main after stuff happens")
-print(board.board)
-print(board.possible_moves_to_make.move_list)
-print(board.points)
-p = makeMove()
-matchMade(board, p)
-print("board after move")
-print(board.board)
+list_of_results = runGame(1)
+file_name = 'gpMCTSTesting5.csv'
+file = None
+
+if not os.path.isfile(file_name):
+	file = open(file_name, 'a')
+	header = "Game_Id;Turn_#;Agent;Time_Limit;Move_Made;List_Of_Moves;Board;Points;Root_Visit_Count\n"
+	file.write(header)
+else:
+	file = open(file_name, 'a')
+
+wr = csv.writer(file, delimiter=";")
+wr.writerows(list_of_results)
+
+file.close()	
+'''
+
+
+
 #if __name__ == '__main__':
 #	main()
 

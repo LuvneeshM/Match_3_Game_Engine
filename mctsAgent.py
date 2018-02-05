@@ -6,8 +6,14 @@ import time
 import copy
 import math
 
-class MCTSAgent:
+class MCTSAgent():
 	level = 0
+
+	def __init__(self, ubcReplacementFunc):
+		self.func = ubcReplacementFunc
+
+	def getRootNode_VisitCount(self):
+		return self.rootNode.get_visit_count()
 
 	#board is current game board
 	#will return the
@@ -23,7 +29,8 @@ class MCTSAgent:
 		start_time = time.time()
 		elapsed = 0
 		
-		while(elapsed < self.end_time):
+		#while(elapsed < self.end_time):
+		while (self.rootNode.get_visit_count() < 50):
 			#pick the promising node
 			
 			promising_node = self.select_promising_node(self.rootNode)
@@ -53,7 +60,7 @@ class MCTSAgent:
 		winner_node = None
 		max_ucb = 0
 		for child in self.rootNode.childArray:
-			UCB1 = self.UCB(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
+			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
 			#print("child_win_score",child.get_win_score())
 			#print("child_visit_count", child.get_visit_count())
 			#print("rootMan_visit_count", rootNode.get_visit_count())
@@ -69,6 +76,12 @@ class MCTSAgent:
 		#print("move is",winner_node.get_state().move)
 		#print("Root visit count: ", rootNode.get_visit_count())
 		return winner_node.get_state().move
+
+	def selectionFuntion(self,child_win_score, child_visit_count, current_visit_count):
+		if(child_visit_count == 0):
+			#python 3 doesnt have max int value....
+			return float('inf')
+		return self.func(child_win_score, child_visit_count, current_visit_count)
 
 	def UCB(self,child_win_score, child_visit_count, current_visit_count):
 		if(child_visit_count == 0):
@@ -90,7 +103,7 @@ class MCTSAgent:
 			best = 0
 			best_node = None
 			for child in currentNode.get_child_array():
-				UCB1 = self.UCB(child.get_win_score(), child.get_visit_count(), currentNode.get_visit_count())
+				UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), currentNode.get_visit_count())
 				#UCB1 = (child.get_win_score() / child.get_visit_count()) + 1.414 * math.sqrt(2.0 * math.log(currentNode.get_visit_count())/child.get_visit_count())
 				if UCB1 > best or best_node == None:
 					best = UCB1
