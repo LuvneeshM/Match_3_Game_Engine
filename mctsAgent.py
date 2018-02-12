@@ -30,7 +30,7 @@ class MCTSAgent():
 		elapsed = 0
 		
 		#while(elapsed < self.end_time):
-		while (self.rootNode.get_visit_count() < 50):
+		while (self.rootNode.get_visit_count() < 10):
 			#pick the promising node
 			
 			promising_node = self.select_promising_node(self.rootNode)
@@ -58,7 +58,7 @@ class MCTSAgent():
 		#winner is root node with child with big score
 		#winner_node = rootNode.get_child_with_max_score()
 		winner_node = None
-		max_ucb = 0
+		max_ucb = float('-inf')
 		for child in self.rootNode.childArray:
 			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
 			#print("child_win_score",child.get_win_score())
@@ -78,10 +78,14 @@ class MCTSAgent():
 		return winner_node.get_state().move
 
 	def selectionFuntion(self,child_win_score, child_visit_count, current_visit_count):
-		if(child_visit_count == 0):
+		try:
+			return self.func(child_win_score, child_visit_count, current_visit_count)
+		except ZeroDivisionError:
 			#python 3 doesnt have max int value....
 			return float('inf')
-		return self.func(child_win_score, child_visit_count, current_visit_count)
+		except ValueError:
+			return float('inf')
+		
 
 	def UCB(self,child_win_score, child_visit_count, current_visit_count):
 		if(child_visit_count == 0):

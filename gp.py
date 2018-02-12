@@ -6,7 +6,7 @@ from deap import gp
 from deap import tools
 from deap import algorithms
 
-#pset = gp.PrimitiveSet(“MAIN”, arity=1)
+#pset = gp.PrimitiveSet("MAIN", arity=1)
 
 def findMax(a, b):
    return max([a, b])
@@ -31,9 +31,6 @@ toolbox.register('expr', gp.genFull, pset=pset, min_=2, max_=2)
 toolbox.register('individual', tools.initIterate, creator.Individual,
                 toolbox.expr)
 
-
-#new_individual = gp.PrimitiveTree.from_string("add(ARG0, 10)", pset)
-
 toolbox.register('population', tools.initRepeat, list, toolbox.individual)
 toolbox.register('select', tools.selBest)
 toolbox.register('mate',gp.cxOnePoint)
@@ -46,15 +43,36 @@ def evalFunc(ind):
 
 toolbox.register('evaluate',evalFunc)
 
-pop = toolbox.population(100)
+pop = toolbox.population(10)
+
+print("testing start")
+
+def gen_indiv():
+	return gp.PrimitiveTree.from_string("add(child_win_ratio, 10)", pset)
+
+toolbox.register('initial_uct', gen_indiv)
+toolbox.register('indiv_uct', tools.initIterate, creator.Individual, toolbox.initial_uct)
+
+
+test = toolbox.indiv_uct()
+print(type(test))
+print(test)
+pop.append(test)
+print(pop[len(pop)-1])
+print("testing end")
+
+#new_individual = gp.PrimitiveTree.from_string("add(child_win_ratio, 10)", pset)
+
+pop.append(test)
 
 #print (pop[0])
+#print (toolbox.evaluate(pop[0]))
 #print (pop[1])
 #print (toolbox.mate(pop[0], pop[1])[0])
 #print (toolbox.mate(pop[0], pop[1])[1])
-#print al(toolbox.mutate(pop[0])[0])
+#print (toolbox.mutate(pop[0])[0])
 
-final_pop = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=100)
+final_pop = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=5)
 
 for fp in toolbox.select(final_pop[0], k=3):
 	print (fp)
