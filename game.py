@@ -241,7 +241,7 @@ def main(val, UCBFunctionToGet, logData):
 	#mcts_points_result = map(partial(runMCTSONLYGame, UCBFunctionToGet=marshal.dumps(UCBFunctionToGet.__code__)), seeds)
 	mcts_points_result = [0 for x in range(len(seeds))]
 	for i in range(len(seeds)):
-		mcts_points_result[i] = runMCTSONLYGame(seeds[i], UCBFunctionToGet=marshal.dumps(UCBFunctionToGet.__code__))
+		mcts_points_result[i] = runMCTSONLYGame(seeds[i], UCBFunctionToGet=UCBFunctionToGet)
 	#pool.terminate()
 
 	#calc the avg of the mcts_points
