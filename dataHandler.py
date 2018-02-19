@@ -26,7 +26,7 @@ def csv_to_dict_list(fileName):
 
 	return dict_list
 
-mctsVsRandom_dict_list = csv_to_dict_list('results4.csv')
+mctsVsRandom_dict_list = csv_to_dict_list('results.csv')
 #mcts and rand points per game
 #looks at turn 19, since that signals the end of a game
 mcts_points_list = []

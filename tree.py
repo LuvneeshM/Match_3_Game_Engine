@@ -115,10 +115,10 @@ class Node:
 		child_to_return = None
 		max_score = 0
 		for child in self.childArray:
-			if child.get_win_score > max_score: 
-				max_score = child.get_win_score
+			if child.state.score > max_score: 
+				max_score = child.state.score
 				child_to_return = child
-
+				
 		return child_to_return
 		pass
 
