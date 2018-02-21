@@ -5,6 +5,7 @@ import time
 class IDSAgent:
 	def __init__(self, level):
 		self.level = level
+		self.num_of_nodes = 0
 
 	def find_next_move(self, board, startLevel, endLevel):
 		tree = Tree()
@@ -18,13 +19,13 @@ class IDSAgent:
 
 		max_score = self.rootNode.get_child_with_max_score().get_state().get_score()
 
-	 	winner_node = None
-	 	for child in self.rootNode.childArray:
-	 		if(child.get_state().get_score() == max_score):
-	 			winner_node = child
+		winner_node = None
+		for child in self.rootNode.childArray:
+			if(child.get_state().get_score() == max_score):
+				winner_node = child
 
-	 	print("max score {0} reached level {1} with move {2}".format(max_score, endLevel, winner_node.get_state().move))
-	 	return (winner_node.get_state().move, winner_node.get_state().get_score())
+		print("max score {0} reached level {1} with move {2}".format(max_score, endLevel, winner_node.get_state().move))
+		return (winner_node.get_state().move, winner_node.get_state().get_score())
 	
 	def expand_node(self, promising_node):
 		possible_states = promising_node.get_state().get_all_possible_states()
@@ -38,6 +39,7 @@ class IDSAgent:
 			promising_node.get_child_array().append(new_node)
 
 	def ids(self,nodeToExplore, currLevel):
+		self.num_of_nodes += 1
 		if(currLevel >= self.level):
 			parent = nodeToExplore
 		
@@ -57,10 +59,12 @@ random.seed(2)
 board = Board(7,7)
 board.init()
 list_of_moves = board.possible_moves_to_make.move_list
-
+print(list_of_moves)
+print(len(list_of_moves))
 #ids stuff
 level_counter = 1
 ids_ai = IDSAgent(level_counter)
+total_num_nodes = 0
 #time stuff
 elapsed = 0
 end_time = 60*5
@@ -70,5 +74,7 @@ while(elapsed < end_time):
 	level_counter += 1
 	elapsed = time.time()-start_time
 	print("Elasped time is: {0}".format(elapsed))
-
+	print("Num of nodes looked at for depth {0} is {1}".format(level_counter-1, ids_ai.num_of_nodes))
+	total_num_nodes += ids_ai.num_of_nodes
 print("IDS move is {0} with final score {1}".format(move_and_score[0], move_and_score[1]))
+print("Total nodes looked is {0}".format(total_num_nodes))
