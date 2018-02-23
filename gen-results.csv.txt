@@ -1,28 +1,34 @@
 Original Individual;
-log(sqrt(log(add(sqrt(5.0), mul(child_visit_count, current_visit_count)))));
-ln(sqrt(ln((sqrt(5.0) + (child_visit_count * current_visit_count)))));
+sqrt(mul(log(add(sqrt(2.0), truediv(3.0, 2.0))), mul(mul(truediv(current_visit_count, 1.414), sqrt(1.414)), sqrt(add(child_visit_count, 0.5)))));
+sqrt((ln((sqrt(2.0) + (3.0 / 2.0))) * (((current_visit_count / 1.414) * sqrt(1.414)) * sqrt((child_visit_count + 0.5)))));
 
-sqrt(add(mul(log(mul(0.5, 3.0)), truediv(truediv(5.0, 3.0), sqrt(1.414))), truediv(add(mul(child_win_score, 5.0), add(current_visit_count, 4.0)), sqrt(truediv(child_win_score, current_visit_count)))));
-sqrt(((ln((0.5 * 3.0)) * ((5.0 / 3.0) / sqrt(1.414))) + (((child_win_score * 5.0) + (current_visit_count + 4.0)) / sqrt((child_win_score / current_visit_count)))));
 
-truediv(mul(sqrt(truediv(add(child_visit_count, 0.5), add(5.0, child_visit_count))), add(sqrt(log(child_win_score)), log(truediv(current_visit_count, 0.5)))), truediv(add(add(sqrt(current_visit_count), mul(child_win_score, 5.0)), sqrt(truediv(0.5, 1.414))), truediv(mul(truediv(0.5, child_visit_count), log(5.0)), truediv(add(0.5, 0.5), truediv(5.0, 3.0)))));
-((sqrt(((child_visit_count + 0.5) / (5.0 + child_visit_count))) * (sqrt(ln(child_win_score)) + ln((current_visit_count / 0.5)))) / (((sqrt(current_visit_count) + (child_win_score * 5.0)) + sqrt((0.5 / 1.414))) / (((0.5 / child_visit_count) * ln(5.0)) / ((0.5 + 0.5) / (5.0 / 3.0)))));
+truediv(add(sqrt(truediv(log(2.0), log(1.414))), mul(add(truediv(5.0, child_win_score), add(1.414, 3.0)), sqrt(sqrt(child_visit_count)))), truediv(mul(truediv(sqrt(5.0), truediv(1.414, current_visit_count)), mul(add(2.0, 0.5), sqrt(child_visit_count))), mul(mul(log(3.0), truediv(0.5, child_visit_count)), add(add(3.0, 5.0), mul(1.414, child_visit_count)))));
+((sqrt((ln(2.0) / ln(1.414))) + (((5.0 / child_win_score) + (1.414 + 3.0)) * sqrt(sqrt(child_visit_count)))) / (((sqrt(5.0) / (1.414 / current_visit_count)) * ((2.0 + 0.5) * sqrt(child_visit_count))) / ((ln(3.0) * (0.5 / child_visit_count)) * ((3.0 + 5.0) + (1.414 * child_visit_count)))));
 
-mul(add(truediv(log(log(4.0)), add(add(2.0, child_visit_count), mul(current_visit_count, 1.414))), log(truediv(sqrt(1.414), mul(3.0, current_visit_count)))), log(truediv(truediv(log(4.0), mul(0.5, 3.0)), log(add(current_visit_count, 2.0)))));
-(((ln(ln(4.0)) / ((2.0 + child_visit_count) + (current_visit_count * 1.414))) + ln((sqrt(1.414) / (3.0 * current_visit_count)))) * ln(((ln(4.0) / (0.5 * 3.0)) / ln((current_visit_count + 2.0)))));
+
+log(add(log(add(log(5.0), truediv(1.414, 2.0))), truediv(log(log(child_win_score)), add(sqrt(1.414), mul(child_win_score, 2.0)))));
+ln((ln((ln(5.0) + (1.414 / 2.0))) + (ln(ln(child_win_score)) / (sqrt(1.414) + (child_win_score * 2.0)))));
+
+
+sqrt(log(add(add(log(4.0), truediv(current_visit_count, 0.5)), sqrt(add(3.0, child_win_score)))));
+sqrt(ln(((ln(4.0) + (current_visit_count / 0.5)) + sqrt((3.0 + child_win_score)))));
+
 
 add(truediv(child_win_score, child_visit_count), mul(1.414, sqrt(mul(2.0, truediv(log(current_visit_count), child_visit_count)))));
 ((child_win_score / child_visit_count) + (1.414 * sqrt((2.0 * (ln(current_visit_count) / child_visit_count)))));
 
 
 
+
+
 Individual;Fitness;
-sqrt(add(mul(log(mul(0.5, 3.0)), truediv(truediv(truediv(mul(truediv(0.5, 2.0), log(5.0)), mul(mul(add(mul(sqrt(child_visit_count), sqrt(child_win_score)), sqrt(truediv(3.0, child_win_score))), sqrt(add(truediv(0.5, 0.5), mul(child_win_score, 0.5)))), mul(add(sqrt(mul(2.0, 5.0)), mul(mul(4.0, child_win_score), sqrt(current_visit_count))), truediv(mul(sqrt(4.0), truediv(0.5, 0.5)), sqrt(mul(4.0, 0.5)))))), 3.0), sqrt(1.414))), truediv(4.0, child_win_score)));(2440.0,);
-sqrt(((ln((0.5 * 3.0)) * (((((0.5 / 2.0) * ln(5.0)) / ((((sqrt(child_visit_count) * sqrt(child_win_score)) + sqrt((3.0 / child_win_score))) * sqrt(((0.5 / 0.5) + (child_win_score * 0.5)))) * ((sqrt((2.0 * 5.0)) + ((4.0 * child_win_score) * sqrt(current_visit_count))) * ((sqrt(4.0) * (0.5 / 0.5)) / sqrt((4.0 * 0.5)))))) / 3.0) / sqrt(1.414))) + (4.0 / child_win_score)));(2440.0,);
+sqrt(mul(log(add(sqrt(2.0), truediv(3.0, 2.0))), mul(mul(truediv(add(sqrt(truediv(log(2.0), log(1.414))), mul(add(truediv(5.0, child_win_score), add(1.414, 3.0)), sqrt(sqrt(child_visit_count)))), 1.414), sqrt(1.414)), sqrt(add(child_visit_count, 0.5)))));(2360.0,);
+sqrt((ln((sqrt(2.0) + (3.0 / 2.0))) * ((((sqrt((ln(2.0) / ln(1.414))) + (((5.0 / child_win_score) + (1.414 + 3.0)) * sqrt(sqrt(child_visit_count)))) / 1.414) * sqrt(1.414)) * sqrt((child_visit_count + 0.5)))));(2360.0,);
 
-sqrt(log(add(3.0, add(truediv(add(mul(child_win_score, 5.0), add(current_visit_count, 4.0)), sqrt(truediv(child_win_score, truediv(add(0.5, 0.5), truediv(5.0, 3.0))))), mul(4.0, child_visit_count)))));(2240.0,);
-sqrt(ln((3.0 + ((((child_win_score * 5.0) + (current_visit_count + 4.0)) / sqrt((child_win_score / ((0.5 + 0.5) / (5.0 / 3.0))))) + (4.0 * child_visit_count)))));(2240.0,);
+truediv(current_visit_count, truediv(mul(truediv(sqrt(5.0), truediv(1.414, current_visit_count)), mul(add(2.0, 0.5), sqrt(mul(mul(truediv(add(child_win_score, 5.0), mul(4.0, child_visit_count)), mul(mul(0.5, 4.0), mul(2.0, current_visit_count))), mul(add(mul(2.0, child_win_score), sqrt(4.0)), sqrt(truediv(4.0, 0.5))))))), mul(mul(log(3.0), truediv(0.5, child_visit_count)), add(add(3.0, 5.0), mul(1.414, child_visit_count)))));(2250.0,);
+(current_visit_count / (((sqrt(5.0) / (1.414 / current_visit_count)) * ((2.0 + 0.5) * sqrt(((((child_win_score + 5.0) / (4.0 * child_visit_count)) * ((0.5 * 4.0) * (2.0 * current_visit_count))) * (((2.0 * child_win_score) + sqrt(4.0)) * sqrt((4.0 / 0.5))))))) / ((ln(3.0) * (0.5 / child_visit_count)) * ((3.0 + 5.0) + (1.414 * child_visit_count)))));(2250.0,);
 
-mul(add(truediv(log(log(4.0)), add(add(add(add(log(log(mul(child_visit_count, child_win_score))), truediv(truediv(log(current_visit_count), add(0.5, child_win_score)), truediv(mul(5.0, 1.414), add(4.0, child_visit_count)))), add(truediv(sqrt(truediv(0.5, 1.414)), add(truediv(2.0, 1.414), sqrt(4.0))), log(mul(add(current_visit_count, current_visit_count), add(3.0, 4.0))))), log(4.0)), mul(current_visit_count, 1.414))), log(truediv(sqrt(1.414), child_visit_count))), log(truediv(truediv(sqrt(log(add(sqrt(5.0), mul(child_visit_count, current_visit_count)))), mul(0.5, mul(add(child_visit_count, current_visit_count), truediv(5.0, 2.0)))), log(add(current_visit_count, 2.0)))));(1900.0,);
-(((ln(ln(4.0)) / ((((ln(ln((child_visit_count * child_win_score))) + ((ln(current_visit_count) / (0.5 + child_win_score)) / ((5.0 * 1.414) / (4.0 + child_visit_count)))) + ((sqrt((0.5 / 1.414)) / ((2.0 / 1.414) + sqrt(4.0))) + ln(((current_visit_count + current_visit_count) * (3.0 + 4.0))))) + ln(4.0)) + (current_visit_count * 1.414))) + ln((sqrt(1.414) / child_visit_count))) * ln(((sqrt(ln((sqrt(5.0) + (child_visit_count * current_visit_count)))) / (0.5 * ((child_visit_count + current_visit_count) * (5.0 / 2.0)))) / ln((current_visit_count + 2.0)))));(1900.0,);
+add(truediv(child_win_score, child_visit_count), mul(1.414, sqrt(mul(2.0, truediv(log(current_visit_count), child_visit_count)))));(1860.0,);
+((child_win_score / child_visit_count) + (1.414 * sqrt((2.0 * (ln(current_visit_count) / child_visit_count)))));(1860.0,);
 

@@ -9,47 +9,59 @@ from deap import creator
 from deap import gp
 from deap import tools
 from deap import algorithms
-
+import multiprocessing as mp
 from prettyPrintTree import prettyPrint
 
-from contextlib import redirect_stdout
+#from contextlib import redirect_stdout
+import sys
 
-import multiprocessing as mp
+#global variables
+pool = None
+pset = None
+toolbox = None
+num_sims = 1
+pop_size = 5
 
-#toolbox.evaluate 
 
 def evalFunc(individual, n):
-    #print (prettyPrint(individual))
-    #print (individual)
-    #UCBFunctionToGet = toolbox.compile(individual)
     #pass UCBFunctionToGet
     #play game n times with n seeds, return avg score overall
-    n = 1
     score = game.main([0,n], individual, False)
 
     return score,
 
 def originalMCTSFunc():
 	new_individual = gp.PrimitiveTree.from_string("add(truediv(child_win_score, child_visit_count), (mul(1.414,sqrt(mul(2.0,truediv(log(current_visit_count),child_visit_count))))) )", pset)
-
-	#UCBFunctionToGet = toolbox.compile(new_individual)
-	#print(UCBFunctionToGet(2,3,4),)
-
 	return new_individual
 
 def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, pop=None, current_time=None):
 	if(toWriteHeader):
-		output_file = open('output.csv.txt', 'w')
-		output_file.write('GEN;num-sims;pop-size;max-fitness;ellapsed-time;\n')
-		output_file.close()
+		sys.stdout = open('output.csv.txt', 'w')
+		print('GEN;num-sims;pop-size;max-fitness;ellapsed-time;')
 	else:
-		output_file = open('output.csv.txt', 'a')
-		output_file.write(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(max([p.fitness for p in pop])) + ';' + str(time.time()-current_time) + ';\n')
-		output_file.close()
+		sys.stdout = open('output.csv.txt', 'a')
+		print(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(max([p.fitness for p in pop])) + ';' + str(time.time()-current_time) + ';')
+	sys.stdout = sys.__stdout__
 
+def writeOriginalEquations(pop):
+	sys.stdout = open('original_population_eqs.csv.txt', 'w')
+	print('Original Individual;')
+	for p in pop:
+		print(str(p) + ';')
+	sys.stdout = sys.__stdout__
 
-if __name__ == "__main__":
-	pool = mp.Pool()
+def writeFinalEquations(pop):
+	global toolbox
+
+	sys.stdout = open('gen-results.csv.txt', 'a')
+	print('Individual;Fitness;')
+	for fp in toolbox.select(pop, k = 3):
+		print(str(fp) + ";" + str(fp.fitness) + ";")
+		print(str(prettyPrint(fp)) + ";" + str(fp.fitness) + ";\n")
+	sys.stdout = sys.__stdout__
+
+def createThePset():
+	global pset
 	pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
 	pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
 	pset.addPrimitive(operator.add, [float, float], float)
@@ -64,17 +76,19 @@ if __name__ == "__main__":
 	pset.addTerminal(4.0, float)
 	pset.addTerminal(5.0, float)
 
+def createTheCreator():
 	creator.create('FitnessMax', base.Fitness, weights=(1.0,))
 	creator.create('Individual', gp.PrimitiveTree, fitness=creator.FitnessMax,
 	              pset=pset)
 
+def createTheToolbox():
+	global toolbox
 	toolbox = base.Toolbox()
 	toolbox.register('compile', gp.compile, pset=pset)
 	toolbox.register('expr', gp.genFull, pset=pset, min_=5, max_=5)
 	toolbox.register('individual', tools.initIterate, creator.Individual,
 	                toolbox.expr)
 
-	num_sims = 1
 	toolbox.register('evaluate', evalFunc, n=num_sims)
 
 	toolbox.register('population', tools.initRepeat, list, toolbox.individual)
@@ -88,29 +102,27 @@ if __name__ == "__main__":
 	toolbox.register('create_initial_uct', originalMCTSFunc)
 	toolbox.register('initial_uct', tools.initIterate, creator.Individual, toolbox.create_initial_uct)
 
-	initial_uct_indiv = toolbox.initial_uct()
-	#s =toolbox.evaluate(initial_uct_indiv)
-	#print(s)
 
-	#then test generations
+if __name__ == "__main__":
+	
+	pool = mp.Pool()
+
+	createThePset()
+	createTheCreator()
+	createTheToolbox()
+
+	initial_uct_indiv = toolbox.initial_uct()
+
+	#create population
 	#population of 5 so computer doesnt cry
-	pop_size = 5
 	pop = toolbox.population (pop_size-1)
 	pop.append(initial_uct_indiv)
 
-	#final_pop = algorithms.eaSimple(pop, toolbox=toolbox, cxpb=0.5, mutpb=0.2, ngen=2)
-	
-	results_file = open('gen-results.csv.txt', 'w')
-	results_file.write('Original Individual;\n')
-	for p in pop:
-		results_file.write(str(p) + ';\n')
-		results_file.write(prettyPrint(p) + ';\n\n')
-	results_file.write('\n\n')
-	results_file.close()
+	writeOriginalEquations(pop)
 
 	cxpb=0.5
 	mutpb=0.2
-	ngen=5
+	ngen=2
 
 	func_globals = globals()
 	func_globals['add'] = operator.add
@@ -122,12 +134,8 @@ if __name__ == "__main__":
 	compiled_pop = []
 	for i in range(len(pop)):
 	    UCBFunc_code = marshal.dumps(toolbox.compile(pop[i]).__code__)
-
 	    compiled_pop.append(UCBFunc_code)
 
-	#output_file = open('output.csv.txt', 'w')
-	#output_file.write('GEN;num-sims;pop-size;max-fitness;ellapsed-time;\n')
-	#output_file.close()
 	eachGenResultsToWrite(toWriteHeader=True)
 
 	print("before map")
@@ -172,145 +180,9 @@ if __name__ == "__main__":
 	    print('gen done')
 
 	    eachGenResultsToWrite(False, g=g, num_sims=num_sims+1, pop_size=pop_size, pop=pop, current_time=current_time)
-	    # output_file = open('output.csv.txt', 'a')
-	    # output_file.write(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(max([p.fitness for p in pop])) + ';' + str(time.time()-current_time) + ';\n')
-	    # output_file.close()
 
-	results_file = open('gen-results.csv.txt', 'a')
-	results_file.write('Individual;Fitness;\n')
-	for fp in toolbox.select(pop, k = 3):
-		results_file.write(str(fp) + ";" + str(fp.fitness) + ";\n")
-		results_file.write(str(prettyPrint(fp)) + ";" + str(fp.fitness) + ";\n\n")
-	results_file.close()
+	writeFinalEquations(pop)
 
 	pool.terminate()
 
 	print('done')
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-'''
-import operator
-import math
-import game
-from deap import base
-from deap import creator
-from deap import gp
-from deap import tools
-from deap import algorithms
-
-from prettyPrintTree import prettyPrint
-
-from contextlib import redirect_stdout
-
-import multiprocessing as mp
-
-#toolbox.evaluate 
-def evalFunc(individual):
-	print (prettyPrint(individual))
-	print (individual)
-	UCBFunctionToGet = toolbox.compile(individual)
-	#pass UCBFunctionToGet
-	#play game n times with n seeds, return avg score overall
-	n = 1
-	score =	game.main([0,n], UCBFunctionToGet, False)
-
-	return (score,)
-
-def originalMCTSFunc():
-	new_individual = gp.PrimitiveTree.from_string("add(truediv(child_win_score, child_visit_count), (mul(1.414,sqrt(mul(2.0,truediv(log(current_visit_count),child_visit_count))))) )", pset)
-
-	#UCBFunctionToGet = toolbox.compile(new_individual)
-	#print(UCBFunctionToGet(2,3,4),)
-
-	return new_individual
-
-pool = mp.Pool()
-pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
-pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
-pset.addPrimitive(operator.add, [float, float], float)
-pset.addPrimitive(operator.mul, [float, float], float)
-pset.addPrimitive(operator.truediv, [float, float], float)
-pset.addPrimitive(math.sqrt, [float], float)
-pset.addPrimitive(math.log, [float],float)
-pset.addTerminal(1.414, float)
-pset.addTerminal(0.5, float)
-pset.addTerminal(2.0, float)
-pset.addTerminal(3.0, float)
-pset.addTerminal(4.0, float)
-pset.addTerminal(5.0, float)
-
-creator.create('FitnessMax', base.Fitness, weights=(1.0,))
-creator.create('Individual', gp.PrimitiveTree, fitness=creator.FitnessMax,
-              pset=pset)
-
-toolbox = base.Toolbox()
-toolbox.register('compile', gp.compile, pset=pset)
-toolbox.register('expr', gp.genFull, pset=pset, min_=5, max_=5)
-toolbox.register('individual', tools.initIterate, creator.Individual,
-                toolbox.expr)
-
-toolbox.register('evaluate', evalFunc)
-
-toolbox.register('population', tools.initRepeat, list, toolbox.individual)
-toolbox.register('select', tools.selBest)
-toolbox.register('mate', gp.cxOnePoint)
-toolbox.register('mutate', gp.mutUniform, expr=toolbox.expr, pset=pset)
-
-toolbox.register('map', pool.map)
-
-#for the single uct individual
-toolbox.register('create_initial_uct', originalMCTSFunc)
-toolbox.register('initial_uct', tools.initIterate, creator.Individual, toolbox.create_initial_uct)
-
-initial_uct_indiv = toolbox.initial_uct()
-#s =toolbox.evaluate(initial_uct_indiv)
-#print(s)
-
-#then test generations
-#population of 5 so computer doesnt cry
-pop = toolbox.population (4)
-pop.append(initial_uct_indiv)
-
-if __name__ == '__main__':
-	#setup for the gp/deap
-	#gpStuff()
-
-	#the original uct guy
-	
-	#initial_uct_indiv = toolbox.initial_uct()
-	#s =toolbox.evaluate(initial_uct_indiv)
-	#print(s)
-
-	#then test generations
-	#population of 5 so computer doesnt cry
-	#pop = toolbox.population (4)
-	#pop.append(initial_uct_indiv)
-	
-	#for p in pop:
-	#	print(prettyPrint(p))
-	
-	with open('output.txt', 'w') as outfile:
-		with redirect_stdout(outfile):
-			final_pop = algorithms.eaSimple (pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=2)
-			
-			for fp in toolbox.select(final_pop[0], k = 3):
-				print(prettyPrint(fp))
-				print(fp.fitness)
-
-	pool.terminate()
-'''
