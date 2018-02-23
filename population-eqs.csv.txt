@@ -1,1 +1,3 @@
-add(truediv(child_win_score, child_visit_count), mul(1.414, sqrt(mul(2.0, truediv(log(current_visit_count), child_visit_count)))))
+version https://git-lfs.github.com/spec/v1
+oid sha256:b55613d98de9cc03b977c09aee642f3c5d032ca789e0c6debb77173d8c8ba765
+size 132
