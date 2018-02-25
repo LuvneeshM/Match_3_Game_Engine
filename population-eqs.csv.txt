@@ -1,1 +1,0 @@
-add(truediv(child_win_score, child_visit_count), mul(1.414, sqrt(mul(2.0, truediv(log(current_visit_count), child_visit_count)))))
