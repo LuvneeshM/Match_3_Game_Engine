@@ -33,26 +33,26 @@ mutpb=0.2
 ngen=number_of_generations
 
 #files
-output_filename = "test.txt"
+output_filename = "current_gen_info.txt"
 
 log_filename = "log.txt"
-eraseFile(log_filename)
 
-# results_filename = "gen-output-" + str(uuid.uuid4()) + ".txt"
-# temp_file = createFile(results_filename)
-# closeFile(temp_file)
-
+results_filename = "gen-output-" + str(uuid.uuid4()) + ".txt"
 
 eachGenResults_file = 'data/output.csv.txt'
 originalEq_file = 'data/original_population_eqs.csv.txt'
 finalEq_file = 'data/gen-results.csv.txt'
 
-def evalFunc(individual, n):
-    #pass UCBFunctionToGet
-    #play game n times with n seeds, return avg score overall
-    score = game.main([0,n], individual, False)
 
-    return score,
+def runConsumer(individual_spot, q):
+	consumer.compute(individual_spot, q)
+
+def evalFunc(individual, n):
+	print("consumer playing game")
+	#pass UCBFunctionToGet
+	#play game n times with n seeds, return avg score overall
+	score = game.main([0,n], individual, False)
+	return score
 
 def originalMCTSFunc():
 	new_individual = gp.PrimitiveTree.from_string("add(truediv(child_win_score, child_visit_count), (mul(1.414,sqrt(mul(2.0,truediv(log(current_visit_count),child_visit_count))))) )", pset)
@@ -115,7 +115,6 @@ def createTheToolbox():
 
 	toolbox.register('evaluate', evalFunc, n=num_sims)
 	
-	#toolbox.register('working_workers', consumer.compute, q=lock)
 	toolbox.register('working_workers', runConsumer, q=queue)
 	
 	toolbox.register('population', tools.initRepeat, list, toolbox.individual)
@@ -124,7 +123,7 @@ def createTheToolbox():
 	toolbox.register('mutate', gp.mutUniform, expr=toolbox.expr, pset=pset)
 
 	toolbox.register('map', pool.map, chunksize=1)
-
+	toolbox.register('map_async', pool.apply_async)
 	#for the single uct individual
 	toolbox.register('create_initial_uct', originalMCTSFunc)
 	toolbox.register('initial_uct', tools.initIterate, creator.Individual, toolbox.create_initial_uct)
@@ -161,14 +160,28 @@ def initialPop():
 	writeOriginalEquations(pop)
 	return pop
 
-def runConsumer(individual, q):
-	consumer.compute(individual, q)
-	pass
+def getResultsFromFiles():
+	evals = []
+	
+	for i in range(1, pop_size+1):
+		file_pointer = openFile("output_"+str(i)+".txt")
+		file_data = readFromFile(file_pointer)
+		closeFile(file_pointer)
+
+		evals.append(float(file_data[0]))
+	return evals
+
 if __name__ == "__main__":
+	# eraseFile(log_filename)
+	# temp_file = createFile(results_filename)
+	# closeFile(temp_file)
+
+	eachGenResultsToWrite(True)
+
 	m = mp.Manager()
 	queue = m.Queue()
 	
-	number_of_consumers = 7
+	number_of_consumers = pop_size
 	print(number_of_consumers)
 	pool = mp.Pool(processes=number_of_consumers,  maxtasksperchild=1)
 	
@@ -180,52 +193,86 @@ if __name__ == "__main__":
 	current_iteration = 1
 	last_iteration = 0
 
-	pop = initialPop()
-	compiled_pop = produceCompiledPop(pop, current_iteration)
-	
-	#pool.map(runConsumer, range(1,len(compiled_pop)), chunksize=1)
-	toolbox.map(toolbox.working_workers,range(1,len(compiled_pop)))
-	#toolbox.map(toolbox.working_workers,compiled_pop)
+	pop = None
+	compiled_pop = None
+	offspring = None
 	
 	while True:
-		print("prod", queue.qsize())
-		if queue.qsize() < 5:
-			time.sleep(SLEEP_TIME_PRODUCER)
-		else:
+		#first time
+		if current_iteration == 1 and last_iteration == 0: 
+			pop = initialPop()
+			compiled_pop = produceCompiledPop(pop, current_iteration)
+			#pool.map(runConsumer, range(1,len(compiled_pop)), chunksize=1)
+			#toolbox.map(toolbox.working_workers,range(1,len(compiled_pop)))
+			for i in range(1,len(compiled_pop)):
+				pool.apply_async(runConsumer, args = (i, queue))
+			
+			last_iteration = current_iteration
+
+		# log_file = openFile(log_filename)
+		# log_data = readFromFile(log_file)
+		# closeFile(log_file)
+		# print("log file length", len(log_data))
+		# eraseFile(log_filename)
+		# print("prod queue size", queue.qsize())
+
+		#all workers are done
+		if queue.qsize() >= pop_size:
+			#empty the queue
+			while(queue.qsize() > 0):
+				queue.get()
+			evals = getResultsFromFiles()
+
+			for i in range(len(evals)):
+				pop[i].fitness = evals[i]
+						
+			print('gen started')
+			current_time = time.time()
+			pop = toolbox.select(pop, len(pop))
+
+			offspring = toolbox.clone(pop)
+			i = 0
+			while i < len(offspring) - 1:
+				random_n = random.uniform(0, 1)
+				if random_n <= cxpb:
+					ind1, ind2 = toolbox.mate(offspring[i], offspring[i+1])
+					offspring[i] = ind1
+					offspring[i+1] = ind2
+
+				i += 2
+
+			for i in range(len(offspring)):
+				random_n = random.uniform(0, 1)
+				if random_n <= mutpb:
+					offspring[i] = toolbox.mutate(offspring[i])[0]
+
+			print(pop)
+			pop = offspring
+			print(offspring)
+			print('gen done')
+
+			eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims+1, pop_size=pop_size, pop=pop, current_time=current_time)
+			addToFile(results_filename, "Best for Generation " + str(current_iteration))
+			for fp in toolbox.select(pop, k = 3):
+				addToFile(results_filename, (str(fp) + ";" + str(fp.fitness))  )
+			addToFile(results_filename, "\n")
+			current_iteration += 1
+
+
+		if current_iteration >= number_of_generations+1:
 			break
+
+		if current_iteration > last_iteration:
+			print("Next Evolve")
+			compiled_offspring = produceCompiledPop(offspring, current_iteration)
+			last_iteration = current_iteration
+
+		time.sleep(SLEEP_TIME_PRODUCER)
+		
 	print("FREE")
-	#toolbox.map(toolbox.working_workers,compiled_pop)
-	# while True:
-	# 	#first time
-	# 	if current_iteration == 1:
-	# 		pop = initialPop()
-	# 		produceCompiledPop()
-	# 		last_iteration = current_iteration
 
-	# 	log_file = openFile(log_filename)
-	# 	log_data = readFromFile(log_file)
-	# 	closeFile(log_file)
-
-	# 	#all workers are done
-	# 	if len(log_data) >= number_of_consumers:
-	# 		#do genetics
-
-	# 		eraseFile(log_filename)
-
-	# 		addToFile(results_filename, str(current_iteration) + "; " + str(total))
-	# 		current_iteration += 1
-
-	# 	if current_iteration > last_iteration:
-	# 		produce()
-	# 		last_iteration = current_iteration
-	
-	# 	if current_iteration >= number_of_generations+1:
-	# 		break
-
-	# time.sleep(SLEEP_TIME_PRODUCER)
 	
 	
-	# eachGenResultsToWrite(toWriteHeader=True)
 
 	# print("before map")
 	# evals = toolbox.map(toolbox.evaluate, compiled_pop)
@@ -270,9 +317,9 @@ if __name__ == "__main__":
 
 	#     eachGenResultsToWrite(False, g=g, num_sims=num_sims+1, pop_size=pop_size, pop=pop, current_time=current_time)
 	
-	# writeFinalEquations(pop)
+	writeFinalEquations(pop)
 
-	# pool.terminate()
+	pool.terminate()
 
 	print('done')
 
