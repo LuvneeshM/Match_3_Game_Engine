@@ -44,16 +44,6 @@ originalEq_file = 'data/original_population_eqs.csv.txt'
 finalEq_file = 'data/gen-results.csv.txt'
 
 
-def runConsumer(individual_spot, q):
-	consumer.compute(individual_spot, q)
-
-def evalFunc(individual, n):
-	print("consumer playing game")
-	#pass UCBFunctionToGet
-	#play game n times with n seeds, return avg score overall
-	score = game.main([0,n], individual, False)
-	return score
-
 def originalMCTSFunc():
 	new_individual = gp.PrimitiveTree.from_string("add(truediv(child_win_score, child_visit_count), (mul(1.414,sqrt(mul(2.0,truediv(log(current_visit_count),child_visit_count))))) )", pset)
 	return new_individual
@@ -112,22 +102,15 @@ def createTheToolbox():
 	toolbox.register('expr', gp.genFull, pset=pset, min_=5, max_=5)
 	toolbox.register('individual', tools.initIterate, creator.Individual,
 	                toolbox.expr)
-
-	toolbox.register('evaluate', evalFunc, n=num_sims)
-	
-	toolbox.register('working_workers', runConsumer, q=queue)
 	
 	toolbox.register('population', tools.initRepeat, list, toolbox.individual)
 	toolbox.register('select', tools.selBest)
 	toolbox.register('mate', gp.cxOnePoint)
 	toolbox.register('mutate', gp.mutUniform, expr=toolbox.expr, pset=pset)
 
-	toolbox.register('map', pool.map, chunksize=1)
-	toolbox.register('map_async', pool.apply_async)
 	#for the single uct individual
 	toolbox.register('create_initial_uct', originalMCTSFunc)
 	toolbox.register('initial_uct', tools.initIterate, creator.Individual, toolbox.create_initial_uct)
-
 
 
 def produceCompiledPop(pop, current_iteration):
@@ -144,9 +127,13 @@ def produceCompiledPop(pop, current_iteration):
 		UCBFunc_code = marshal.dumps(toolbox.compile(pop[i]).__code__)
 		compiled_pop.append(UCBFunc_code)
 
+	data_buffer = ""
+	for i in compiled_pop:
+		data_buffer += str(i) + "\n"
+
 	#save current population equations
 	output_file = createFile(output_filename)
-	writeToFile(output_file, compiled_pop)
+	writeToFile(output_file, data_buffer)
 	closeFile(output_file)
 
 	return compiled_pop
@@ -172,19 +159,13 @@ def getResultsFromFiles():
 	return evals
 
 if __name__ == "__main__":
-	# eraseFile(log_filename)
-	# temp_file = createFile(results_filename)
-	# closeFile(temp_file)
+	eraseFile(log_filename)
+
+	temp_file = createFile(results_filename)
+	closeFile(temp_file)
 
 	eachGenResultsToWrite(True)
 
-	m = mp.Manager()
-	queue = m.Queue()
-	
-	number_of_consumers = pop_size
-	print(number_of_consumers)
-	pool = mp.Pool(processes=number_of_consumers,  maxtasksperchild=1)
-	
 	#set up
 	createThePset()
 	createTheCreator()
@@ -202,25 +183,15 @@ if __name__ == "__main__":
 		if current_iteration == 1 and last_iteration == 0: 
 			pop = initialPop()
 			compiled_pop = produceCompiledPop(pop, current_iteration)
-			#pool.map(runConsumer, range(1,len(compiled_pop)), chunksize=1)
-			#toolbox.map(toolbox.working_workers,range(1,len(compiled_pop)))
-			for i in range(1,len(compiled_pop)):
-				pool.apply_async(runConsumer, args = (i, queue))
-			
 			last_iteration = current_iteration
 
-		# log_file = openFile(log_filename)
-		# log_data = readFromFile(log_file)
-		# closeFile(log_file)
-		# print("log file length", len(log_data))
-		# eraseFile(log_filename)
-		# print("prod queue size", queue.qsize())
-
+		log_file = openFile(log_filename)
+		log_data = readFromFile(log_file)
+		closeFile(log_file)
+		print("log file length", len(log_data))
 		#all workers are done
-		if queue.qsize() >= pop_size:
-			#empty the queue
-			while(queue.qsize() > 0):
-				queue.get()
+		if len(log_data) >= pop_size:
+			eraseFile(log_filename)
 			evals = getResultsFromFiles()
 
 			for i in range(len(evals)):
@@ -249,7 +220,7 @@ if __name__ == "__main__":
 			pop = offspring
 			print('gen done')
 
-			eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims+1, pop_size=pop_size, pop=pop, current_time=current_time)
+			eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims, pop_size=pop_size, pop=pop, current_time=current_time)
 			addToFile(results_filename, "Best for Generation " + str(current_iteration))
 			for fp in toolbox.select(pop, k = 3):
 				addToFile(results_filename, (str(fp) + ";" + str(fp.fitness))  )
@@ -257,67 +228,18 @@ if __name__ == "__main__":
 			current_iteration += 1
 
 
-		if current_iteration >= number_of_generations+1:
-			break
-
 		if current_iteration > last_iteration:
 			print("Next Evolve")
 			compiled_offspring = produceCompiledPop(offspring, current_iteration)
 			last_iteration = current_iteration
 
+		if current_iteration >= number_of_generations+1:
+			break
+
 		time.sleep(SLEEP_TIME_PRODUCER)
-		
-	print("FREE")
-
-	
-	
-
-	# print("before map")
-	# evals = toolbox.map(toolbox.evaluate, compiled_pop)
-	# print("after map")
-	# for i in range(len(compiled_pop)):
-	#     pop[i].fitness = evals[i]
-
-	# for g in range(ngen):
-	#     print('gen started')
-	#     current_time = time.time()
-	#     pop = toolbox.select(pop, len(pop))
-
-	#     offspring = toolbox.clone(pop)
-	#     i = 0
-	#     while i < len(offspring) - 1:
-	#         random_n = random.uniform(0, 1)
-	#         if random_n <= cxpb:
-	#             ind1, ind2 = toolbox.mate(offspring[i], offspring[i+1])
-	#             offspring[i] = ind1
-	#             offspring[i+1] = ind2
-
-	#         i += 2
-
-	#     for i in range(len(offspring)):
-	#         random_n = random.uniform(0, 1)
-	#         if random_n <= mutpb:
-	#             offspring[i] = toolbox.mutate(offspring[i])[0]
-
-	#     compiled_offspring = []
-	#     for i in range(len(offspring)):
-	#         UCBFunc_code = marshal.dumps(toolbox.compile(offspring[i]).__code__)
-
-	#         compiled_offspring.append(UCBFunc_code)
-
-	#     evals = toolbox.map(toolbox.evaluate, compiled_offspring)
-	#     for i in range(len(compiled_offspring)):
-	#         offspring[i].fitness = evals[i]
-
-	#     pop = offspring
-
-	#     print('gen done')
-
-	#     eachGenResultsToWrite(False, g=g, num_sims=num_sims+1, pop_size=pop_size, pop=pop, current_time=current_time)
-	
+			
 	writeFinalEquations(pop)
 
-	pool.terminate()
 
 	print('done')
 

@@ -33,12 +33,8 @@ def readFromFile(file_pointer):
 	return result
 
 def writeToFile(file_pointer, data):
-	if(type(data) == list):
-		for line in data:
-			writeToFile(file_pointer, str(line))
-	else:
-		file_pointer.write(data + "\n")
-	
+	file_pointer.write(data + "\n")
+
 	return True
 
 def addToFile(filename, data):
