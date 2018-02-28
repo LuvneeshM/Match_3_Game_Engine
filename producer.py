@@ -5,6 +5,7 @@ import marshal
 import random
 import time
 import uuid
+import itertools
 from deap import base
 from deap import creator
 from deap import gp
@@ -82,13 +83,9 @@ def createThePset():
 	pset.addPrimitive(operator.mul, [float, float], float)
 	pset.addPrimitive(operator.truediv, [float, float], float)
 	pset.addPrimitive(math.sqrt, [float], float)
-	pset.addPrimitive(math.log, [float],float)
-	pset.addTerminal(1.414, float)
-	pset.addTerminal(0.5, float)
-	pset.addTerminal(2.0, float)
-	pset.addTerminal(3.0, float)
-	pset.addTerminal(4.0, float)
-	pset.addTerminal(5.0, float)
+	#pset.addPrimitive(math.log, [float], float)
+	for i in range(10):
+		pset.addTerminal(random.uniform(0, 10), float)
 
 def createTheCreator():
 	creator.create('FitnessMax', base.Fitness, weights=(1.0,))
@@ -99,18 +96,90 @@ def createTheToolbox():
 	global toolbox
 	toolbox = base.Toolbox()
 	toolbox.register('compile', gp.compile, pset=pset)
-	toolbox.register('expr', gp.genFull, pset=pset, min_=5, max_=5)
+	toolbox.register('indvCreation', individualCreation, pset=pset, min_=2, max_=6)
+	toolbox.register('expr', gp.genHalfAndHalf, pset=pset, min_=2, max_=6)
 	toolbox.register('individual', tools.initIterate, creator.Individual,
-	                toolbox.expr)
-	
+					toolbox.indvCreation)
+		
 	toolbox.register('population', tools.initRepeat, list, toolbox.individual)
 	toolbox.register('select', tools.selBest)
 	toolbox.register('mate', gp.cxOnePoint)
-	toolbox.register('mutate', gp.mutUniform, expr=toolbox.expr, pset=pset)
+	toolbox.register('mutate', mutationFunction, expr=toolbox.expr, pset=pset)
 
 	#for the single uct individual
 	toolbox.register('create_initial_uct', originalMCTSFunc)
 	toolbox.register('initial_uct', tools.initIterate, creator.Individual, toolbox.create_initial_uct)
+
+def mutateConstant(individual, expr, pset):
+	candidates = []
+	for term in individual:
+		if isinstance(term, gp.Terminal) and 'ARG' not in term.name:
+			candidates.append((term, individual.index(term)))
+    
+	if len(candidates) == 0:
+		return gp.mutUniform(individual, expr=expr, pset=pset)[0]
+    
+	chosen, index = random.choice(candidates)
+	new_candidate = gp.PrimitiveTree(gp.genFull(pset=pset, max_=0, min_=0))
+	while chosen.name == new_candidate[0].name or 'ARG' in new_candidate[0].name:
+		new_candidate = gp.PrimitiveTree(gp.genFull(pset=pset, max_=0, min_=0))
+        
+	return gp.PrimitiveTree(individual[:index] + [new_candidate[0]] + individual[index+1:])
+
+def mutationFunction(individual, expr, pset):
+	r = random.uniform(0, 1)
+	if r > 0.5:
+		return mutateConstant(individual, expr, pset)
+        
+	return gp.mutUniform(individual, expr=expr, pset=pset)[0]
+
+def individualCreation(pset, min_, max_):
+	return simplifyFunction(gp.PrimitiveTree(toolbox.expr()))
+
+
+def simplifyFunction(tree):
+	global toolbox
+	result = list(tree)
+    
+	offset = 0
+    
+	for i in range(0, len(tree)):
+		index = i
+		p = tree[i]
+		subtree_slice = tree.searchSubtree(index)
+		diff_index = subtree_slice.stop - subtree_slice.start - 1
+		if diff_index <= 2 and diff_index > 0:
+			temp = tree[subtree_slice.start+1:subtree_slice.stop]
+            
+			isReducible = True
+            
+			for i in temp:
+				if not isinstance(i, gp.Terminal):
+					isReducible = False
+					break
+				else:
+					try:
+						float(i.name)
+					except:
+						isReducible = False
+						break
+            
+			if isReducible:
+				subtree = [p] + temp
+				subtree_ind = gp.PrimitiveTree(subtree)
+				subtree_func = toolbox.compile(subtree_ind)
+				subtree_result = subtree_func(0,0,0)
+                
+				new_terminal = gp.Terminal(subtree_result, False, float)
+                
+				result = result[:subtree_slice.start-offset] + [new_terminal] + result[subtree_slice.stop-offset:]
+                
+				offset += diff_index
+    
+	if len(tree) == len(result):
+		return tree
+
+	return creator.Individual(simplifyFunction(gp.PrimitiveTree(result)))
 
 
 def produceCompiledPop(pop, current_iteration):
@@ -119,7 +188,7 @@ def produceCompiledPop(pop, current_iteration):
 	func_globals['mul'] = operator.mul
 	func_globals['truediv'] = operator.truediv
 	func_globals['sqrt'] = math.sqrt
-	func_globals['log'] = math.log
+	#func_globals['log'] = math.log
 
 	compiled_pop = []
 	compiled_pop.append(str(current_iteration))
@@ -136,14 +205,12 @@ def produceCompiledPop(pop, current_iteration):
 	writeToFile(output_file, data_buffer)
 	closeFile(output_file)
 
-	return compiled_pop
-
 def initialPop():
 	#create population
 	#population of 5 so computer doesnt cry
-	pop = toolbox.population (pop_size-1)
-	initial_uct_indiv = toolbox.initial_uct()
-	pop.append(initial_uct_indiv)
+	pop = toolbox.population (pop_size)
+	#initial_uct_indiv = toolbox.initial_uct()
+	#pop.append(initial_uct_indiv)
 	writeOriginalEquations(pop)
 	return pop
 
@@ -178,11 +245,13 @@ if __name__ == "__main__":
 	compiled_pop = None
 	offspring = None
 	
+	current_time = time.time()
+
 	while True:
 		#first time
 		if current_iteration == 1 and last_iteration == 0: 
 			pop = initialPop()
-			compiled_pop = produceCompiledPop(pop, current_iteration)
+			produceCompiledPop(pop, current_iteration)
 			last_iteration = current_iteration
 
 		log_file = openFile(log_filename)
@@ -195,42 +264,57 @@ if __name__ == "__main__":
 			evals = getResultsFromFiles()
 
 			for i in range(len(evals)):
-				pop[i].fitness = evals[i]
-						
-			print('gen started')
-			current_time = time.time()
-			pop = toolbox.select(pop, len(pop))
-
-			offspring = toolbox.clone(pop)
-			i = 0
-			while i < len(offspring) - 1:
-				random_n = random.uniform(0, 1)
-				if random_n <= cxpb:
-					ind1, ind2 = toolbox.mate(offspring[i], offspring[i+1])
-					offspring[i] = ind1
-					offspring[i+1] = ind2
-
-				i += 2
-
-			for i in range(len(offspring)):
-				random_n = random.uniform(0, 1)
-				if random_n <= mutpb:
-					offspring[i] = toolbox.mutate(offspring[i])[0]
-
-			pop = offspring
-			print('gen done')
+				pop[i].fitness = (evals[i],)
 
 			eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims, pop_size=pop_size, pop=pop, current_time=current_time)
 			addToFile(results_filename, "Best for Generation " + str(current_iteration))
 			for fp in toolbox.select(pop, k = 3):
 				addToFile(results_filename, (str(fp) + ";" + str(fp.fitness))  )
 			addToFile(results_filename, "\n")
+
 			current_iteration += 1
 
+			if (current_iteration >= number_of_generations+1):
+				break
 
+			elite_size = int(len(pop) / 10)
+			mutation_size = int(elite_size * 4.5)
+			crossover_size = int(len(pop) - elite_size - mutation_size)
+		
+			current_time = time.time()
+			elite = toolbox.select(pop, elite_size)
+
+			candidates = toolbox.select(pop, int(len(pop) / 2))
+			candidates = toolbox.clone(candidates)
+
+			mutation_individuals = []
+			sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
+			for i in sample_individuals_indexes:
+				mutation_individuals.append(simplifyFunction(toolbox.mutate(candidates[i])))
+    
+			candidates = toolbox.select(pop, int(len(pop) / 2))
+			candidates = toolbox.clone(candidates)
+
+			crossover_individuals = []
+			pairings = tuple(itertools.combinations(candidates, 2))
+			
+			selected = random.sample(pairings, crossover_size)
+			for pair in selected:
+				try:
+					child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
+					crossover_individuals.append(simplifyFunction(child1))
+					if len(crossover_individuals) <= crossover_size - 1:
+						crossover_individuals.append(simplifyFunction(child2))
+					if len(crossover_individuals) == crossover_size:
+						break
+				except:
+					raise
+
+			pop = elite + mutation_individuals + crossover_individuals
+					
 		if current_iteration > last_iteration:
 			print("Next Evolve")
-			compiled_offspring = produceCompiledPop(offspring, current_iteration)
+			produceCompiledPop(pop, current_iteration)
 			last_iteration = current_iteration
 
 		if current_iteration >= number_of_generations+1:
@@ -242,4 +326,3 @@ if __name__ == "__main__":
 
 
 	print('done')
-
