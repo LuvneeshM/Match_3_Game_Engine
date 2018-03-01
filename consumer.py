@@ -7,8 +7,8 @@ import random
 import game
 from config import *
 
-from multiprocessing import Process
-import multiprocessing
+#from multiprocessing import Process
+#import multiprocessing
 
 input_file = "current_gen_info.txt"
 output_file_prefix = "output_"
@@ -16,11 +16,11 @@ output_file_suffix = ".txt"
 
 log_file = "log.txt"
 
-def init():
-	created = multiprocessing.Process()
-	current = multiprocessing.current_process()
-	print ('running:', current.name, current._identity)
-	print ('created:', created.name, created._identity)
+# def init():
+# 	created = multiprocessing.Process()
+# 	current = multiprocessing.current_process()
+# 	print ('running:', current.name, current._identity)
+# 	print ('created:', created.name, created._identity)
 	
 def playGame(individual):
 	seeds = random.sample(range(10000), number_of_games_per_worker)
@@ -66,5 +66,5 @@ def compute(line_spot):
 			time.sleep(SLEEP_TIME_CONSUMER)
 
 if __name__=='__main__':
-	id = (int(sys.argv[1]) % LIMIT_OF_INDIVIDUALS)
+	id = (int(sys.argv[1]) % LIMIT_OF_INDIVIDUALS)+1
 	compute(id)

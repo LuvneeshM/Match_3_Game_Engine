@@ -11,7 +11,7 @@ from deap import creator
 from deap import gp
 from deap import tools
 from deap import algorithms
-import multiprocessing as mp
+#import multiprocessing as mp
 from prettyPrintTree import prettyPrint
 
 from global_functions import *
