@@ -58,6 +58,8 @@ def compute(line_spot):
 			file_pointer = createFile(output_file)
 			writeToFile(file_pointer, str(result))
 			closeFile(file_pointer)
+
+			time.sleep(0.5)
 			
 			addToFile(log_file, "DONE")
 			current_iteration += 1
