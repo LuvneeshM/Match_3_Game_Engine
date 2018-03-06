@@ -6,11 +6,14 @@ import ast
 import random
 import game
 from config import *
+from lockfile import LockFile
 
 #from multiprocessing import Process
 #import multiprocessing
 
 input_file = "current_gen_info.txt"
+consumer_gen_file = "consumer_current_gen_info.txt"
+
 output_file_prefix = "output_"
 output_file_suffix = ".txt"
 
@@ -27,46 +30,71 @@ def playGame(individual):
 	print("playing Game")
 	score = game.main(seeds, individual, False)
 	return score
-	
-def tempPlace(line_spot):
-	return line_spot
-
-
 
 def compute(line_spot):
 	temp = 0 
 	current_iteration = 0
-	
-	output_file = output_file_prefix + str(line_spot) + output_file_suffix
- 
+	 
+	lock_input = LockFile("data/"+input_file)
+	lock_output = LockFile("data/"+consumer_gen_file)
+
 	while True:
 		print("I AM ALIVE",line_spot)
-		file_pointer = openFile(input_file)
-		file_data = readFromFile(file_pointer)
-		closeFile(file_pointer)
-		
-		temp = int(file_data[0])	
 
-		if current_iteration >= number_of_generations:
-			print("I AM DEAD ")
-			break
+#		print ("Acquiring input_file")
+		if (not lock_input.is_locked()):
 
-		if temp > current_iteration:
-			individual = ast.literal_eval(file_data[line_spot])
-			result = playGame(individual)
-
-			file_pointer = createFile(output_file)
-			writeToFile(file_pointer, str(result))
+			lock_input.acquire()
+			file_pointer = open("data/" + input_file, "r+")
+			file_data = readFromFile(file_pointer)
+			file_pointer.seek(0)
+			file_pointer.truncate()
+			individual = None
+			if (len(file_data) > 2):
+				individual = file_data[1]
+			temp = int(file_data[0])
+			if len(file_data) > 2:
+				file_data = [file_data[0]] + [l for l in file_data[2:]]
+			else:
+				file_data = [file_data[0]]
+			for line in file_data:
+				writeToFile(file_pointer, str(line))	
 			closeFile(file_pointer)
 
-			time.sleep(0.5)
-			
-			addToFile(log_file, "DONE")
-			current_iteration += 1
+			time.sleep(0.1)
+			lock_input.release()
+#			print ("Released input_file")
+
+			current_iteration = int(file_data[0])
+
+			if current_iteration >= number_of_generations+1:
+				print("I AM DEAD ")
+				break
+
+			if individual != None:
+				individual = ast.literal_eval(individual)
+				result = playGame(individual)
+
+#				print ("Acquiring gen_file")
+				lock_output.acquire()
+#				print ("Got the gen lock")
+				
+				addToFile(consumer_gen_file, str(individual) + ";" + str(result))
+				time.sleep(0.1)
+				lock_output.release()
+#				print ("Released gen_file")
+
+				individual = None
+
+			else:
+				print("Consumer " + str(id) + " is Sleeping")
+				time.sleep(SLEEP_TIME_CONSUMER)
 		else:
-			print("Consumer " + str(id) + " is Sleeping")
+			print("Sleep cause no lock")
 			time.sleep(SLEEP_TIME_CONSUMER)
 
 if __name__=='__main__':
-	id = (int(sys.argv[1]) % LIMIT_OF_INDIVIDUALS)+1
+	id = (int(sys.argv[1]) % LIMIT_OF_INDIVIDUALS)
 	compute(id)
+	print ("all done")
+	

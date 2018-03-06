@@ -9,7 +9,7 @@ def createFile(filename):
 	return file_pointer
 
 def openFile(filename):
-	file_pointer = open(directory + filename, 'r')
+	file_pointer = open(directory + filename, "r")
 	
 	return file_pointer
 	

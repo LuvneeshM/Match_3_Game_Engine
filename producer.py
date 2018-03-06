@@ -20,6 +20,8 @@ import consumer
 
 #from contextlib import redirect_stdout
 import sys
+from lockfile import LockFile
+
 
 #global variables
 pool = None
@@ -35,6 +37,12 @@ ngen=number_of_generations
 
 #files
 output_filename = "current_gen_info.txt"
+createFile(output_filename)
+time.sleep(0.5)
+
+consumer_gen_file = "consumer_current_gen_info.txt"
+createFile(consumer_gen_file)
+time.sleep(0.5)
 
 log_filename = "log.txt"
 
@@ -181,6 +189,9 @@ def simplifyFunction(tree):
 
 	return creator.Individual(simplifyFunction(gp.PrimitiveTree(result)))
 
+def deleteContent(fd):
+    os.ftruncate(fd, 0)
+    os.lseek(fd, 0, os.SEEK_SET)
 
 def produceCompiledPop(pop, current_iteration):
 	func_globals = globals()
@@ -201,9 +212,18 @@ def produceCompiledPop(pop, current_iteration):
 		data_buffer += str(i) + "\n"
 
 	#save current population equations
-	output_file = createFile(output_filename)
-	writeToFile(output_file, data_buffer)
-	closeFile(output_file)
+	lock = LockFile("data/" + output_filename)
+	lock.acquire()
+	#delete current content
+	fd = open("data/" + output_filename, "r+")
+	fd.seek(0)
+	fd.truncate()
+	#output_file = createFile(output_filename)
+	writeToFile(fd, data_buffer)
+	closeFile(fd)
+	lock.release()
+
+	return compiled_pop
 
 def initialPop():
 	#create population
@@ -214,15 +234,19 @@ def initialPop():
 	writeOriginalEquations(pop)
 	return pop
 
-def getResultsFromFiles():
+def getResultsFromFiles(compiled_pop, log_data):
 	evals = []
 	
-	for i in range(1, pop_size+1):
-		file_pointer = openFile("output_"+str(i)+".txt")
-		file_data = readFromFile(file_pointer)
-		closeFile(file_pointer)
+	# eraseFile("fk.txt")
 
-		evals.append(float(file_data[0]))
+	for individual in compiled_pop:
+		for consumer_individual in log_data:
+			left_side_consumer_indiv = consumer_individual[:consumer_individual.rfind(";")]
+			if (left_side_consumer_indiv == str(individual)):
+				evals.append(float(consumer_individual[consumer_individual.rfind(";")+1:]))
+				break
+			
+			
 	return evals
 
 if __name__ == "__main__":
@@ -251,17 +275,22 @@ if __name__ == "__main__":
 		#first time
 		if current_iteration == 1 and last_iteration == 0: 
 			pop = initialPop()
-			produceCompiledPop(pop, current_iteration)
+			compiled_pop = produceCompiledPop(pop, current_iteration)
 			last_iteration = current_iteration
 
-		log_file = openFile(log_filename)
+		consumer_data_lock = LockFile("data/"+consumer_gen_file)
+		consumer_data_lock.acquire()
+		log_file = openFile(consumer_gen_file)
 		log_data = readFromFile(log_file)
 		closeFile(log_file)
-		print("log file length", len(log_data))
+		consumer_data_lock.release()
+		
 		#all workers are done
-		if len(log_data) >= pop_size:
-			eraseFile(log_filename)
-			evals = getResultsFromFiles()
+		if len(log_data) == pop_size:
+			consumer_data_lock.acquire()
+			eraseFile(consumer_gen_file)
+			consumer_data_lock.release()
+			evals = getResultsFromFiles(compiled_pop[1:], log_data)
 
 			for i in range(len(evals)):
 				pop[i].fitness = (evals[i],)
@@ -314,8 +343,9 @@ if __name__ == "__main__":
 					
 		if current_iteration > last_iteration:
 			print("Next Evolve")
-			produceCompiledPop(pop, current_iteration)
+			compiled_pop = produceCompiledPop(pop, current_iteration)
 			last_iteration = current_iteration
+			print("Made Next Evolve")
 
 		if current_iteration >= number_of_generations+1:
 			break
@@ -324,5 +354,14 @@ if __name__ == "__main__":
 			
 	writeFinalEquations(pop)
 
+	lock = LockFile("data/" + output_filename)
+	lock.acquire()
+	fd = open("data/" + output_filename, "r+")
+	fd.seek(0)
+	fd.truncate()
+	#output_file = createFile(output_filename)
+	writeToFile(fd, str(current_iteration))
+	closeFile(fd)
+	lock.release()
 
 	print('done')
