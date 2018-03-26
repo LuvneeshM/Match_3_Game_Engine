@@ -1,100 +1,77 @@
 from global_functions import *
+from config import *
 import sys
-import os
 import time
 import ast
 import random
 import game
-from config import *
-from lockfile import LockFile
 
-#from multiprocessing import Process
-#import multiprocessing
-
-input_file = "current_gen_info.txt"
-consumer_gen_file = "consumer_current_gen_info.txt"
-
-output_file_prefix = "output_"
-output_file_suffix = ".txt"
-
-log_file = "log.txt"
-
-# def init():
-# 	created = multiprocessing.Process()
-# 	current = multiprocessing.current_process()
-# 	print ('running:', current.name, current._identity)
-# 	print ('created:', created.name, created._identity)
-	
 def playGame(individual):
 	seeds = random.sample(range(10000), number_of_games_per_worker)
-	print("playing Game")
 	score = game.main(seeds, individual, False)
 	return score
 
-def compute(line_spot):
-	temp = 0 
-	current_iteration = 0
-	 
-	lock_input = LockFile("data/"+input_file)
-	lock_output = LockFile("data/"+consumer_gen_file)
 
-	while True:
-		print("I AM ALIVE",line_spot)
+id = int(sys.argv[1])
+current_iteration = 1
 
-#		print ("Acquiring input_file")
-		if (not lock_input.is_locked()):
+current_directory = "data/generation-" + str(current_iteration) + "/"
 
-			lock_input.acquire()
-			file_pointer = open("data/" + input_file, "r+")
-			file_data = readFromFile(file_pointer)
-			file_pointer.seek(0)
-			file_pointer.truncate()
-			individual = None
-			if (len(file_data) > 2):
-				individual = file_data[1]
-			temp = int(file_data[0])
-			if len(file_data) > 2:
-				file_data = [file_data[0]] + [l for l in file_data[2:]]
-			else:
-				file_data = [file_data[0]]
-			for line in file_data:
-				writeToFile(file_pointer, str(line))	
-			closeFile(file_pointer)
+input_file = "test.txt"
+output_file_prefix = "ind-"
+output_file_sufix = ".txt"
 
-			time.sleep(0.1)
-			lock_input.release()
-#			print ("Released input_file")
 
-			current_iteration = int(file_data[0])
+#def compute():
+temp = 0 
+current_iteration = 0
 
-			if current_iteration >= number_of_generations+1:
-				print("I AM DEAD ")
-				break
+while True:
+	try:
+		file_pointer = openFile(current_directory + input_file)
+		file_data = readFromFile(file_pointer)
+		closeFile(file_pointer)
+		temp = int(file_data[0])
+	except:
+		print ("Failed to open ", current_directory + input_file)
+		time.sleep(0.1)
+		continue
 
-			if individual != None:
-				individual = ast.literal_eval(individual)
-				result = playGame(individual)
+	length_of_data = 0
+	try:
+		offset = (id % 2) - 2
+		test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals + offset) + ".txt")
+		test_data = readLineFromFile(test_pointer)
+		length_of_data = len(test_data)
+	except:
+		pass
 
-#				print ("Acquiring gen_file")
-				lock_output.acquire()
-#				print ("Got the gen lock")
-				
-				addToFile(consumer_gen_file, str(individual) + ";" + str(result))
-				time.sleep(0.1)
-				lock_output.release()
-#				print ("Released gen_file")
+	print ("Data len: ", length_of_data)
+	if length_of_data < number_of_simulations:
+		population = [ast.literal_eval(file_data[i]) for i in range(1, len(file_data))]
+		
+		evaluated_pop = [ast.literal_eval(file_data[i+1]) for i in range(0, len(file_data)-1) if (i % 10) == (id % 10)]
 
-				individual = None
+		print(id, "is playing Games")
+		print(len(evaluated_pop))
+		result = list(map(playGame, evaluated_pop))
+		print(id, "finished playing Games")
 
-			else:
-				print("Consumer " + str(id) + " is Sleeping")
-				time.sleep(SLEEP_TIME_CONSUMER)
-		else:
-			print("Sleep cause no lock")
-			time.sleep(SLEEP_TIME_CONSUMER)
-
-if __name__=='__main__':
-	id = (int(sys.argv[1]) % LIMIT_OF_INDIVIDUALS)
-	compute(id)
-	print ("all done")
+		i = id % 10
+		index = 0
+		while i < (len(result) * 10):
+			addToFile(current_directory + output_file_prefix + str(i) + output_file_sufix, str(result[index]) + ";")
+			i += 10
+			index += 1
+			#addToFile(log_file, "DONE")
+		
+		time.sleep(5)
+		#current_iteration += 1
+	else:
+		current_iteration += 1
+		print ("Start gen ", current_iteration)
+		current_directory = "data/generation-" + str(current_iteration) + "/"
+		time.sleep(SLEEP_TIME_CONSUMER)
 	
+	if current_iteration >= number_of_generations+1:
+		break	

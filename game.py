@@ -61,7 +61,7 @@ def checkMove(list_of_moves, player_move):
 #swaps the positions (then that method will auto-update board and take care of points and stuff)
 def matchMade(board, player_move):
 	#will call the board swap_positions
-	board.swap_positions(board.board, player_move)
+	board.swap_positions(player_move)
 
 def runGame(randomSeedNumber, UCBFunctionToGet):
 	

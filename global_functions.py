@@ -1,4 +1,4 @@
-directory = "data/"
+directory = ""
 
 #def setDirectory(directory_path):
 #	directory = directory_path
@@ -24,6 +24,9 @@ def eraseFile(filename):
 	
 	return True
 	
+def readLineFromFile(file_pointer):
+	return file_pointer.read().split(";")[:-1] #TO REMOVE EMPTY ENTRY
+
 def readFromFile(file_pointer):
 	result = []
 	
@@ -39,7 +42,12 @@ def writeToFile(file_pointer, data):
 
 def addToFile(filename, data):
 	file_pointer = open(directory + filename, 'a')
-	file_pointer.write(data + "\n")
+	file_pointer.write(data)
 	file_pointer.close()
 	
 	return True
+
+def addToFileWithBreakline(filename, data):
+	file_pointer = open(directory + filename, 'a')
+	file_pointer.write(data + "\n")
+	file_pointer.close()

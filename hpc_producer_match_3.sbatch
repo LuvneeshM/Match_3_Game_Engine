@@ -11,7 +11,6 @@ module load python3/intel/3.6.3
 
 pip3 install --user numpy
 pip3 install --user deap
-pip3 install --user lockfile
 
 python3 producer.py
 #BLANK LINE UNDER THS LINE. SACRIFICE TO THE CARRIAGE RETURN GODS.

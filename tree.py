@@ -31,7 +31,11 @@ class State:
 				temp_board = self.board.clone()
 				#temp_board = copy.deepcopy(self.board)
 				move_to_make = (tuple_1,tuple_2)
-				temp_board.swap_positions(temp_board.board, move_to_make)
+				# print("Board in Main after sht happens")
+				#print(temp_board.board)
+				# print(self.list_of_possible_moves.move_list)
+				# print(move_to_make)
+				temp_board.swap_positions(move_to_make)
 				temp_state = State()
 				temp_state.set_score(temp_board.points)
 				temp_state.board = temp_board
@@ -46,7 +50,7 @@ class State:
 		tuple_2 = random.choice(self.list_of_possible_moves.move_list[tuple_1])
 
 		move = (tuple_1,tuple_2)
-		self.board.swap_positions(self.board.board, move)
+		self.board.swap_positions(move)
 		self.list_of_possible_moves = self.board.possible_moves_to_make
 
 
@@ -115,10 +119,10 @@ class Node:
 		child_to_return = None
 		max_score = 0
 		for child in self.childArray:
-			if child.state.score > max_score: 
-				max_score = child.state.score
+			if child.get_win_score > max_score: 
+				max_score = child.get_win_score
 				child_to_return = child
-				
+
 		return child_to_return
 		pass
 

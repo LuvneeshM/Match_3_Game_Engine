@@ -8,21 +8,26 @@ class Board:
 	#player move will make a match 3
 	#make the swap and update board, give points, etc
 	#player move --> ((#,#), (#,#))
-	def swap_positions(self, board, player_move):
+	def swap_positions(self, player_move):
 		#get the positions
 		first_pos = player_move[0]
 		second_pos = player_move[1]
+
+		# print(self.board)
+		# print (self.possible_moves_to_make.move_list)
+		# print("first pos",first_pos)
+		# print("second pos",second_pos)
 		#make the swap
 		#if(first_pos[0] >= self.rows or first_pos[1] >= self.rows):
 		#	print("ARG")
 		#	print(self.possible_moves_to_make.move_list)
 		#cm	input()
 
-		temp_val = board[first_pos[0]][first_pos[1]]
-		board[first_pos[0]][first_pos[1]] = board[second_pos[0]][second_pos[1]]
-		board[second_pos[0]][second_pos[1]] = temp_val
+		temp_val = self.board[first_pos[0]][first_pos[1]]
+		self.board[first_pos[0]][first_pos[1]] = self.board[second_pos[0]][second_pos[1]]
+		self.board[second_pos[0]][second_pos[1]] = temp_val
 		#update board stuff now
-		self.find_matches(1, True, board)
+		self.find_matches(1, True, self.board)
 		###print("SCORE",self.points)
 
 	def isWinner(self):
@@ -66,6 +71,16 @@ class Board:
 	def init(self):
 		
 		self.create_board()
+		self.board = np.array(	
+[[163, 163,  19,   3,  19, 163,   3],
+ [163, 199,   3,  61,  61, 199,  19],
+ [199,  61,  43, 163, 163,  61,  43],
+ [  3,  43,  19,   3, 163,  43,  19],
+ [ 43,  19,   3,  19 ,  3 , 43,  19],
+ [ 43,  61,   3,  61,  19 ,  3, 199],
+ [ 19, 163,  19,  19, 199  ,19,  19]])
+		self.find_matches(1, False, self.board)
+		#print(self.board)
 
 	def set_up_award_points_dict(self):
 		self.award_points[3] = 0
@@ -579,21 +594,55 @@ class Board:
 				#top row guys
 				if x == 0 and y != 0 and y < (len(board[x])-1):
 					###print ("x: " + str(x) + " | y: " + str(y))
-					window = (board)[x:x+2, y-1:y+2]
-					temp_window = np.copy(window_zero)
-					for i in range(0, len(window)):
-						for j in range(0, len(window[i])):
-							temp_window[i+1][j] = window[i][j]
-					window = np.copy(temp_window)
+
+					'''
+					window = np.copy( (board)[x:x+2, y-1:y+2] )
+					np.insert(window, 0, [0, 0, 0], axis=0) # FOR inserting row
+					np.insert(window, 0, [0, 0, 0], axis=1) # FOR inserting column
+					'''
+					#1
+					# window = np.copy( (board)[x:x+2, y-1:y+2] )
+					# window = np.insert(window, 0, [0, 0, 0], axis=0)
+						
+					#2
+					window = np.insert((board)[x:x+2, y-1:y+2], 0, [0, 0, 0], axis=0)
+
+					#3
+					# window =  (board)[x:x+2, y-1:y+2]
+					# window = np.insert(window, 0, [0, 0, 0], axis=0)
+					
+					
+					
+
+
+					# window = (board)[x:x+2, y-1:y+2]
+					# temp_window = np.copy(window_zero)
+					# for i in range(0, len(window)):
+					# 	for j in range(0, len(window[i])):
+					# 		temp_window[i+1][j] = window[i][j]
+					# window = np.copy(temp_window)
 				#left guy
 				elif x != 0 and y == 0 and x < (len(board)-1):
-					###print ("x: " + str(x) + " | y: " + str(y))
-					window = (board)[x-1:x+2, y:y+2]
-					temp_window = np.copy(window_zero)
-					for i in range(0, len(window)):
-						for j in range(0, len(window[i])):
-							temp_window[i][j+1] = window[i][j]
-					window = np.copy(temp_window)
+					#1
+					# window = np.copy( (board)[x-1:x+2, y:y+2] )
+					# window = np.insert(window, 0, [0, 0, 0], axis=1)
+					
+					#2
+					window = np.insert((board)[x-1:x+2, y:y+2], 0, [0, 0, 0], axis=1)
+
+					#3
+					# window = (board)[x-1:x+2, y:y+2]
+					# window = np.insert(window, 0, [0, 0, 0], axis=1)
+					
+					
+					
+
+					# window = (board)[x-1:x+2, y:y+2]
+					# temp_window = np.copy(window_zero)
+					# for i in range(0, len(window)):
+					# 	for j in range(0, len(window[i])):
+					# 		temp_window[i][j+1] = window[i][j]
+					# window = np.copy(temp_window)
 				#last guy break
 				elif (x == (len(board)-1) and y == (len(board[x])-1)) or (x == 0 and y == 0) or (x == 0 and y == len(board[x])-1) or (x == len(board)-1 and y == 0):
 					###print ("KILL " + str(x) + "," + str(y))
@@ -603,11 +652,28 @@ class Board:
 					###print ("x: " + str(x) + " | y: " + str(y))
 					window = (board)[x-1:x+2, y-1:y+2]
 					if y == (len(board[x])-1) or x == (len(board)-1):
+						#1
+						# window = np.copy( (board)[x-1:x+1, y-1:y+1] )
+						# window = np.insert(window, 2, [0, 0], axis=1)
+						# window = np.insert(window, 2, [0, 0, 0], axis=0)
+
+						#2
+						window = np.insert((board)[x-1:x+1, y-1:y+1], 2, [0, 0], axis=1)
+						window = np.insert(window, 2, [0, 0, 0], axis=0)
+
+						#3
+						# window = (board)[x-1:x+1, y-1:y+1]
+						# window = np.insert(window, 2, [0, 0], axis=1)
+						# window = np.insert(window, 2, [0, 0, 0], axis=0)
+						
+
+					'''
 						temp_window = np.copy(window_zero)
 						for i in range(0, len(window)):
 							for j in range(0, len(window[i])):
 								temp_window[i][j] = window[i][j]
 						window = np.copy(temp_window)
+					'''
 
 				###print(window,"\n")				
 				center_of_window_value = board[x][y]
@@ -831,4 +897,4 @@ class Board:
 
 	#future state of board
 	def sim_next_state(self,move_made):
-		self.swap_positions(self.board,move_made)
+		self.swap_positions(move_made)
