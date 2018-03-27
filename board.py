@@ -71,15 +71,7 @@ class Board:
 	def init(self):
 		
 		self.create_board()
-		self.board = np.array(	
-[[163, 163,  19,   3,  19, 163,   3],
- [163, 199,   3,  61,  61, 199,  19],
- [199,  61,  43, 163, 163,  61,  43],
- [  3,  43,  19,   3, 163,  43,  19],
- [ 43,  19,   3,  19 ,  3 , 43,  19],
- [ 43,  61,   3,  61,  19 ,  3, 199],
- [ 19, 163,  19,  19, 199  ,19,  19]])
-		self.find_matches(1, False, self.board)
+		
 		#print(self.board)
 
 	def set_up_award_points_dict(self):
@@ -131,16 +123,29 @@ class Board:
 		#print("GAMEBOARD")
 		#print((self.board))
 
-		vertical_sum_matrix = self.sum_vertical(board)
-		###print((vertical_sum_matrix))
-		possible_vert_coll = self.get_vertical_sum_that_matter(vertical_sum_matrix, board)
-		###print()
+		possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix = self.get_sum_that_matter(board)
 
-		horizontal_sum_matrix = self.sum_horizontal(board)
-		###print((horizontal_sum_matrix))
-		possible_horizontal_coll = self.get_horizontal_sum_that_matter(horizontal_sum_matrix, board)
-		###print()
+		# vertical_sum_matrix = self.sum_vertical(board)
+		# possible_vert_coll = self.get_vertical_sum_that_matter(vertical_sum_matrix, board)
 
+		# horizontal_sum_matrix = self.sum_horizontal(board)
+		# possible_horizontal_coll = self.get_horizontal_sum_that_matter(horizontal_sum_matrix, board)
+		
+		# print(board)
+		# print("vertical_sum_matrix")
+		# print(vertical_sum_matrix)
+		# print(vertical_sum_matrix_2)
+		# print("horizontal_sum_matrix")
+		# print(horizontal_sum_matrix)
+		# print(horizontal_sum_matrix_2)
+		# print("possible_vert_coll")
+		# print(possible_vert_coll)
+		# print(possible_vert_coll_2)
+		# print("possible_horizontal_coll")
+		# print(possible_horizontal_coll)
+		# print(possible_horizontal_coll_2)
+
+		
 		#compare the two sets for intersections =
 		self.find_intersection(possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix, givePoints, board)
 		###print()
@@ -221,6 +226,59 @@ class Board:
 		return horizontal_sum
 		'''
 
+	def get_sum_that_matter(self, board):
+		possible_vert_coll = {}
+		possible_horizontal_coll = {}
+		vertical_sum_matrix = [ [0 for i in range(self.cols)] for i in range(self.rows-2) ]
+		horizontal_sum_matrix = [ [0 for i in range(self.cols-2)] for i in range(self.rows) ]
+		for i in range(self.rows):
+			for j in range(self.cols):
+				#vertical
+				if (i < self.rows-2):
+
+					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
+					
+					vertical_sum_matrix[i][j] = sum_in_vert
+
+					for k in self.divisors:
+						if(sum_in_vert%k == 0 and sum_in_vert/k == 3):
+							possible_vert_coll[(i,j)] = set()
+							possible_vert_coll[(i,j)].add((i,j))
+							possible_vert_coll[(i,j)].add((i+1,j))
+							possible_vert_coll[(i,j)].add((i+2,j))
+							for x in range(i+1, self.rows):
+								if board[x][j] == k:
+									possible_vert_coll[(i, j)].add((x, j))
+									if x == self.rows - 1:
+										i = x
+								else:
+									i = x
+									break
+							break
+				#horizontal
+				if (j < self.cols-2):
+					sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
+					
+					horizontal_sum_matrix[i][j] = sum_in_horiz
+
+					for k in self.divisors:
+						if(sum_in_horiz%k == 0 and sum_in_horiz/k == 3):
+							possible_horizontal_coll[(i,j)] = set()
+							possible_horizontal_coll[(i,j)].add((i,j))
+							possible_horizontal_coll[(i,j)].add((i,j+1))
+							possible_horizontal_coll[(i,j)].add((i,j+2))
+							for x in range(j+1, self.cols):
+								if board[i][x] == k:
+									possible_horizontal_coll[(i, j)].add((i, x))
+									if x == self.cols - 1:
+										j = x
+								else:
+									j = x
+									break
+							break
+
+		return possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix
+
 	#vertical sums that represent 3 of same item back to back in col
 	#return possible_vert_coll
 	def get_vertical_sum_that_matter(self, sum_matrix, board):
@@ -229,8 +287,9 @@ class Board:
 			i = 0
 			while i < (self.rows - 2):
 				for k in self.divisors:
-					##print ("i: " + str(i))
-					##print ("j: " + str(j))
+
+					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
+
 					if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
 						possible_vert_coll[(i,j)] = set()
 						possible_vert_coll[(i,j)].add((i,j))
@@ -247,11 +306,6 @@ class Board:
 						break
 				i += 1
 
-		#				##print("row",i,"col",j,"divisor",k,"sum", sum_matrix[i][j])
-
-		#for pos in possible_vert_coll:
-		#	##print("match 3 vert",pos, possible_vert_coll[pos])
-		##print("PVC: " + str(possible_vert_coll))
 		return possible_vert_coll
 
 	#horizontal sums that represent 3 of same item back to back in row
@@ -264,6 +318,9 @@ class Board:
 				for k in self.divisors:
 					##print ("i: " + str(i))
 					##print ("j: " + str(j))
+
+					sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
+
 					if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
 						possible_horizontal_coll[(i,j)] = set()
 						possible_horizontal_coll[(i,j)].add((i,j))
@@ -280,7 +337,6 @@ class Board:
 						break
 				j += 1
 
-		##print("PHC: " + str(possible_horizontal_coll))
 		return possible_horizontal_coll
 
 	#looks for intersection between horizontal and vertical 
