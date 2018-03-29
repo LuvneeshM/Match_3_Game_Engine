@@ -273,25 +273,40 @@ if __name__ == "__main__":
 		
 	start = time.time()
 
-	if current_iteration == 1:
-		current_directory = "data/generation-" + str(current_iteration) + "/"
-		if not os.path.exists(current_directory):
-			os.makedirs(current_directory)
-		#produce()
-		pop = initialPop()
-		pop_data_buffer = ""
-		for i in range(0, len(pop)):
-			pop_data_buffer += str(pop[i])
-			if i < len(pop) - 1:
-				pop_data_buffer += "\n"
-		output_file_pop = createFile(current_directory + "my_pop.txt")
-		writeToFile(output_file_pop, pop_data_buffer)
-		closeFile(output_file_pop)
+	start_from_previous_gen = True
 
-		compiled_pop = produceCompiledPop(pop, current_iteration)
-		output_file = createFile(current_directory + output_filename)
-		writeToFile(output_file, compiled_pop)
-		closeFile(output_file)
+	if start_from_previous_gen:
+		if current_iteration == 1:
+			current_directory = "data/generation-" + str(current_iteration) + "/"
+			if not os.path.exists(current_directory):
+				os.makedirs(current_directory)
+			#produce(); read data from file named starting_gen_pop.txt
+			test_pointer = openFile("starting_gen_pop.txt")
+			pop = readFromFile(test_pointer)
+			closeFile(test_pointer)
+			for i in range(0, len(pop)):
+				pop[i] = creator.Individual(gp.PrimitiveTree.from_string(pop[i], pset))
+	else:
+		if current_iteration == 1:
+			current_directory = "data/generation-" + str(current_iteration) + "/"
+			if not os.path.exists(current_directory):
+				os.makedirs(current_directory)
+			#produce()
+			pop = initialPop()
+		
+	pop_data_buffer = ""
+	for i in range(0, len(pop)):
+		pop_data_buffer += str(pop[i])
+		if i < len(pop) - 1:
+			pop_data_buffer += "\n"
+	output_file_pop = createFile(current_directory + "starting_gen_pop.txt")
+	writeToFile(output_file_pop, pop_data_buffer)
+	closeFile(output_file_pop)
+
+	compiled_pop = produceCompiledPop(pop, current_iteration)
+	output_file = createFile(current_directory + output_filename)
+	writeToFile(output_file, compiled_pop)
+	closeFile(output_file)
 
 	while True:
 		# length_of_data_1 = 0
@@ -396,95 +411,3 @@ if __name__ == "__main__":
 			last_iteration = current_iteration
 		
 		time.sleep(SLEEP_TIME_PRODUCER)
-
-
-
-'''
-		# consumer_data_lock = LockFile("data/"+consumer_gen_file)
-		# consumer_data_lock.acquire()
-		log_file = openFile(consumer_gen_file)
-		log_data = readFromFile(log_file)
-		closeFile(log_file)
-		# consumer_data_lock.release()
-		
-		#all workers are done
-		if len(log_data) == pop_size:
-			# consumer_data_lock.acquire()
-			eraseFile(consumer_gen_file)
-			# consumer_data_lock.release()
-			evals = getResultsFromFiles(compiled_pop[1:], log_data)
-
-			for i in range(len(evals)):
-				pop[i].fitness = (evals[i],)
-
-			# eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims, pop_size=pop_size, pop=pop, current_time=current_time)
-			addToFile(results_filename, "Best for Generation " + str(current_iteration))
-			for fp in toolbox.select(pop, k = int(len(pop))):
-				addToFile(results_filename, (str(fp) + ";" + str(fp.fitness))  )
-			addToFile(results_filename, "\n")
-
-			current_iteration += 1
-
-			if (current_iteration >= number_of_generations+1):
-				break
-
-			elite_size = int(len(pop) / 10)
-			mutation_size = int(elite_size * 4.5)
-			crossover_size = int(len(pop) - elite_size - mutation_size)
-		
-			current_time = time.time()
-			elite = toolbox.select(pop, elite_size)
-
-			candidates = toolbox.select(pop, int(len(pop) / 2))
-			candidates = toolbox.clone(candidates)
-
-			mutation_individuals = []
-			sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
-			for i in sample_individuals_indexes:
-				mutation_individuals.append(simplifyFunction(toolbox.mutate(candidates[i])))
-    
-			candidates = toolbox.select(pop, int(len(pop) / 2))
-			candidates = toolbox.clone(candidates)
-
-			crossover_individuals = []
-			pairings = tuple(itertools.combinations(candidates, 2))
-			
-			selected = random.sample(pairings, crossover_size)
-			for pair in selected:
-				try:
-					child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
-					crossover_individuals.append(simplifyFunction(child1))
-					if len(crossover_individuals) <= crossover_size - 1:
-						crossover_individuals.append(simplifyFunction(child2))
-					if len(crossover_individuals) == crossover_size:
-						break
-				except:
-					raise
-
-			pop = elite + mutation_individuals + crossover_individuals
-					
-		if current_iteration > last_iteration:
-			print("Next Evolve")
-			compiled_pop = produceCompiledPop(pop, current_iteration)
-			last_iteration = current_iteration
-			print("Made Next Evolve")
-
-		if current_iteration >= number_of_generations+1:
-			break
-
-		time.sleep(SLEEP_TIME_PRODUCER)
-			
-	writeFinalEquations(pop)
-
-	# lock = LockFile("data/" + output_filename)
-	# lock.acquire()
-	fd = open("data/" + output_filename, "r+")
-	fd.seek(0)
-	fd.truncate()
-	#output_file = createFile(output_filename)
-	writeToFile(fd, str(current_iteration))
-	closeFile(fd)
-	# lock.release()
-
-	print('done')
-'''

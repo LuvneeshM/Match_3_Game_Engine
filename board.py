@@ -12,17 +12,7 @@ class Board:
 		#get the positions
 		first_pos = player_move[0]
 		second_pos = player_move[1]
-
-		# print(self.board)
-		# print (self.possible_moves_to_make.move_list)
-		# print("first pos",first_pos)
-		# print("second pos",second_pos)
-		#make the swap
-		#if(first_pos[0] >= self.rows or first_pos[1] >= self.rows):
-		#	print("ARG")
-		#	print(self.possible_moves_to_make.move_list)
-		#cm	input()
-
+		
 		temp_val = self.board[first_pos[0]][first_pos[1]]
 		self.board[first_pos[0]][first_pos[1]] = self.board[second_pos[0]][second_pos[1]]
 		self.board[second_pos[0]][second_pos[1]] = temp_val
@@ -48,16 +38,7 @@ class Board:
 		self.award_points = {}
 		self.set_up_award_points_dict()
 		self.possible_moves_to_make = MoveList()
-
-
-		#tester = [
-		#		[1, 1, 0],
-		#		[0, 1, 1],
-		#		[1, 0, 1],
-		#		]
-		#list_of_moves = self.get_possible_moves(tester)
-		#self.check_window(tester)
-		pass
+		self.found_match_before_game_start = False
 
 	def clone(self):
 		deep_tmp = Board(7,7)
@@ -105,7 +86,6 @@ class Board:
 		self.board = np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board(self.board)
 		
-
 		self.board_two =  np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board_two(self.board_two)
 
@@ -119,33 +99,19 @@ class Board:
 	SIMPLY CALL
 	self.find_matches(1, <BOOL>, board)
 	'''
+	
 	def find_matches(self, multiplier, givePoints, board):
 		#print("GAMEBOARD")
 		#print((self.board))
 
 		possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix = self.get_sum_that_matter(board)
-
-		# vertical_sum_matrix = self.sum_vertical(board)
-		# possible_vert_coll = self.get_vertical_sum_that_matter(vertical_sum_matrix, board)
-
-		# horizontal_sum_matrix = self.sum_horizontal(board)
-		# possible_horizontal_coll = self.get_horizontal_sum_that_matter(horizontal_sum_matrix, board)
 		
-		# print(board)
-		# print("vertical_sum_matrix")
-		# print(vertical_sum_matrix)
-		# print(vertical_sum_matrix_2)
-		# print("horizontal_sum_matrix")
-		# print(horizontal_sum_matrix)
-		# print(horizontal_sum_matrix_2)
-		# print("possible_vert_coll")
-		# print(possible_vert_coll)
-		# print(possible_vert_coll_2)
-		# print("possible_horizontal_coll")
-		# print(possible_horizontal_coll)
-		# print(possible_horizontal_coll_2)
+		# vertical_sum_matrix_2 = self.sum_vertical(board)
+		# possible_vert_coll_2 = self.get_vertical_sum_that_matter(vertical_sum_matrix, board)
 
-		
+		# horizontal_sum_matrix_2 = self.sum_horizontal(board)
+		# possible_horizontal_coll_2 = self.get_horizontal_sum_that_matter(horizontal_sum_matrix, board)
+
 		#compare the two sets for intersections =
 		self.find_intersection(possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix, givePoints, board)
 		###print()
@@ -175,10 +141,11 @@ class Board:
 			multiplier += 1
 			if(pointsToAdd != 0):
 				self.find_matches(multiplier, True, board)
+		#make sure when clearing, no ne board has
+		elif ( givePoints == False and self.found_match_before_game_start == True):
+			self.found_match_before_game_start = False
+			self.find_matches(multiplier, False, board) 
 			
-		else: 
-			###print("no matches, next")
-			pass
 		#moves_made is a MoveList
 		self.possible_moves_to_make = self.get_possible_moves(board)
 		while (self.possible_moves_to_make.move_list == { }):
@@ -231,52 +198,52 @@ class Board:
 		possible_horizontal_coll = {}
 		vertical_sum_matrix = [ [0 for i in range(self.cols)] for i in range(self.rows-2) ]
 		horizontal_sum_matrix = [ [0 for i in range(self.cols-2)] for i in range(self.rows) ]
+
 		for i in range(self.rows):
+			prev_horiz_sum = -1
 			for j in range(self.cols):
-				#vertical
-				if (i < self.rows-2):
-
-					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
-					
-					vertical_sum_matrix[i][j] = sum_in_vert
-
-					for k in self.divisors:
-						if(sum_in_vert%k == 0 and sum_in_vert/k == 3):
-							possible_vert_coll[(i,j)] = set()
-							possible_vert_coll[(i,j)].add((i,j))
-							possible_vert_coll[(i,j)].add((i+1,j))
-							possible_vert_coll[(i,j)].add((i+2,j))
-							for x in range(i+1, self.rows):
-								if board[x][j] == k:
-									possible_vert_coll[(i, j)].add((x, j))
-									if x == self.rows - 1:
-										i = x
-								else:
-									i = x
-									break
-							break
+				prev_vert_sum = -1
+		
 				#horizontal
 				if (j < self.cols-2):
 					sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
-					
 					horizontal_sum_matrix[i][j] = sum_in_horiz
 
-					for k in self.divisors:
-						if(sum_in_horiz%k == 0 and sum_in_horiz/k == 3):
-							possible_horizontal_coll[(i,j)] = set()
-							possible_horizontal_coll[(i,j)].add((i,j))
-							possible_horizontal_coll[(i,j)].add((i,j+1))
-							possible_horizontal_coll[(i,j)].add((i,j+2))
-							for x in range(j+1, self.cols):
-								if board[i][x] == k:
-									possible_horizontal_coll[(i, j)].add((i, x))
-									if x == self.cols - 1:
-										j = x
-								else:
-									j = x
-									break
-							break
+					if(prev_horiz_sum != sum_in_horiz):
+						prev_horiz_sum = sum_in_horiz
+						for k in self.divisors:
+							if(sum_in_horiz%k == 0 and sum_in_horiz/k == 3):
+								possible_horizontal_coll[(i,j)] = set()
+								possible_horizontal_coll[(i,j)].add((i,j))
+								possible_horizontal_coll[(i,j)].add((i,j+1))
+								possible_horizontal_coll[(i,j)].add((i,j+2))
+								for x in range(j+3, self.cols):
+									if board[i][x] == k:
+										possible_horizontal_coll[(i, j)].add((i, x))
+									else:
+										break
+								break
 
+				#vertical
+				if (i < self.rows-2):
+					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
+					vertical_sum_matrix[i][j] = sum_in_vert
+
+					if (prev_vert_sum != sum_in_vert):
+						prev_vert_sum = sum_in_vert
+						for k in self.divisors:
+							if(sum_in_vert%k == 0 and sum_in_vert/k == 3):
+								possible_vert_coll[(i,j)] = set()
+								possible_vert_coll[(i,j)].add((i,j))
+								possible_vert_coll[(i,j)].add((i+1,j))
+								possible_vert_coll[(i,j)].add((i+2,j))
+								for x in range(i+3, self.rows):
+									if board[x][j] == k:
+										possible_vert_coll[(i, j)].add((x, j))
+									else:
+										break
+								break
+		
 		return possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix
 
 	#vertical sums that represent 3 of same item back to back in col
@@ -295,7 +262,7 @@ class Board:
 						possible_vert_coll[(i,j)].add((i,j))
 						possible_vert_coll[(i,j)].add((i+1,j))
 						possible_vert_coll[(i,j)].add((i+2,j))
-						for x in range(i+1, self.rows):
+						for x in range(i+3, self.rows):
 							if board[x][j] == k:
 								possible_vert_coll[(i, j)].add((x, j))
 								if x == self.rows - 1:
@@ -342,82 +309,37 @@ class Board:
 	#looks for intersection between horizontal and vertical 
 	#will be for 5 pieces
 	def find_intersection(self, possible_vert_coll, possible_horizontal_coll,vertical_sum_matrix, horizontal_sum_matrix, givePoints, board):
-		x_var = set()
-		y_var = set()
-
-		possible_pairs_set = set()
-
-		#get 2nd, which comes form the vertical --> y
-		for stuff in possible_vert_coll:
-			y_var.add(stuff[1])
-		#get 1st, whcih comes from the horizontal --> x
-		for stuff in possible_horizontal_coll:
-			x_var.add(stuff[0])
-
-
-		#INSTEAD OF STORING THE POS as KEY, Store the SUM AS the key
-
-		#get all possible permutations in terms of (i,j)
-		for i in x_var:
-			for j in y_var:
-				possible_pairs_set.add((i,j))
-
-		#print("possible pairs for intersection: ", possible_pairs_set)
-		#print("possible_vert_coll.keys()",possible_vert_coll.keys())
-		#print("possible_horizontal_coll.keys()",possible_horizontal_coll.keys())
 		#check for intersection between possible permutations and possible_vert_coll
 		#if there is a coll, check to see if intersection in possible_hor_coll
 		#if in both then you found intersection in game board
-		intersection_pos_to_del = set()
-		for vert_key in list(possible_vert_coll.keys()):
-			match_found = possible_pairs_set.intersection(possible_vert_coll[vert_key])
-			#print("\nmatch",match_found)
-			#if found a match
-			#CHECK THE HORIZONTAL 
-			if(match_found):
-				#print("matched in vert: match, vert_key:", match_found,vert_key)
-				for horiz_key in list(possible_horizontal_coll.keys()):
-					#print("possible_horizontal_coll[horiz_key]",possible_horizontal_coll[horiz_key],"horiz_key",horiz_key)
-					second_match_found = match_found.intersection(possible_horizontal_coll[horiz_key])
-					#print("second_match_found",second_match_found)
-					#the pair works is in both vertical and horizontal
-					if(second_match_found and second_match_found.intersection(match_found)):
-						#print ("vk: " + str(vert_key))
-						#print ("pvc: " + str(possible_vert_coll))
-						#print ("hk: " + str(horiz_key))
-						#print ("phc: " + str(possible_horizontal_coll))
-						number_of_pieces_to_del = 1
-						for pairs_to_del in possible_vert_coll[vert_key].symmetric_difference(possible_horizontal_coll[horiz_key]):
-							intersection_pos_to_del.add(pairs_to_del)
-							row = pairs_to_del[0]
-							col = pairs_to_del[1]
-							board[row][col] = 0
-							number_of_pieces_to_del += 1
+		for v_k in list(possible_vert_coll.keys()):
+			for h_k in list(possible_horizontal_coll.keys()):
+				intersection = possible_vert_coll[v_k].intersection(possible_horizontal_coll[h_k])
+				if(intersection):
+					number_of_pieces_to_del = 1
+					lists_of_pairs_to_delete = possible_vert_coll[v_k].symmetric_difference(possible_horizontal_coll[h_k])
+					for pairs_to_del in lists_of_pairs_to_delete:
+						row = pairs_to_del[0]
+						col = pairs_to_del[1]
+						board[row][col] = 0
+						number_of_pieces_to_del += 1
+					board[list(intersection)[0][0]][list(intersection)[0][1]] = 0
+					#get rid of the interesection place from the two sum matrices too
+					possible_horizontal_coll.pop(h_k)
+					
+					#update vertical sum matrix to not include intersection
+					vertical_sum_matrix[v_k[0]][v_k[1]] = 0
+					#update horizontal sum matrix to not include intersection 
+					horizontal_sum_matrix[h_k[0]][h_k[1]] = 0
 
-						tmp = next(iter(second_match_found))
-						intersection_pos_to_del.add(tmp)
-						vert_horiz_inter_x = tmp[0]
-						vert_horiz_inter_y = tmp[1]
-						#update board for values taken care of
-						board[vert_horiz_inter_x][vert_horiz_inter_y] = 0
-						
-						#get rid of the interesection place from the two sum matrices too
-						possible_horizontal_coll.pop(horiz_key)
-						
-						#update vertical sum matrix to not include intersection
-						vertical_sum_matrix[vert_key[0]][vert_key[1]] = 0
-						#update horizontal sum matrix to not include intersection 
-						horizontal_sum_matrix[horiz_key[0]][horiz_key[1]] = 0
-
-						#player got points of the intersection --> 5
-						#5, base value 40 * 5
-						if givePoints == True:
-							#print("PIECES =",number_of_pieces_to_del)
-							self.award_points[number_of_pieces_to_del] += 1
-					#else: 
-					#	##print("Match failed")
-					#print(board)
-				possible_vert_coll.pop(vert_key)
+					#player got points of the intersection --> 5
+					#5, base value 40 * 5
+					if givePoints == True:
+						self.award_points[number_of_pieces_to_del] += 1
+					else: 
+						self.found_match_before_game_start = True
+			
+			possible_vert_coll.pop(v_k)
 
 	#normal check for vertical matches of 3,4,5,6...
 	def normal_vert_check(self, vertical_sum_matrix, possible_vert_coll, givePoints, board):
@@ -426,6 +348,8 @@ class Board:
 		for key_vert in possible_vert_coll:
 			if givePoints == True:
 				self.award_points[len(possible_vert_coll[key_vert])] += 1
+			else: 
+				self.found_match_before_game_start = True
 			for val_vert in possible_vert_coll[key_vert]:
 				vertical_pos_to_del.add(val_vert)
 		'''
@@ -468,6 +392,8 @@ class Board:
 		for key_hor in possible_horizontal_coll:
 			if givePoints == True:
 				self.award_points[len(possible_horizontal_coll[key_hor])] += 1
+			else: 
+				self.found_match_before_game_start = True
 			for val_hor in possible_horizontal_coll[key_hor]:
 				horizontal_pos_to_del.add(val_hor)
 				#horizontal_sum_matrix[val_hor[0]][val_hor[1]] = 0
