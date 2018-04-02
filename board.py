@@ -86,6 +86,26 @@ class Board:
 		self.board = np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board(self.board)
 		
+# 		self.board = np.array(
+# [[ 3, 3, 3, 3, 3, 3, 3],
+#  [ 3, 3, 3, 3, 3, 3, 3],
+#  [ 3, 3, 3, 3, 3, 3, 3],
+#  [ 3, 3, 3, 3, 3, 3, 3],
+#  [ 3, 3, 3, 3, 3, 3, 3],
+#  [ 3, 3, 3, 3, 3, 3, 3],
+#  [ 3, 3, 3, 3, 3, 3, 3]]
+# )
+
+# 		self.board = np.array(
+# [[ 61, 199,  43,   3,  19,  61,  61],
+#  [ 61,  61, 163,  61, 199,  43,  19],
+#  [  3,   3,   3,  43,  61,  19, 199],
+#  [  3,  19,   3, 199,  61, 163,  19],
+#  [  3,   3,   3, 163, 199,   3,  43],
+#  [163, 199,  61,  19, 199, 199,  19],
+#  [ 19,  61,  61, 199,   3,  61, 163]]
+# )
+
 		self.board_two =  np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board_two(self.board_two)
 
@@ -111,6 +131,18 @@ class Board:
 
 		# horizontal_sum_matrix_2 = self.sum_horizontal(board)
 		# possible_horizontal_coll_2 = self.get_horizontal_sum_that_matter(horizontal_sum_matrix, board)
+
+		# print(vertical_sum_matrix)
+		# print(vertical_sum_matrix_2)
+		# print()
+		# print(horizontal_sum_matrix)
+		# print(horizontal_sum_matrix_2)
+		# print("horizontal")
+		# print(possible_horizontal_coll)
+		# print(possible_horizontal_coll_2)
+		# print("vertical")
+		# print(possible_vert_coll)
+		# print(possible_vert_coll_2)
 
 		#compare the two sets for intersections =
 		self.find_intersection(possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix, givePoints, board)
@@ -312,6 +344,8 @@ class Board:
 		#check for intersection between possible permutations and possible_vert_coll
 		#if there is a coll, check to see if intersection in possible_hor_coll
 		#if in both then you found intersection in game board
+		delete_v_k_set = set()
+		delete_h_k_set = set()
 		for v_k in list(possible_vert_coll.keys()):
 			for h_k in list(possible_horizontal_coll.keys()):
 				intersection = possible_vert_coll[v_k].intersection(possible_horizontal_coll[h_k])
@@ -325,7 +359,9 @@ class Board:
 						number_of_pieces_to_del += 1
 					board[list(intersection)[0][0]][list(intersection)[0][1]] = 0
 					#get rid of the interesection place from the two sum matrices too
-					possible_horizontal_coll.pop(h_k)
+					delete_h_k_set.add(h_k)
+					delete_v_k_set.add(v_k)
+					# possible_horizontal_coll.pop(h_k)
 					
 					#update vertical sum matrix to not include intersection
 					vertical_sum_matrix[v_k[0]][v_k[1]] = 0
@@ -339,7 +375,11 @@ class Board:
 					else: 
 						self.found_match_before_game_start = True
 			
-			possible_vert_coll.pop(v_k)
+		for key in delete_v_k_set: 
+			possible_vert_coll.pop(key)
+		for key in delete_h_k_set:
+			possible_horizontal_coll.pop(key)
+
 
 	#normal check for vertical matches of 3,4,5,6...
 	def normal_vert_check(self, vertical_sum_matrix, possible_vert_coll, givePoints, board):
