@@ -94,6 +94,10 @@ def writeFinalEquations(pop):
 
 def createThePset():
 	global pset
+
+	# pset = gp.PrimitiveSetTyped('MAIN', [float, float, float, float], float)
+	# pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count', ARG3='total_number_of_available_moves')
+	
 	pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
 	pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
 	pset.addPrimitive(operator.add, [float, float], float)

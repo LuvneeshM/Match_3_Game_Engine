@@ -105,7 +105,15 @@ class Board:
 #  [163, 199,  61,  19, 199, 199,  19],
 #  [ 19,  61,  61, 199,   3,  61, 163]]
 # )
-
+# 		self.board = np.array(
+# [[ 61,  61, 61,  61, 163,  61, 199],
+#  [ 61, 163,  43, 163,   3,  19,  43],
+#  [ 61,  19, 199,   3,  43, 163,  19],
+#  [ 61,  61, 163,  61,  61,   3,   3],
+#  [163,   3, 199,  19, 163, 199,  43],
+#  [  3, 163,  61,  43,   3,  61,  19],
+#  [ 43,  43,   3,  19,  19,   3,   3]]
+# )
 		self.board_two =  np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board_two(self.board_two)
 
@@ -121,48 +129,23 @@ class Board:
 	'''
 	
 	def find_matches(self, multiplier, givePoints, board):
-		#print("GAMEBOARD")
-		#print((self.board))
-
-		possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix = self.get_sum_that_matter(board)
+		# so this way works too
+		# possible_hell = self.get_sum_that_matter_hell_edition(board)
+		# self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
 		
-		# vertical_sum_matrix_2 = self.sum_vertical(board)
-		# possible_vert_coll_2 = self.get_vertical_sum_that_matter(vertical_sum_matrix, board)
-
-		# horizontal_sum_matrix_2 = self.sum_horizontal(board)
-		# possible_horizontal_coll_2 = self.get_horizontal_sum_that_matter(horizontal_sum_matrix, board)
-
-		# print(vertical_sum_matrix)
-		# print(vertical_sum_matrix_2)
-		# print()
-		# print(horizontal_sum_matrix)
-		# print(horizontal_sum_matrix_2)
+		possible_vert_coll, possible_horizontal_coll = self.get_sum_that_matter(board)
+		# print(board)
 		# print("horizontal")
 		# print(possible_horizontal_coll)
-		# print(possible_horizontal_coll_2)
 		# print("vertical")
 		# print(possible_vert_coll)
-		# print(possible_vert_coll_2)
 
-		#compare the two sets for intersections =
-		self.find_intersection(possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix, givePoints, board)
-		###print()
-
-		#now we check for normal 3, normal 4, normal 5 in a row
-		###print("Checked Vertical for Consecutives:")
-		self.normal_vert_check(vertical_sum_matrix, possible_vert_coll, givePoints, board)
-		###print((vertical_sum_matrix))
-
-		##print()
-
-		###print("Checked Horizontal for Consecutives:")
-		###print((horizontal_sum_matrix))
-		self.normal_horiz_check(horizontal_sum_matrix, possible_horizontal_coll, givePoints, board)
+		# #compare the two sets for intersections =
+		self.find_intersection(possible_vert_coll, possible_horizontal_coll, givePoints, board)
+		# #now we check for normal 3, normal 4, normal 5 in a row
+		self.normal_vert_check(possible_vert_coll, givePoints, board)
+		self.normal_horiz_check(possible_horizontal_coll, givePoints, board)
 		
-		
-		###print()
-
-		###print("Board now clean of consecs, points to deliver")
 		self.add_new_pieces(board)
 		#gave points, refill board
 		if(sum(self.award_points.values()) > 0):
@@ -181,12 +164,13 @@ class Board:
 		#moves_made is a MoveList
 		self.possible_moves_to_make = self.get_possible_moves(board)
 		while (self.possible_moves_to_make.move_list == { }):
-			#input("NO MOVES")
-			#print("board before")
-			#print(board)
+			# input("NO MOVES")
+			# print("board before")
+			# print(board)
 			self.random_board(board)
-			#print("board After")
-			#print(board)
+			# print("board After")
+			# print(board)
+			# input("TRIED TO FIX")
 			self.possible_moves_to_make = self.get_possible_moves(board)
 
 	def random_board(self, board):
@@ -200,46 +184,105 @@ class Board:
 		#print(board)
 		return board
 
-	def sum_vertical(self, board):
-		return [ [ board[i][j]+board[i+1][j]+board[i+2][j]
-		 	for j in range(len(board[i]))] for i in range(len(board)-2) ]
-		'''
-		vert_sun = []
-		for i in range(len(board)-2):
-			vert_sum.append([])
-			for j in range(len(board[i])):
-				vert_sum[i].append(board[i][j]+board[i+1][j]+board[i+2][j])
-		return vert_sum
-		'''
+	#vertical sums that represent 3 of same item back to back in col
+	#return possible_vert_coll
+	#horizontal sums that represent 3 of same item back to back in row
+	#return possible_horizontal_coll
+	def get_sum_that_matter_hell_edition(self, board):
+		possible_hell = {}
 
-	def sum_horizontal(self, board):
-		return [ [ board[i][j]+board[i][j+1]+board[i][j
-			+2] for j in range(len(board[i])-2)] for i in range(len(board))]
-		'''
-		horizontal_sum = []
-		for i in range(len(board)):
-			horizontal_sum.append([])
-			for j in range(len(board[i])-2):
-				horizontal_sum[i].append(board[i][j]+board[i][j+1]+board[i][j+2])
-
-		return horizontal_sum
-		'''
-
-	def get_sum_that_matter(self, board):
-		possible_vert_coll = {}
-		possible_horizontal_coll = {}
-		vertical_sum_matrix = [ [0 for i in range(self.cols)] for i in range(self.rows-2) ]
-		horizontal_sum_matrix = [ [0 for i in range(self.cols-2)] for i in range(self.rows) ]
-
+		prev_vert_sum_list = [ -1 for location in range(self.cols) ]
 		for i in range(self.rows):
 			prev_horiz_sum = -1
-			for j in range(self.cols):
-				prev_vert_sum = -1
-		
+			for j in range(self.cols):		
 				#horizontal
 				if (j < self.cols-2):
 					sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
-					horizontal_sum_matrix[i][j] = sum_in_horiz
+
+					if(prev_horiz_sum != sum_in_horiz):
+						prev_horiz_sum = sum_in_horiz
+						for k in self.divisors:
+							if(sum_in_horiz%k == 0 and sum_in_horiz/k == 3):
+								horizontal_sequ = set()
+								horizontal_sequ.add((i,j))
+								horizontal_sequ.add((i, j+1))
+								horizontal_sequ.add((i, j+2))
+								for x in range(j+3, self.cols):
+									if board[i][x] == k:
+										horizontal_sequ.add((i, x))
+									else:
+										break
+								possible_hell[frozenset(horizontal_sequ)] = set()
+								break
+
+				#vertical
+				if (i < self.rows-2):
+					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
+					if(prev_vert_sum_list[j] == sum_in_vert):
+						#i already counted this guy, skip plz
+						continue
+					else:
+						prev_vert_sum_list[j] = sum_in_vert
+						for k in self.divisors:
+							if(sum_in_vert%k == 0 and sum_in_vert/k == 3):
+								#check to see if (i, j) is in the keys for possible hell
+								#if it is, then just add to the values
+								#else, just do a frozenset key again
+								vertical_seq = set()
+								vertical_seq.add((i, j))
+								vertical_seq.add((i+1,j))
+								vertical_seq.add((i+2,j))
+								recorded_intersection = False
+								for x in range(i+3, self.rows):
+									if board[x][j] == k:
+										vertical_seq.add((x, j))
+									else:
+										break
+								for key in possible_hell.keys():
+									if ( (i,j) in key ):
+										possible_hell[key].update(vertical_seq)
+										recorded_intersection = True
+										break
+								if (recorded_intersection == False):
+									possible_hell[frozenset(vertical_seq)] = set()
+								break
+		
+		return possible_hell
+
+	def check_for_intersection_and_horizontal_and_vertical(self, possible_hell, givePoints, board):
+		for key, value in possible_hell.items():
+			#if len(value) == 0, then that is not an intersection
+			#treat is like normal, accounts for both vertical and horizontal
+			#else, this is an intersection, iterate through both key and value
+			if(len(value) == 0):
+				number_of_pieces_to_del = len(key)
+				if givePoints == True:
+					self.award_points[number_of_pieces_to_del] += 1
+				else: 
+					self.found_match_before_game_start = True
+			else:
+				number_of_pieces_to_del = len(key) + len(value) - 1 #intersection position counted twice so -1
+				if givePoints == True:
+					self.award_points[number_of_pieces_to_del] += 1
+				else: 
+					self.found_match_before_game_start = True
+			#clean board
+			for position in key:
+				board[position[0]][position[1]] = 0
+			for position in value:
+				board[position[0]][position[1]] = 0
+	
+	def get_sum_that_matter(self, board):
+		possible_vert_coll = {}
+		possible_horizontal_coll = {}
+
+		prev_vert_sum_list = [ -1 for location in range(self.cols) ]
+		for i in range(self.rows):
+			prev_horiz_sum = -1
+			for j in range(self.cols):		
+				#horizontal
+				if (j < self.cols-2):
+					sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
 
 					if(prev_horiz_sum != sum_in_horiz):
 						prev_horiz_sum = sum_in_horiz
@@ -259,10 +302,11 @@ class Board:
 				#vertical
 				if (i < self.rows-2):
 					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
-					vertical_sum_matrix[i][j] = sum_in_vert
-
-					if (prev_vert_sum != sum_in_vert):
-						prev_vert_sum = sum_in_vert
+					if(prev_vert_sum_list[j] == sum_in_vert):
+						#i already counted this guy, skip plz
+						continue
+					else:
+						prev_vert_sum_list[j] = sum_in_vert
 						for k in self.divisors:
 							if(sum_in_vert%k == 0 and sum_in_vert/k == 3):
 								possible_vert_coll[(i,j)] = set()
@@ -276,71 +320,71 @@ class Board:
 										break
 								break
 		
-		return possible_vert_coll, possible_horizontal_coll, vertical_sum_matrix, horizontal_sum_matrix
+		return possible_vert_coll, possible_horizontal_coll
 
-	#vertical sums that represent 3 of same item back to back in col
-	#return possible_vert_coll
-	def get_vertical_sum_that_matter(self, sum_matrix, board):
-		possible_vert_coll = {}
-		for j in range(self.cols):
-			i = 0
-			while i < (self.rows - 2):
-				for k in self.divisors:
+	# #vertical sums that represent 3 of same item back to back in col
+	# #return possible_vert_coll
+	# def get_vertical_sum_that_matter(self, sum_matrix, board):
+	# 	possible_vert_coll = {}
+	# 	for j in range(self.cols):
+	# 		i = 0
+	# 		while i < (self.rows - 2):
+	# 			for k in self.divisors:
 
-					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
+	# 				sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
 
-					if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
-						possible_vert_coll[(i,j)] = set()
-						possible_vert_coll[(i,j)].add((i,j))
-						possible_vert_coll[(i,j)].add((i+1,j))
-						possible_vert_coll[(i,j)].add((i+2,j))
-						for x in range(i+3, self.rows):
-							if board[x][j] == k:
-								possible_vert_coll[(i, j)].add((x, j))
-								if x == self.rows - 1:
-									i = x
-							else:
-								i = x
-								break
-						break
-				i += 1
+	# 				if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
+	# 					possible_vert_coll[(i,j)] = set()
+	# 					possible_vert_coll[(i,j)].add((i,j))
+	# 					possible_vert_coll[(i,j)].add((i+1,j))
+	# 					possible_vert_coll[(i,j)].add((i+2,j))
+	# 					for x in range(i+3, self.rows):
+	# 						if board[x][j] == k:
+	# 							possible_vert_coll[(i, j)].add((x, j))
+	# 							if x == self.rows - 1:
+	# 								i = x
+	# 						else:
+	# 							i = x
+	# 							break
+	# 					break
+	# 			i += 1
 
-		return possible_vert_coll
+	# 	return possible_vert_coll
 
-	#horizontal sums that represent 3 of same item back to back in row
-	#return possible_horizontal_coll
-	def get_horizontal_sum_that_matter(self, sum_matrix, board):
-		possible_horizontal_coll = {}
-		for i in range(self.rows):
-			j = 0
-			while j < (self.cols - 2):
-				for k in self.divisors:
-					##print ("i: " + str(i))
-					##print ("j: " + str(j))
+	# #horizontal sums that represent 3 of same item back to back in row
+	# #return possible_horizontal_coll
+	# def get_horizontal_sum_that_matter(self, sum_matrix, board):
+	# 	possible_horizontal_coll = {}
+	# 	for i in range(self.rows):
+	# 		j = 0
+	# 		while j < (self.cols - 2):
+	# 			for k in self.divisors:
+	# 				##print ("i: " + str(i))
+	# 				##print ("j: " + str(j))
 
-					sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
+	# 				sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
 
-					if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
-						possible_horizontal_coll[(i,j)] = set()
-						possible_horizontal_coll[(i,j)].add((i,j))
-						possible_horizontal_coll[(i,j)].add((i,j+1))
-						possible_horizontal_coll[(i,j)].add((i,j+2))
-						for x in range(j+1, self.cols):
-							if board[i][x] == k:
-								possible_horizontal_coll[(i, j)].add((i, x))
-								if x == self.cols - 1:
-									j = x
-							else:
-								j = x
-								break
-						break
-				j += 1
+	# 				if(sum_matrix[i][j]%k == 0 and sum_matrix[i][j]/k == 3):
+	# 					possible_horizontal_coll[(i,j)] = set()
+	# 					possible_horizontal_coll[(i,j)].add((i,j))
+	# 					possible_horizontal_coll[(i,j)].add((i,j+1))
+	# 					possible_horizontal_coll[(i,j)].add((i,j+2))
+	# 					for x in range(j+1, self.cols):
+	# 						if board[i][x] == k:
+	# 							possible_horizontal_coll[(i, j)].add((i, x))
+	# 							if x == self.cols - 1:
+	# 								j = x
+	# 						else:
+	# 							j = x
+	# 							break
+	# 					break
+	# 			j += 1
 
-		return possible_horizontal_coll
+	# 	return possible_horizontal_coll
 
 	#looks for intersection between horizontal and vertical 
 	#will be for 5 pieces
-	def find_intersection(self, possible_vert_coll, possible_horizontal_coll,vertical_sum_matrix, horizontal_sum_matrix, givePoints, board):
+	def find_intersection(self, possible_vert_coll, possible_horizontal_coll, givePoints, board):
 		#check for intersection between possible permutations and possible_vert_coll
 		#if there is a coll, check to see if intersection in possible_hor_coll
 		#if in both then you found intersection in game board
@@ -363,11 +407,6 @@ class Board:
 					delete_v_k_set.add(v_k)
 					# possible_horizontal_coll.pop(h_k)
 					
-					#update vertical sum matrix to not include intersection
-					vertical_sum_matrix[v_k[0]][v_k[1]] = 0
-					#update horizontal sum matrix to not include intersection 
-					horizontal_sum_matrix[h_k[0]][h_k[1]] = 0
-
 					#player got points of the intersection --> 5
 					#5, base value 40 * 5
 					if givePoints == True:
@@ -382,7 +421,7 @@ class Board:
 
 
 	#normal check for vertical matches of 3,4,5,6...
-	def normal_vert_check(self, vertical_sum_matrix, possible_vert_coll, givePoints, board):
+	def normal_vert_check(self, possible_vert_coll, givePoints, board):
 		consec_pieces = 2
 		vertical_pos_to_del = set()
 		for key_vert in possible_vert_coll:
@@ -392,41 +431,13 @@ class Board:
 				self.found_match_before_game_start = True
 			for val_vert in possible_vert_coll[key_vert]:
 				vertical_pos_to_del.add(val_vert)
-		'''
-		for i in range(len(vertical_sum_matrix)):
-			consec_pieces = 2
-			for j in range(len(vertical_sum_matrix[i])):
-				for k in self.divisors:
-					if(vertical_sum_matrix[i][j]%k == 0 and vertical_sum_matrix[i][j]/k == 3):
-						consec_pieces += 1
-						look_down = True
-						next_row = i+1
-						while(look_down and next_row < len(vertical_sum_matrix)):
-							if vertical_sum_matrix[i][j] == vertical_sum_matrix[next_row][j]:
-								for pairs_to_del in possible_vert_coll[(next_row,j)]:
-									vertical_pos_to_del.add(pairs_to_del)
-
-								vertical_sum_matrix[next_row][j] = 0
-								consec_pieces += 1
-								next_row +=1
-								
-							else:
-								vertical_sum_matrix[i][j] = 0
-								look_down = False;
-						for pairs_to_del in possible_vert_coll[(i,j)]:
-							vertical_pos_to_del.add(pairs_to_del)
-						#track points for that single 3+ consecutive pieces
-						if givePoints == True:
-							self.award_points[consec_pieces] += 1
-						break
-		'''
 		#list of positions on game board to set to 0							
 		for board_pos_to_del in vertical_pos_to_del:
 			board[board_pos_to_del[0]][board_pos_to_del[1]] = 0
 		
 	#normal check for horizontal matches of 3,4,5,6...
 	#possible_horizontal_coll is a dict
-	def normal_horiz_check(self, horizontal_sum_matrix, possible_horizontal_coll, givePoints, board):
+	def normal_horiz_check(self, possible_horizontal_coll, givePoints, board):
 		consec_pieces = 2
 		horizontal_pos_to_del = set()
 		for key_hor in possible_horizontal_coll:
@@ -436,42 +447,6 @@ class Board:
 				self.found_match_before_game_start = True
 			for val_hor in possible_horizontal_coll[key_hor]:
 				horizontal_pos_to_del.add(val_hor)
-				#horizontal_sum_matrix[val_hor[0]][val_hor[1]] = 0
-			#horizontal_pos_to_del.add()
-		'''
-		#row
-		for i in range(len(horizontal_sum_matrix)):
-			consec_pieces = 2
-			#col
-			j = 0
-			while j < len(horizontal_sum_matrix[i]):
-				for k in self.divisors:
-					if(horizontal_sum_matrix[i][j]%k == 0 and horizontal_sum_matrix[i][j]/k == 3):
-						consec_pieces += 1
-						look_right = True
-						next_col = j+1
-						while(look_right and next_col < len(horizontal_sum_matrix[i])):
-							if horizontal_sum_matrix[i][j] == horizontal_sum_matrix[i][next_col]:
-								for pairs_to_del in possible_horizontal_coll[(i,next_col)]:
-									horizontal_pos_to_del.add(pairs_to_del)
-
-								horizontal_sum_matrix[next_col][j] = 0
-								consec_pieces += 1
-								next_col +=1
-								
-							else:
-								horizontal_sum_matrix[i][j] = 0
-								look_right = False;
-						for pairs_to_del in possible_horizontal_coll[(i,j)]:
-							horizontal_pos_to_del.add(pairs_to_del)
-						#track points for that single 3+ consecutive pieces
-						if givePoints == True:
-							self.award_points[consec_pieces] += 1
-						j = next_col
-						if j >=len(horizontal_sum_matrix[i]):
-							break 
-				j += 1
-		'''	
 		#list of positions on game board to set to 0							
 		for board_pos_to_del in horizontal_pos_to_del:
 			board[board_pos_to_del[0]][board_pos_to_del[1]] = 0
@@ -522,7 +497,7 @@ class Board:
 				if board[x][y] == 0:
 					num_pieces_per_col[y] += 1 
 		#actually add the pieces from second board
-		for x in range(len(num_pieces_per_col)):
+		for x in range(self.cols):
 			y = num_pieces_per_col[x]-1
 			board_two_row = self.rows-1
 			while y >= 0:
@@ -543,21 +518,21 @@ class Board:
 				if board[x][y] == 0:
 					num_pieces_per_col[y] += 1 
 		#fill exmpty spots in 2nd board
-		for x in range(len(num_pieces_per_col)):
+		for x in range(self.cols):
 			y = num_pieces_per_col[x]-1
 			while y >= 0:
 				board[y][x] = random.choice(self.divisors)
 				y -= 1
 		#rig board so that no groups of 3 in 2nd board
-		for x in range(0, len(board)):
-			for y in range(0, len(board)):
+		for x in range(0, self.rows):
+			for y in range(0, self.cols):
 				if y < (num_pieces_per_col[x]):
 					#vertical groups
-					if x < len(board)-1:# and x > 0:
+					if x < self.rows-1:# and x > 0:
 						while board[x][y] == board[x-1][y] and board[x][y] == board[x+1][y]:
 							board[x+1][y] = random.choice(self.divisors)
 					#horizontal
-					if(y < len(board)-1):
+					if(y < self.cols-1):
 						while board[x][y-1] == board[x][y] and board[x][y] == board[x][y+1]:
 							board[x][y+1] = random.choice(self.divisors)
 		#print("fill board")
@@ -565,28 +540,48 @@ class Board:
 	#after taking from board_Two
 	#we update the board down and fill in the stuff on the top
 	def fill_board_two(self, board):
-		droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
-		#find how much to drop 
-		for x in range(self.rows-1)[::-1]:
-			for y in range(self.cols)[::-1]:
-				if board[x][y] == 0 and board[x+1][y] == 0:
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
-				elif board[x][y] == 0 and board[x+1][y] != 0:
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
-				elif board[x][y] != 0 and board[x+1][y] == 0: 
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
-				elif board[x][y] != 0 and board[x+1][y] != 0:
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
-		#drop em
-		for x in range(len(droppingAmountMaxtrix))[::-1]:
-			for y in range(len(droppingAmountMaxtrix[x]))[::-1]:
-				#only care about the non empty spots
-				if board[x][y] != 0:
-					#only care about the non empty spots that move
-					if droppingAmountMaxtrix[x][y] != 0:
-						dropping = droppingAmountMaxtrix[x][y]
-						board[x+dropping][y] = board[x][y]
-						board[x][y] = 0
+		for col in range(self.cols):
+			n = 6
+			i = n-1
+			#I am 0, find + give me guy above
+			while(n >= 0):
+				if board[n][col] == 0:
+					while(i >= 0):
+						#found guy, "swap"
+						if(board[i][col] > 0):
+							board[n][col] = board[i][col]
+							board[i][col] = 0
+							n -= 1
+						i -= 1
+				else:
+					n -= 1
+					if(n <= i):
+						i = n-1
+				if (i <= 0):
+					break
+
+		# droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
+		# #find how much to drop 
+		# for x in range(self.rows-1)[::-1]: #5,4,3,2,1,0
+		# 	for y in range(self.cols)[::-1]:
+		# 		if board[x][y] == 0 and board[x+1][y] == 0:
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+		# 		elif board[x][y] == 0 and board[x+1][y] != 0:
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+		# 		elif board[x][y] != 0 and board[x+1][y] == 0: 
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+		# 		elif board[x][y] != 0 and board[x+1][y] != 0:
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+		# #drop em
+		# for x in range(len(droppingAmountMaxtrix))[::-1]:
+		# 	for y in range(len(droppingAmountMaxtrix[x]))[::-1]:
+		# 		#only care about the non empty spots
+		# 		if board[x][y] != 0:
+		# 			#only care about the non empty spots that move
+		# 			if droppingAmountMaxtrix[x][y] != 0:
+		# 				dropping = droppingAmountMaxtrix[x][y]
+		# 				board[x+dropping][y] = board[x][y]
+		# 				board[x][y] = 0
 		self.fill_board(board)
 
 	#user gets their points 
@@ -608,111 +603,62 @@ class Board:
 
 		list_of_moves_class = MoveList()
 
-		window_zero = np.array([[0, 0, 0], [0, 0, 0], [0, 0, 0]])
-		temp_window = None
 		#check for match 3
-		for x in range(len(board)):
-			for y in range(len(board[x])):
+		for x in range(self.rows):
+			for y in range(self.cols):
+				there_is_a_window = True
 				#top row guys
-				if x == 0 and y != 0 and y < (len(board[x])-1):
-					###print ("x: " + str(x) + " | y: " + str(y))
-
-					'''
-					window = np.copy( (board)[x:x+2, y-1:y+2] )
-					np.insert(window, 0, [0, 0, 0], axis=0) # FOR inserting row
-					np.insert(window, 0, [0, 0, 0], axis=1) # FOR inserting column
-					'''
-					#1
-					# window = np.copy( (board)[x:x+2, y-1:y+2] )
-					# window = np.insert(window, 0, [0, 0, 0], axis=0)
-						
-					#2
-					window = np.insert((board)[x:x+2, y-1:y+2], 0, [0, 0, 0], axis=0)
-
-					#3
-					# window =  (board)[x:x+2, y-1:y+2]
-					# window = np.insert(window, 0, [0, 0, 0], axis=0)
-					
-					
-					
-
-
-					# window = (board)[x:x+2, y-1:y+2]
-					# temp_window = np.copy(window_zero)
-					# for i in range(0, len(window)):
-					# 	for j in range(0, len(window[i])):
-					# 		temp_window[i+1][j] = window[i][j]
-					# window = np.copy(temp_window)
+				if x == 0 and y != 0 and y < (self.cols-1):
+					window = [
+								[0, 0, 0], 
+								[board[x][y-1]  , board[x][y]  , board[x][y+1]   ],
+								[board[x+1][y-1], board[x+1][y], board[x+1][y+1] ]
+							 ]
+					# window = np.insert((board)[x:x+2, y-1:y+2], 0, [0, 0, 0], axis=0)
 				#left guy
-				elif x != 0 and y == 0 and x < (len(board)-1):
-					#1
-					# window = np.copy( (board)[x-1:x+2, y:y+2] )
-					# window = np.insert(window, 0, [0, 0, 0], axis=1)
-					
-					#2
-					window = np.insert((board)[x-1:x+2, y:y+2], 0, [0, 0, 0], axis=1)
-
-					#3
-					# window = (board)[x-1:x+2, y:y+2]
-					# window = np.insert(window, 0, [0, 0, 0], axis=1)
-					
-					
-					
-
-					# window = (board)[x-1:x+2, y:y+2]
-					# temp_window = np.copy(window_zero)
-					# for i in range(0, len(window)):
-					# 	for j in range(0, len(window[i])):
-					# 		temp_window[i][j+1] = window[i][j]
-					# window = np.copy(temp_window)
+				elif x != 0 and y == 0 and x < (self.rows-1):
+					window = [
+								[0, board[x-1][y], board[x-1][y+1] ],
+								[0, board[x][y]  , board[x][y+1]   ],
+								[0, board[x+1][y], board[x+1][y+1] ]
+							 ]
+					# window = np.insert((board)[x-1:x+2, y:y+2], 0, [0, 0, 0], axis=1)
 				#last guy break
-				elif (x == (len(board)-1) and y == (len(board[x])-1)) or (x == 0 and y == 0) or (x == 0 and y == len(board[x])-1) or (x == len(board)-1 and y == 0):
-					###print ("KILL " + str(x) + "," + str(y))
+				elif (x == (self.rows-1) and y == (self.cols-1)) or (x == 0 and y == 0) or (x == 0 and y == self.cols-1) or (x == self.rows-1 and y == 0):
+					#there_is_a_window = False
 					continue
 				#x-1->x+1, y-1-<y+1
 				else:
-					###print ("x: " + str(x) + " | y: " + str(y))
-					window = (board)[x-1:x+2, y-1:y+2]
-					if y == (len(board[x])-1) or x == (len(board)-1):
-						#1
-						# window = np.copy( (board)[x-1:x+1, y-1:y+1] )
-						# window = np.insert(window, 2, [0, 0], axis=1)
+					if y == (self.cols-1) or x == (self.rows-1):
+						window = [
+									[board[x-1][y-1], board[x-1][y], 0],
+									[board[x][y-1]  , board[x][y]  , 0],
+									[0, 0, 0]
+								 ]
+						# window = np.insert((board)[x-1:x+1, y-1:y+1], 2, [0, 0], axis=1)
 						# window = np.insert(window, 2, [0, 0, 0], axis=0)
+					else:
+						window = (board)[x-1:x+2, y-1:y+2]
 
-						#2
-						window = np.insert((board)[x-1:x+1, y-1:y+1], 2, [0, 0], axis=1)
-						window = np.insert(window, 2, [0, 0, 0], axis=0)
+				# if (there_is_a_window):
+				# 	center_of_window_value = board[x][y]
+				# 	total = 0
+				# 	exp = 8
+				# 	for  i in range(len(window)):
+				# 		for j in range(len(window[i])):
+				# 			total += (1 if window[i][j] - center_of_window_value == 0 else 0) * (2**exp)
+				# 			exp -= 1						
+					
+					center_of_window_value = board[x][y]
+					result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
+					self.check_window(result, x,y, list_of_moves_class)
 
-						#3
-						# window = (board)[x-1:x+1, y-1:y+1]
-						# window = np.insert(window, 2, [0, 0], axis=1)
-						# window = np.insert(window, 2, [0, 0, 0], axis=0)
-						
-
-					'''
-						temp_window = np.copy(window_zero)
-						for i in range(0, len(window)):
-							for j in range(0, len(window[i])):
-								temp_window[i][j] = window[i][j]
-						window = np.copy(temp_window)
-					'''
-
-				###print(window,"\n")				
-				center_of_window_value = board[x][y]
-				result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
-				self.check_window(result, x,y, list_of_moves_class)
-
-		#[_,_,_,_]
-		#possible of having 4 in row or 4 in col
-		#row 4+
-		for x in range(len(board)-3):
-			for y in range(len(board[x])):
-				if not (board[x+1][y] == board[x+2][y]):
+				if (x < self.rows-3) and not (board[x+1][y] == board[x+2][y]):
 					window_4_row = ([board[x][y], board[x+1][y], board[x+2][y], board[x+3][y]])
 					start_row_val = board[x][y]
-					result = [1 if window_4_row[m] - start_row_val == 0 else 0 for m in range(len(window_4_row))]
-					if(sum(result) == 3):
-						if(result[1] == 0):
+					result_swap = [1 if window_4_row[m] - start_row_val == 0 else 0 for m in range(len(window_4_row))]
+					if(sum(result_swap) == 3):
+						if(result_swap[1] == 0):
 							swap_1 = (x,y)
 							swap_2 = (x+1,y)
 
@@ -723,15 +669,12 @@ class Board:
 							swap_2 = (x+3,y)
 							
 							list_of_moves_class.push(swap_1,swap_2)
-		#col 4+			
-		for x in range(len(board)):
-			for y in range(len(board[x])-3):
-				if not (board[x][y+1] == board[x][y+2]):
+				if (y < self.cols-3) and not (board[x][y+1] == board[x][y+2]):
 					window_4_col = ([board[x][y], board[x][y+1], board[x][y+2], board[x][y+3]])
 					start_col_value = board[x][y]
-					result = [1 if window_4_col[m] - start_col_value == 0 else 0 for m in range(len(window_4_col))]
-					if(sum(result) == 3):
-						if(result[1] == 0):
+					result_swap = [1 if window_4_col[m] - start_col_value == 0 else 0 for m in range(len(window_4_col))]
+					if(sum(result_swap) == 3):
+						if(result_swap[1] == 0):
 							swap_1 = (x,y)
 							swap_2 = (x,y+1)
 

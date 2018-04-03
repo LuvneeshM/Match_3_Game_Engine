@@ -60,6 +60,8 @@ class MCTSAgent():
 		max_ucb = float('-inf')
 		for child in self.rootNode.childArray:
 			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
+			# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(self.child.state.board.possible_moves_to_make.move_list))
+			
 			#print("child_win_score",child.get_win_score())
 			#print("child_visit_count", child.get_visit_count())
 			#print("rootMan_visit_count", rootNode.get_visit_count())

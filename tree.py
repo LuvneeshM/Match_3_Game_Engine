@@ -47,7 +47,7 @@ class State:
 
 	def randomPlay(self):
 		tuple_1 = random.choice(list(self.list_of_possible_moves.move_list))
-		tuple_2 = random.choice(self.list_of_possible_moves.move_list[tuple_1])
+		tuple_2 = random.choice(list(self.list_of_possible_moves.move_list[tuple_1]))
 
 		move = (tuple_1,tuple_2)
 		self.board.swap_positions(move)
