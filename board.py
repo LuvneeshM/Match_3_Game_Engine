@@ -649,9 +649,9 @@ class Board:
 				# 			total += (1 if window[i][j] - center_of_window_value == 0 else 0) * (2**exp)
 				# 			exp -= 1						
 					
-					center_of_window_value = board[x][y]
-					result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
-					self.check_window(result, x,y, list_of_moves_class)
+				center_of_window_value = board[x][y]
+				result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
+				self.check_window(result, x,y, list_of_moves_class)
 
 				if (x < self.rows-3) and not (board[x+1][y] == board[x+2][y]):
 					window_4_row = ([board[x][y], board[x+1][y], board[x+2][y], board[x+3][y]])

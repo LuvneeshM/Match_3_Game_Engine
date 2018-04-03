@@ -277,7 +277,7 @@ if __name__ == "__main__":
 		
 	start = time.time()
 
-	start_from_previous_gen = True
+	start_from_previous_gen = False
 
 	if start_from_previous_gen:
 		if current_iteration == 1:
