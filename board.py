@@ -114,6 +114,16 @@ class Board:
 #  [  3, 163,  61,  43,   3,  61,  19],
 #  [ 43,  43,   3,  19,  19,   3,   3]]
 # )
+
+# 		self.board = np.array(
+# [[ 61, 199,  43,   3,  19,  61,  61],
+#  [ 61, 199,  61,   3, 199,  43,  19],
+#  [  3,  43, 199,  43,  61,  19, 199],
+#  [ 43,  19,   3,   3,  61, 163,  19],
+#  [  3,  61, 163, 163, 199,   3,  43],
+#  [163, 199,  61,  19, 199, 199,  19],
+#  [ 19,  61,  61, 199,   3,  61, 163]]
+#  )
 		self.board_two =  np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board_two(self.board_two)
 
@@ -131,6 +141,7 @@ class Board:
 	def find_matches(self, multiplier, givePoints, board):
 		# so this way works too
 		possible_hell = self.get_sum_that_matter_hell_edition(board)
+		# print(possible_hell)
 		self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
 		
 		# possible_vert_coll, possible_horizontal_coll = self.get_sum_that_matter(board)
@@ -468,19 +479,23 @@ class Board:
 			i = n-1
 			#I am 0, find + give me guy above
 			while(n >= 0):
+				# print("INSIDE FIRST WHILE", n, i)
 				if board[n][col] == 0:
 					while(i >= 0):
+						# print("SECOND WHILE", n, i)
 						#found guy, "swap"
 						if(board[i][col] > 0):
+							# print("SWAP EM")
 							board[n][col] = board[i][col]
 							board[i][col] = 0
 							n -= 1
 						i -= 1
 				else:
+					# print("N NOT A ZERO")
 					n -= 1
 					if(n <= i):
 						i = n-1
-				if (i <= 0):
+				if (i < 0):
 					break
 		# droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
 		# #figure out which to drop and by how much 
@@ -576,7 +591,7 @@ class Board:
 					n -= 1
 					if(n <= i):
 						i = n-1
-				if (i <= 0):
+				if (i < 0):
 					break
 
 		# droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
