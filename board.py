@@ -130,10 +130,10 @@ class Board:
 	
 	def find_matches(self, multiplier, givePoints, board):
 		# so this way works too
-		# possible_hell = self.get_sum_that_matter_hell_edition(board)
-		# self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
+		possible_hell = self.get_sum_that_matter_hell_edition(board)
+		self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
 		
-		possible_vert_coll, possible_horizontal_coll = self.get_sum_that_matter(board)
+		# possible_vert_coll, possible_horizontal_coll = self.get_sum_that_matter(board)
 		# print(board)
 		# print("horizontal")
 		# print(possible_horizontal_coll)
@@ -141,10 +141,10 @@ class Board:
 		# print(possible_vert_coll)
 
 		# #compare the two sets for intersections =
-		self.find_intersection(possible_vert_coll, possible_horizontal_coll, givePoints, board)
+		# self.find_intersection(possible_vert_coll, possible_horizontal_coll, givePoints, board)
 		# #now we check for normal 3, normal 4, normal 5 in a row
-		self.normal_vert_check(possible_vert_coll, givePoints, board)
-		self.normal_horiz_check(possible_horizontal_coll, givePoints, board)
+		# self.normal_vert_check(possible_vert_coll, givePoints, board)
+		# self.normal_horiz_check(possible_horizontal_coll, givePoints, board)
 		
 		self.add_new_pieces(board)
 		#gave points, refill board
@@ -463,29 +463,48 @@ class Board:
 
 	#in board drop board_one items down
 	def drop_pieces(self, board):
-		droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
-		#figure out which to drop and by how much 
-		for x in range(self.rows-1)[::-1]:
-			for y in range(self.cols)[::-1]:
-				if board[x][y] == 0 and board[x+1][y] == 0:
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
-				elif board[x][y] == 0 and board[x+1][y] != 0:
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
-				elif board[x][y] != 0 and board[x+1][y] == 0: 
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
-				elif board[x][y] != 0 and board[x+1][y] != 0:
-					droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+		for col in range(self.cols):
+			n = 6
+			i = n-1
+			#I am 0, find + give me guy above
+			while(n >= 0):
+				if board[n][col] == 0:
+					while(i >= 0):
+						#found guy, "swap"
+						if(board[i][col] > 0):
+							board[n][col] = board[i][col]
+							board[i][col] = 0
+							n -= 1
+						i -= 1
+				else:
+					n -= 1
+					if(n <= i):
+						i = n-1
+				if (i <= 0):
+					break
+		# droppingAmountMaxtrix = [[0 for x in range(self.cols)] for y in range(self.rows)] 
+		# #figure out which to drop and by how much 
+		# for x in range(self.rows-1)[::-1]:
+		# 	for y in range(self.cols)[::-1]:
+		# 		if board[x][y] == 0 and board[x+1][y] == 0:
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+		# 		elif board[x][y] == 0 and board[x+1][y] != 0:
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
+		# 		elif board[x][y] != 0 and board[x+1][y] == 0: 
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y] + 1
+		# 		elif board[x][y] != 0 and board[x+1][y] != 0:
+		# 			droppingAmountMaxtrix[x][y] = droppingAmountMaxtrix[x+1][y]
 
-		#update board to drop things
-		for x in range(len(droppingAmountMaxtrix))[::-1]:
-			for y in range(len(droppingAmountMaxtrix[x]))[::-1]:
-				#only care about the non empty spots
-				if board[x][y] != 0:
-					#only care about the non empty spots that move
-					if droppingAmountMaxtrix[x][y] != 0:
-						dropping = droppingAmountMaxtrix[x][y]
-						board[x+dropping][y] = board[x][y]
-						board[x][y] = 0
+		# #update board to drop things
+		# for x in range(len(droppingAmountMaxtrix))[::-1]:
+		# 	for y in range(len(droppingAmountMaxtrix[x]))[::-1]:
+		# 		#only care about the non empty spots
+		# 		if board[x][y] != 0:
+		# 			#only care about the non empty spots that move
+		# 			if droppingAmountMaxtrix[x][y] != 0:
+		# 				dropping = droppingAmountMaxtrix[x][y]
+		# 				board[x+dropping][y] = board[x][y]
+		# 				board[x][y] = 0
 	
 	#add news numbers to the empty stuff on the top parts of the board	
 	def add_pieces(self, board):
