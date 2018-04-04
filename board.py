@@ -606,22 +606,76 @@ class Board:
 		#check for match 3
 		for x in range(self.rows):
 			for y in range(self.cols):
-				there_is_a_window = True
+
+				if (x < self.rows-3) and not (board[x+1][y] == board[x+2][y]):
+					# window_4_row = ([board[x][y], board[x+1][y], board[x+2][y], board[x+3][y]])
+					start_row_val = board[x][y]
+					# result_swap = [1 if window_4_row[m] - start_row_val == 0 else 0 for m in range(len(window_4_row))]
+					result_swap = ([1, 1 if board[x+1][y] - start_row_val == 0 else 0, 1 if board[x+2][y] - start_row_val == 0 else 0, 1 if board[x+3][y] - start_row_val == 0 else 0 ])
+					if(sum(result_swap) == 3):
+						if(result_swap[1] == 0):
+							swap_1 = (x,y)
+							swap_2 = (x+1,y)
+							list_of_moves_class.push(swap_1,swap_2)
+
+						else:
+							swap_1 = (x+2,y)
+							swap_2 = (x+3,y)			
+							list_of_moves_class.push(swap_1,swap_2)
+				if (y < self.cols-3) and not (board[x][y+1] == board[x][y+2]):
+					# window_4_col = ([board[x][y], board[x][y+1], board[x][y+2], board[x][y+3]])
+					start_col_value = board[x][y]
+					# result_swap = [1 if window_4_col[m] - start_col_value == 0 else 0 for m in range(len(window_4_col))]
+					result_swap = ([1, 1 if board[x][y+1] - start_col_value == 0 else 0, 1 if board[x][y+2] - start_col_value == 0 else 0, 1 if board[x][y+3] - start_col_value == 0 else 0 ])
+					if(sum(result_swap) == 3):
+						if(result_swap[1] == 0):
+							swap_1 = (x,y)
+							swap_2 = (x,y+1)
+							list_of_moves_class.push(swap_1,swap_2)
+							
+						else:
+							swap_1 = (x,y+2)
+							swap_2 = (x,y+3)
+							list_of_moves_class.push(swap_1,swap_2)
+				
+
+				center_of_window_value = board[x][y]
+				total = 0
 				#top row guys
 				if x == 0 and y != 0 and y < (self.cols-1):
-					window = [
-								[0, 0, 0], 
-								[board[x][y-1]  , board[x][y]  , board[x][y+1]   ],
-								[board[x+1][y-1], board[x+1][y], board[x+1][y+1] ]
-							 ]
+					# total += (1 if board[x-1][y-1] - center_of_window_value == 0 else 0) * (2**8) 0 
+					# total += (1 if board[x-1][y  ] - center_of_window_value == 0 else 0) * (2**7) 0 
+					# total += (1 if board[x-1][y+1] - center_of_window_value == 0 else 0) * (2**6) 0
+					total += (1 if board[x  ][y-1] - center_of_window_value == 0 else 0) * (2**5)
+					total += (1) * (2**4)
+					total += (1 if board[x  ][y+1] - center_of_window_value == 0 else 0) * (2**3)
+					total += (1 if board[x+1][y-1] - center_of_window_value == 0 else 0) * (2**2)
+					total += (1 if board[x+1][y  ] - center_of_window_value == 0 else 0) * (2**1)
+					total += (1 if board[x+1][y+1] - center_of_window_value == 0 else 0) * (2**0)
+					# window = [
+					# 			[0, 0, 0], 
+					# 			[1 if board[x  ][y-1] - center_of_window_value == 0 else 0, 1                                                      , 1 if board[x  ][y+1] - center_of_window_value == 0 else 0 ],
+					# 			[1 if board[x+1][y-1] - center_of_window_value == 0 else 0, 1 if board[x+1][y] - center_of_window_value == 0 else 0, 1 if board[x+1][y+1] - center_of_window_value == 0 else 0 ]
+					# 		 ]
+					
 					# window = np.insert((board)[x:x+2, y-1:y+2], 0, [0, 0, 0], axis=0)
 				#left guy
 				elif x != 0 and y == 0 and x < (self.rows-1):
-					window = [
-								[0, board[x-1][y], board[x-1][y+1] ],
-								[0, board[x][y]  , board[x][y+1]   ],
-								[0, board[x+1][y], board[x+1][y+1] ]
-							 ]
+					# total += (1 if board[x-1][y-1] - center_of_window_value == 0 else 0) * (2**8) 0
+					total += (1 if board[x-1][y  ] - center_of_window_value == 0 else 0) * (2**7)
+					total += (1 if board[x-1][y+1] - center_of_window_value == 0 else 0) * (2**6)
+					# total += (1 if board[x  ][y-1] - center_of_window_value == 0 else 0) * (2**5) 0
+					total += (1) * (2**4)
+					total += (1 if board[x  ][y+1] - center_of_window_value == 0 else 0) * (2**3)
+					# total += (1 if board[x+1][y-1] - center_of_window_value == 0 else 0) * (2**2) 0
+					total += (1 if board[x+1][y  ] - center_of_window_value == 0 else 0) * (2**1)
+					total += (1 if board[x+1][y+1] - center_of_window_value == 0 else 0) * (2**0)
+					# window = [
+					# 			[0                                                       , 1 if board[x-1][y] - center_of_window_value == 0 else 0, 1 if board[x-1][y+1] - center_of_window_value == 0 else 0 ],
+					# 			[0                                                       , 1                                                      , 1 if board[x  ][y+1] - center_of_window_value == 0 else 0 ],
+					# 			[0                                                       , 1 if board[x+1][y] - center_of_window_value == 0 else 0, 1 if board[x+1][y+1] - center_of_window_value == 0 else 0 ]
+					# 		 ]
+					
 					# window = np.insert((board)[x-1:x+2, y:y+2], 0, [0, 0, 0], axis=1)
 				#last guy break
 				elif (x == (self.rows-1) and y == (self.cols-1)) or (x == 0 and y == 0) or (x == 0 and y == self.cols-1) or (x == self.rows-1 and y == 0):
@@ -629,74 +683,88 @@ class Board:
 					continue
 				#x-1->x+1, y-1-<y+1
 				else:
-					if y == (self.cols-1) or x == (self.rows-1):
-						window = [
-									[board[x-1][y-1], board[x-1][y], 0],
-									[board[x][y-1]  , board[x][y]  , 0],
-									[0, 0, 0]
-								 ]
+					if y == (self.cols-1) and x != (self.rows-1):
+						total += (1 if board[x-1][y-1] - center_of_window_value == 0 else 0) * (2**8)
+						total += (1 if board[x-1][y  ] - center_of_window_value == 0 else 0) * (2**7)
+						# total += (1 if board[x-1][y+1] - center_of_window_value == 0 else 0) * (2**6) 0
+						total += (1 if board[x  ][y-1] - center_of_window_value == 0 else 0) * (2**5)
+						total += (1) * (2**4)
+						# total += (1 if board[x  ][y+1] - center_of_window_value == 0 else 0) * (2**3) 0
+						total += (1 if board[x+1][y-1] - center_of_window_value == 0 else 0) * (2**2) 
+						total += (1 if board[x+1][y  ] - center_of_window_value == 0 else 0) * (2**1) 
+						# total += (1 if board[x+1][y+1] - center_of_window_value == 0 else 0) * (2**0) 0
+						# window = [
+						# 			[1 if board[x-1][y-1] - center_of_window_value == 0 else 0, 1 if board[x-1][y] - center_of_window_value == 0 else 0, 0],
+						# 			[1 if board[x  ][y-1] - center_of_window_value == 0 else 0, 1                                                      , 0],
+						# 			[1 if board[x+1][y-1] - center_of_window_value == 0 else 0, 1 if board[x+1][y] - center_of_window_value == 0 else 0, 0]
+						# 		 ]
+					elif y != (self.cols-1) and x == (self.rows-1):
+						total += (1 if board[x-1][y-1] - center_of_window_value == 0 else 0) * (2**8)
+						total += (1 if board[x-1][y  ] - center_of_window_value == 0 else 0) * (2**7)
+						total += (1 if board[x-1][y+1] - center_of_window_value == 0 else 0) * (2**6) 
+						total += (1 if board[x  ][y-1] - center_of_window_value == 0 else 0) * (2**5)
+						total += (1) * (2**4)
+						total += (1 if board[x  ][y+1] - center_of_window_value == 0 else 0) * (2**3) 
+						# total += (1 if board[x+1][y-1] - center_of_window_value == 0 else 0) * (2**2) 0
+						# total += (1 if board[x+1][y  ] - center_of_window_value == 0 else 0) * (2**1) 0
+						# total += (1 if board[x+1][y+1] - center_of_window_value == 0 else 0) * (2**0) 0
+						# window = [
+						# 			[1 if board[x-1][y-1] - center_of_window_value == 0 else 0, 1 if board[x-1][y] - center_of_window_value == 0 else 0, 1 if board[x-1][y+1] - center_of_window_value == 0 else 0],
+						# 			[1 if board[x  ][y-1] - center_of_window_value == 0 else 0, 1                                                      , 1 if board[x  ][y+1] - center_of_window_value == 0 else 0],
+						# 			[0, 0, 0]
+						# 		 ]
+					elif y == (self.cols-1) and x == (self.rows-1):
+						total += (1 if board[x-1][y-1] - center_of_window_value == 0 else 0) * (2**8)
+						total += (1 if board[x-1][y  ] - center_of_window_value == 0 else 0) * (2**7)
+						# total += (1 if board[x-1][y+1] - center_of_window_value == 0 else 0) * (2**6) 0
+						total += (1 if board[x  ][y-1] - center_of_window_value == 0 else 0) * (2**5)
+						total += (1) * (2**4)
+						# total += (1 if board[x  ][y+1] - center_of_window_value == 0 else 0) * (2**3) 0
+						# total += (1 if board[x+1][y-1] - center_of_window_value == 0 else 0) * (2**2) 0
+						# total += (1 if board[x+1][y  ] - center_of_window_value == 0 else 0) * (2**1) 0
+						# total += (1 if board[x+1][y+1] - center_of_window_value == 0 else 0) * (2**0) 0
+						# window = [
+						# 			[1 if board[x-1][y-1] - center_of_window_value == 0 else 0, 1 if board[x-1][y] - center_of_window_value == 0 else 0, 0],
+						# 			[1 if board[x  ][y-1] - center_of_window_value == 0 else 0, 1                                                      , 0],
+						# 			[0, 0, 0]
+						# 		 ]
+
 						# window = np.insert((board)[x-1:x+1, y-1:y+1], 2, [0, 0], axis=1)
 						# window = np.insert(window, 2, [0, 0, 0], axis=0)
 					else:
-						window = (board)[x-1:x+2, y-1:y+2]
+						total += (1 if board[x-1][y-1] - center_of_window_value == 0 else 0) * (2**8)
+						total += (1 if board[x-1][y  ] - center_of_window_value == 0 else 0) * (2**7)
+						total += (1 if board[x-1][y+1] - center_of_window_value == 0 else 0) * (2**6)
+						total += (1 if board[x  ][y-1] - center_of_window_value == 0 else 0) * (2**5)
+						total += (1) * (2**4)
+						total += (1 if board[x  ][y+1] - center_of_window_value == 0 else 0) * (2**3)
+						total += (1 if board[x+1][y-1] - center_of_window_value == 0 else 0) * (2**2)
+						total += (1 if board[x+1][y  ] - center_of_window_value == 0 else 0) * (2**1)
+						total += (1 if board[x+1][y+1] - center_of_window_value == 0 else 0) * (2**0)
+						# window = [
+						# 			[1 if board[x-1][y-1] - center_of_window_value == 0 else 0, 1 if board[x-1][y] - center_of_window_value == 0 else 0, 1 if board[x-1][y+1] - center_of_window_value == 0 else 0],
+						# 			[1 if board[x  ][y-1] - center_of_window_value == 0 else 0, 1                                                      , 1 if board[x  ][y+1] - center_of_window_value == 0 else 0],
+						# 			[1 if board[x+1][y-1] - center_of_window_value == 0 else 0, 1 if board[x+1][y] - center_of_window_value == 0 else 0, 1 if board[x+1][y+1] - center_of_window_value == 0 else 0 ]
+						# 		 ]
+						
+						# window = (board)[x-1:x+2, y-1:y+2]
 
-				# if (there_is_a_window):
-				# 	center_of_window_value = board[x][y]
-				# 	total = 0
-				# 	exp = 8
-				# 	for  i in range(len(window)):
-				# 		for j in range(len(window[i])):
-				# 			total += (1 if window[i][j] - center_of_window_value == 0 else 0) * (2**exp)
-				# 			exp -= 1						
-					
-				center_of_window_value = board[x][y]
-				result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
-				self.check_window(result, x,y, list_of_moves_class)
+				# center_of_window_value = board[x][y]
+				# result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
+				# self.check_window(result, x,y, list_of_moves_class)
+				self.check_window(total, x,y, list_of_moves_class)
 
-				if (x < self.rows-3) and not (board[x+1][y] == board[x+2][y]):
-					window_4_row = ([board[x][y], board[x+1][y], board[x+2][y], board[x+3][y]])
-					start_row_val = board[x][y]
-					result_swap = [1 if window_4_row[m] - start_row_val == 0 else 0 for m in range(len(window_4_row))]
-					if(sum(result_swap) == 3):
-						if(result_swap[1] == 0):
-							swap_1 = (x,y)
-							swap_2 = (x+1,y)
 
-							list_of_moves_class.push(swap_1,swap_2)
-
-						else:
-							swap_1 = (x+2,y)
-							swap_2 = (x+3,y)
-							
-							list_of_moves_class.push(swap_1,swap_2)
-				if (y < self.cols-3) and not (board[x][y+1] == board[x][y+2]):
-					window_4_col = ([board[x][y], board[x][y+1], board[x][y+2], board[x][y+3]])
-					start_col_value = board[x][y]
-					result_swap = [1 if window_4_col[m] - start_col_value == 0 else 0 for m in range(len(window_4_col))]
-					if(sum(result_swap) == 3):
-						if(result_swap[1] == 0):
-							swap_1 = (x,y)
-							swap_2 = (x,y+1)
-
-							list_of_moves_class.push(swap_1,swap_2)
-
-							
-						else:
-							swap_1 = (x,y+2)
-							swap_2 = (x,y+3)
-
-							list_of_moves_class.push(swap_1,swap_2)
-				
 		return list_of_moves_class
 
 	#check for match with window
-	def check_window(self, window, center_of_window_x, center_of_window_y, list_of_moves_class):
-		total = 0
-		exp = 8
-		for  i in range(len(window)):
-			for j in range(len(window[i])):
-				total += window[i][j] * (2**exp)
-				exp -= 1
+	def check_window(self, total, center_of_window_x, center_of_window_y, list_of_moves_class):
+		# total = 0
+		# exp = 8
+		# for  i in range(len(window)):
+		# 	for j in range(len(window[i])):
+		# 		total += window[i][j] * (2**exp)
+		# 		exp -= 1
 
 		total_shift_left_1 = total << 1
 		total_shift_left_2 = total << 2

@@ -25,7 +25,13 @@ class MoveList(object):
 
 	def push(self, arg_1, arg_2):
 		if(arg_1 not in self.move_list):
-			self.move_list[arg_1] = set()
+			if(arg_2 in self.move_list):
+				if(arg_1 in self.move_list[arg_2]):
+					return
+				else:
+					self.move_list[arg_1] = set()
+			else:
+				self.move_list[arg_1] = set()
 		self.move_list[arg_1].add(arg_2)
 		
 	def does_move_exist(self, move_made):
