@@ -1,6 +1,7 @@
 import numpy as np
 import random
 import copy
+import gmpy2
 from moveList import MoveList
 
 class Board:
@@ -85,7 +86,6 @@ class Board:
 		
 		self.board = np.array([[0 for x in range(self.cols)] for y in range(self.rows)])
 		self.fill_board(self.board)
-		
 # 		self.board = np.array(
 # [[ 3, 3, 3, 3, 3, 3, 3],
 #  [ 3, 3, 3, 3, 3, 3, 3],
@@ -106,8 +106,8 @@ class Board:
 #  [ 19,  61,  61, 199,   3,  61, 163]]
 # )
 # 		self.board = np.array(
-# [[ 61,  61, 61,  61, 163,  61, 199],
-#  [ 61, 163,  43, 163,   3,  19,  43],
+# [[ 61, 163,  43, 163, 163,  61, 199],
+#  [ 61,  61,  61,  61,   3,  19,  43],
 #  [ 61,  19, 199,   3,  43, 163,  19],
 #  [ 61,  61, 163,  61,  61,   3,   3],
 #  [163,   3, 199,  19, 163, 199,  43],
@@ -141,9 +141,8 @@ class Board:
 	def find_matches(self, multiplier, givePoints, board):
 		# so this way works too
 		possible_hell = self.get_sum_that_matter_hell_edition(board)
-		# print(possible_hell)
-		self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
-		
+		#there are no matches, no need to check any futher
+		 
 		# possible_vert_coll, possible_horizontal_coll = self.get_sum_that_matter(board)
 		# print(board)
 		# print("horizontal")
@@ -157,31 +156,30 @@ class Board:
 		# self.normal_vert_check(possible_vert_coll, givePoints, board)
 		# self.normal_horiz_check(possible_horizontal_coll, givePoints, board)
 		
-		self.add_new_pieces(board)
-		#gave points, refill board
-		if(sum(self.award_points.values()) > 0):
-			pointsToAdd = self.user_gets_points()
-			###print("adding", pointsToAdd * multiplier, "points\n")
-			self.points = self.points + (pointsToAdd * multiplier)
-			#print("POINTS ADDED", self.points)
-			multiplier += 1
-			if(pointsToAdd != 0):
-				self.find_matches(multiplier, True, board)
-		#make sure when clearing, no ne board has
-		elif ( givePoints == False and self.found_match_before_game_start == True):
-			self.found_match_before_game_start = False
-			self.find_matches(multiplier, False, board) 
-			
+		#only clean board if there matches
+		if (possible_hell != {} ):		
+			self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
+		
+			self.add_new_pieces(board)
+			#gave points, refill board
+			if(sum(self.award_points.values()) > 0):
+				pointsToAdd = self.user_gets_points()
+				###print("adding", pointsToAdd * multiplier, "points\n")
+				self.points = self.points + (pointsToAdd * multiplier)
+				#print("POINTS ADDED", self.points)
+				multiplier += 1
+				if(pointsToAdd != 0):
+					self.find_matches(multiplier, True, board)
+			#make sure when clearing, no ne board has
+			elif ( givePoints == False and self.found_match_before_game_start == True):
+				self.found_match_before_game_start = False
+				self.find_matches(multiplier, False, board) 
+		
+		#find the moves a player can make for the board (there are no matches in this board c)				
 		#moves_made is a MoveList
 		self.possible_moves_to_make = self.get_possible_moves(board)
 		while (self.possible_moves_to_make.move_list == { }):
-			# input("NO MOVES")
-			# print("board before")
-			# print(board)
 			self.random_board(board)
-			# print("board After")
-			# print(board)
-			# input("TRIED TO FIX")
 			self.possible_moves_to_make = self.get_possible_moves(board)
 
 	def random_board(self, board):
@@ -637,7 +635,7 @@ class Board:
 
 		list_of_moves_class = MoveList()
 
-		#check for match 3
+		#check for possible match 3 moves
 		for x in range(self.rows):
 			for y in range(self.cols):
 
@@ -786,7 +784,8 @@ class Board:
 				# center_of_window_value = board[x][y]
 				# result = [[1 if window[m][n] - center_of_window_value == 0 else 0 for n in range(len(window[m]))] for m in range(len(window))]
 				# self.check_window(result, x,y, list_of_moves_class)
-				self.check_window(total, x,y, list_of_moves_class)
+				if gmpy2.popcount(total) >= 3:
+					self.check_window(total, x,y, list_of_moves_class)
 
 
 		return list_of_moves_class
