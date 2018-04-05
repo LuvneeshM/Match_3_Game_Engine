@@ -140,6 +140,9 @@ class Board:
 	
 	def find_matches(self, multiplier, givePoints, board):
 		# so this way works too
+		#returns a dictionary 
+		#key is a frozenset, of either just the horizontal or just the vertical matches
+		#value is a frozenset of the vertical intsections
 		possible_hell = self.get_sum_that_matter_hell_edition(board)
 		#there are no matches, no need to check any futher
 		 
@@ -158,6 +161,7 @@ class Board:
 		
 		#only clean board if there matches
 		if (possible_hell != {} ):		
+			#clean the board of all sequences/matches
 			self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
 		
 			self.add_new_pieces(board)
@@ -175,7 +179,7 @@ class Board:
 				self.found_match_before_game_start = False
 				self.find_matches(multiplier, False, board) 
 		
-		#find the moves a player can make for the board (there are no matches in this board c)				
+		#find the moves a player can make for the board (there are no more matches in this board)				
 		#moves_made is a MoveList
 		self.possible_moves_to_make = self.get_possible_moves(board)
 		while (self.possible_moves_to_make.move_list == { }):
@@ -193,9 +197,9 @@ class Board:
 		#print(board)
 		return board
 
-	#vertical sums that represent 3 of same item back to back in col
+	#vertical sums that represent 3 or more of same item back to back in col
 	#return possible_vert_coll
-	#horizontal sums that represent 3 of same item back to back in row
+	#horizontal sums that represent 3 or more of same item back to back in row
 	#return possible_horizontal_coll
 	def get_sum_that_matter_hell_edition(self, board):
 		possible_hell = {}
@@ -541,7 +545,6 @@ class Board:
 	#refills the top of board two
 	#IF starting fresh game, used to fill board_one for the first time
 	def fill_board(self, board):
-		#random.seed(40)
 		#add to these spots
 		num_pieces_per_col = [0 for x in range(self.cols)]
 		#count number of 0 in each col
