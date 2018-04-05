@@ -100,9 +100,9 @@ class Board:
 # [[ 61, 199,  43,   3,  19,  61,  61],
 #  [ 61,  61, 163,  61, 199,  43,  19],
 #  [  3,   3,   3,  43,  61,  19, 199],
-#  [  3,  19,   3, 199,  61, 163,  19],
-#  [  3,   3,   3, 163, 199,   3,  43],
-#  [163, 199,  61,  19, 199, 199,  19],
+#  [  3,  19,   3, 199, 199, 199, 199],
+#  [  3,   3,   3, 163, 199,   3, 199],
+#  [  3, 199,  61,  19, 199, 199, 199],
 #  [ 19,  61,  61, 199,   3,  61, 163]]
 # )
 # 		self.board = np.array(
@@ -144,6 +144,7 @@ class Board:
 		#key is a frozenset, of either just the horizontal or just the vertical matches
 		#value is a frozenset of the vertical intsections
 		possible_hell = self.get_sum_that_matter_hell_edition(board)
+		# print(possible_hell)
 		#there are no matches, no need to check any futher
 		 
 		# possible_vert_coll, possible_horizontal_coll = self.get_sum_that_matter(board)
@@ -163,7 +164,7 @@ class Board:
 		if (possible_hell != {} ):		
 			#clean the board of all sequences/matches
 			self.check_for_intersection_and_horizontal_and_vertical(possible_hell, givePoints, board)
-		
+
 			self.add_new_pieces(board)
 			#gave points, refill board
 			if(sum(self.award_points.values()) > 0):
@@ -210,55 +211,66 @@ class Board:
 			for j in range(self.cols):		
 				#horizontal
 				if (j < self.cols-2):
-					sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
+					if(board[i][j] == board[i][j+1] and board[i][j] == board[i][j+2]):
+						sum_in_horiz = board[i][j]+board[i][j+1]+board[i][j+2]
 
-					if(prev_horiz_sum != sum_in_horiz):
-						prev_horiz_sum = sum_in_horiz
-						for k in self.divisors:
-							if(sum_in_horiz%k == 0 and sum_in_horiz/k == 3):
-								horizontal_sequ = set()
-								horizontal_sequ.add((i,j))
-								horizontal_sequ.add((i, j+1))
-								horizontal_sequ.add((i, j+2))
-								for x in range(j+3, self.cols):
-									if board[i][x] == k:
-										horizontal_sequ.add((i, x))
-									else:
-										break
-								possible_hell[frozenset(horizontal_sequ)] = set()
-								break
+						if(prev_horiz_sum != sum_in_horiz):
+							prev_horiz_sum = sum_in_horiz
+
+							horizontal_sequ = set()
+							horizontal_sequ.add((i,j))
+							horizontal_sequ.add((i, j+1))
+							horizontal_sequ.add((i, j+2))
+							for x in range(j+3, self.cols):
+								if board[i][x] == board[i][j]:
+									horizontal_sequ.add((i, x))
+								else:
+									break
+							possible_hell[frozenset(horizontal_sequ)] = set()
+
+							# for k in self.divisors:
+							# 	if(sum_in_horiz%k == 0 and sum_in_horiz/k == 3):
+							# 		horizontal_sequ = set()
+							# 		horizontal_sequ.add((i,j))
+							# 		horizontal_sequ.add((i, j+1))
+							# 		horizontal_sequ.add((i, j+2))
+							# 		for x in range(j+3, self.cols):
+							# 			if board[i][x] == k:
+							# 				horizontal_sequ.add((i, x))
+							# 			else:
+							# 				break
+							# 		possible_hell[frozenset(horizontal_sequ)] = set()
+							# 		break
 
 				#vertical
 				if (i < self.rows-2):
-					sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
-					if(prev_vert_sum_list[j] == sum_in_vert):
-						#i already counted this guy, skip plz
-						continue
-					else:
-						prev_vert_sum_list[j] = sum_in_vert
-						for k in self.divisors:
-							if(sum_in_vert%k == 0 and sum_in_vert/k == 3):
-								#check to see if (i, j) is in the keys for possible hell
-								#if it is, then just add to the values
-								#else, just do a frozenset key again
-								vertical_seq = set()
-								vertical_seq.add((i, j))
-								vertical_seq.add((i+1,j))
-								vertical_seq.add((i+2,j))
-								recorded_intersection = False
-								for x in range(i+3, self.rows):
-									if board[x][j] == k:
-										vertical_seq.add((x, j))
-									else:
-										break
-								for key in possible_hell.keys():
-									if ( (i,j) in key ):
-										possible_hell[key].update(vertical_seq)
-										recorded_intersection = True
-										break
-								if (recorded_intersection == False):
-									possible_hell[frozenset(vertical_seq)] = set()
-								break
+					if(board[i][j] == board[i+1][j] and board[i][j] == board[i+2][j]):
+						sum_in_vert = board[i][j]+board[i+1][j]+board[i+2][j]
+					#i did not count this before
+						if(prev_vert_sum_list[j] != sum_in_vert):
+							prev_vert_sum_list[j] = sum_in_vert
+							#check to see if (i, j) is in the keys for possible_hell
+							#if it is, then just add to the values, this means there is an intersection
+							#else, just do a frozenset key again
+							vertical_seq = set()
+							vertical_seq.add((i, j))
+							vertical_seq.add((i+1,j))
+							vertical_seq.add((i+2,j))
+							recorded_intersection = False
+							#check to ensure the next adj is not the same (for a match of 4, 5, etc)
+							for x in range(i+3, self.rows):
+								if board[x][j] == board[i][j]:
+									vertical_seq.add((x, j))
+								else:
+									break
+							for key in possible_hell.keys():
+								if ( (i,j) in key ):
+									possible_hell[key].update(vertical_seq)
+									recorded_intersection = True
+									break
+							if (recorded_intersection == False):
+								possible_hell[frozenset(vertical_seq)] = set()
+							
 		
 		return possible_hell
 
