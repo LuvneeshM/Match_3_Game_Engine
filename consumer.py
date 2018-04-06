@@ -1,14 +1,16 @@
+import pyximport; pyximport.install()
+from cythoned import *
+
 from global_functions import *
 from config import *
 import sys
 import time
 import ast
 import random
-import game
 
 def playGame(individual):
 	seeds = random.sample(range(10000), number_of_games_per_worker)
-	score = game.main(seeds, individual, False)
+	score = main(seeds, individual, False) #main function from game in the cythoned.pyx file
 	return score
 
 
@@ -26,6 +28,9 @@ output_file_sufix = ".txt"
 temp = 0 
 current_iteration = 0
 
+#value depends on the number of games we want each player playing
+number_of_total_games_I_play = 20 #100/5 = 20, every 20th I play
+
 while True:
 	try:
 		file_pointer = openFile(current_directory + input_file)
@@ -39,7 +44,7 @@ while True:
 
 	length_of_data = 0
 	try:
-		offset = (id % 2) - 2
+		offset = (id % number_of_total_games_I_play) - number_of_total_games_I_play
 		test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals + offset) + ".txt")
 		test_data = readLineFromFile(test_pointer)
 		length_of_data = len(test_data)
@@ -50,18 +55,18 @@ while True:
 	if length_of_data < number_of_simulations:
 		population = [ast.literal_eval(file_data[i]) for i in range(1, len(file_data))]
 		
-		evaluated_pop = [ast.literal_eval(file_data[i+1]) for i in range(0, len(file_data)-1) if (i % 10) == (id % 10)]
+		evaluated_pop = [ast.literal_eval(file_data[i+1]) for i in range(0, len(file_data)-1) if (i % number_of_total_games_I_play) == (id % number_of_total_games_I_play)]
 
 		print(id, "is playing Games")
 		print(len(evaluated_pop))
 		result = list(map(playGame, evaluated_pop))
 		print(id, "finished playing Games")
 
-		i = id % 10
+		i = (id % number_of_total_games_I_play)
 		index = 0
-		while i < (len(result) * 10):
+		while i < (len(result) * number_of_total_games_I_play):
 			addToFile(current_directory + output_file_prefix + str(i) + output_file_sufix, str(result[index]) + ";")
-			i += 10
+			i += number_of_total_games_I_play
 			index += 1
 			#addToFile(log_file, "DONE")
 		

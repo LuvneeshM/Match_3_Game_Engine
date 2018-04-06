@@ -1,6 +1,9 @@
+import pyximport; pyximport.install()
+from cythoned import *
+
 import operator
 import math
-import game
+# import game
 import marshal
 import random
 import time
@@ -253,7 +256,12 @@ def getResultsFromFiles():
 		input_data = readLineFromFile(input_file)
 		closeFile(input_file)
 		
-		temp_data = [float(x) for x in input_data]
+		# temp_data = [float(x) for x in input_data]
+		#input_data guaranteeded to have at least number_of_simulations guys
+		#temp_data = [float(input_data[x]) for x in range(0, number_of_simulations)]
+		temp_data = []
+		for x in range(0, number_of_simulations):
+			temp_data.append(float(input_data[x]))
 		average = sum(temp_data) / float(len(temp_data))
 		
 		evals.append(float(average))
@@ -297,7 +305,9 @@ if __name__ == "__main__":
 				os.makedirs(current_directory)
 			#produce()
 			pop = initialPop()
-		
+	
+	last_iteration = current_iteration
+	
 	pop_data_buffer = ""
 	for i in range(0, len(pop)):
 		pop_data_buffer += str(pop[i])
@@ -312,12 +322,14 @@ if __name__ == "__main__":
 	writeToFile(output_file, compiled_pop)
 	closeFile(output_file)
 
+	spacing_from_total_games_worker_play = 20 # 100 / 5 = 20
+
 	while True:
 		# length_of_data_1 = 0
 		# length_of_data_2 = 0
-		length_of_data_array = [0] * 10
+		length_of_data_array = [0] * spacing_from_total_games_worker_play
 		try:
-			for i in range(0, 10):
+			for i in range(0, spacing_from_total_games_worker_play):
 				test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals-i-1) + ".txt")
 				test_data = readLineFromFile(test_pointer)
 				closeFile(test_pointer)
