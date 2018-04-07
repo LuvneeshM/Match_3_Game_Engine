@@ -1,0 +1,11 @@
+Original Individual;
+mul(truediv(mul(child_win_score, 8.33826152303092), 79.46268135888877), sqrt(truediv(8.33826152303092, child_win_score)))
+122.15053923723771
+mul(truediv(10.017774440769303, truediv(add(sqrt(child_visit_count), 77.23439105217226), 2.4965332742402806)), 1.0533401177835426)
+add(add(8.144554154448, child_win_score), 33.0336563266504)
+sqrt(mul(3.3857956750377447, child_visit_count))
+159.81464608450167
+sqrt(mul(3.3857956750377447, child_win_score))
+12.439347671905884
+truediv(truediv(truediv(mul(child_win_score, current_visit_count), 7.490763620954272), sqrt(add(2.296666853022625, current_visit_count))), 6.495336013320101)
+truediv(truediv(truediv(add(child_visit_count, child_win_score), 0.6034450726200912), mul(10.212831645766132, mul(child_visit_count, child_visit_count))), 1.1520915768420992)

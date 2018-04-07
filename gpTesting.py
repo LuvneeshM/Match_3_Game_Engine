@@ -1,187 +1,328 @@
+# import pyximport; pyximport.install()
+# from cythoned import *
+
+import pyximport; pyximport.install()
+from cythoned import *
+
 import operator
 import math
-import game
+# import game
 import marshal
 import random
 import time
+import uuid
+import itertools
+import os
 from deap import base
 from deap import creator
 from deap import gp
 from deap import tools
 from deap import algorithms
-
-from prettyPrintTree import prettyPrint
-
-from contextlib import redirect_stdout
-
 import multiprocessing as mp
+from prettyPrintTree import prettyPrint
+import sys
 
-#toolbox.evaluate 
+from global_functions import *
+from config import *
 
-def evalFunc(individual, n):
-    #print (prettyPrint(individual))
-    #print (individual)
-    #UCBFunctionToGet = toolbox.compile(individual)
+#global variables
+pool = None
+pset = None
+toolbox = None
+
+pop_size = number_of_individuals
+
+cxpb=0.5
+mutpb=0.2
+ngen=number_of_generations
+
+eachGenResults_file = 'data/output.csv.txt'
+originalEq_file = 'data/original_population_eqs.csv.txt'
+finalEq_file = 'data/gen-results.csv.txt'
+
+def evalFunc(individual):
     #pass UCBFunctionToGet
     #play game n times with n seeds, return avg score overall
-    n = 1
-    score = game.main([0,n], individual, False)
+    seeds = random.sample(range(10000), number_of_games_per_worker)
+    score = main(seeds, individual, False) 
 
     return score,
 
 def originalMCTSFunc():
 	new_individual = gp.PrimitiveTree.from_string("add(truediv(child_win_score, child_visit_count), (mul(1.414,sqrt(mul(2.0,truediv(log(current_visit_count),child_visit_count))))) )", pset)
-
-	#UCBFunctionToGet = toolbox.compile(new_individual)
-	#print(UCBFunctionToGet(2,3,4),)
-
 	return new_individual
 
 def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, pop=None, current_time=None):
 	if(toWriteHeader):
-		output_file = open('output.csv.txt', 'w')
-		output_file.write('GEN;num-sims;pop-size;max-fitness;ellapsed-time;\n')
+		output_file = open(eachGenResults_file, 'w')
+		output_file.write('GEN;num-games-each-worker-plays;pop-size;max-fitness;ellapsed-time;\n')
 		output_file.close()
 	else:
-		output_file = open('output.csv.txt', 'a')
+		output_file = open(eachGenResults_file, 'a')
 		output_file.write(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(max([p.fitness for p in pop])) + ';' + str(time.time()-current_time) + ';\n')
 		output_file.close()
 
+def writeOriginalEquations(pop):
+	sys.stdout = open(originalEq_file, 'w')
+	print('Original Individual;')
+	for p in pop:
+		print(str(p) + ';')
+	sys.stdout = sys.__stdout__
 
-if __name__ == "__main__":
-	pool = mp.Pool()
+def writeFinalEquations(pop):
+	global toolbox
+
+	sys.stdout = open(finalEq_file, 'w')
+	print('Individual;Fitness;')
+	for fp in toolbox.select(pop, k = 3):
+		print(str(fp) + ";" + str(fp.fitness) + ";")
+		print(str(prettyPrint(fp)) + ";" + str(fp.fitness) + ";\n")
+	sys.stdout = sys.__stdout__
+
+def createThePset():
+	global pset
+
+	# pset = gp.PrimitiveSetTyped('MAIN', [float, float, float, float], float)
+	# pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count', ARG3='total_number_of_available_moves')
+	
 	pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
 	pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
 	pset.addPrimitive(operator.add, [float, float], float)
 	pset.addPrimitive(operator.mul, [float, float], float)
 	pset.addPrimitive(operator.truediv, [float, float], float)
 	pset.addPrimitive(math.sqrt, [float], float)
-	pset.addPrimitive(math.log, [float],float)
-	pset.addTerminal(1.414, float)
-	pset.addTerminal(0.5, float)
-	pset.addTerminal(2.0, float)
-	pset.addTerminal(3.0, float)
-	pset.addTerminal(4.0, float)
-	pset.addTerminal(5.0, float)
+	#pset.addPrimitive(math.log, [float], float)
+	for i in range(10):
+		pset.addTerminal(random.uniform(0, 10), float)
 
+def createTheCreator():
 	creator.create('FitnessMax', base.Fitness, weights=(1.0,))
 	creator.create('Individual', gp.PrimitiveTree, fitness=creator.FitnessMax,
 	              pset=pset)
 
+def createTheToolbox():
+	global toolbox
 	toolbox = base.Toolbox()
 	toolbox.register('compile', gp.compile, pset=pset)
-	toolbox.register('expr', gp.genFull, pset=pset, min_=5, max_=5)
+	toolbox.register('indvCreation', individualCreation, pset=pset, min_=2, max_=6)
+	toolbox.register('expr', gp.genHalfAndHalf, pset=pset, min_=2, max_=6)
 	toolbox.register('individual', tools.initIterate, creator.Individual,
-	                toolbox.expr)
+					toolbox.indvCreation)
 
-	num_sims = 1
-	toolbox.register('evaluate', evalFunc, n=num_sims)
-
+	toolbox.register('evaluate', evalFunc)
+	toolbox.register('map', pool.map)
+		
 	toolbox.register('population', tools.initRepeat, list, toolbox.individual)
 	toolbox.register('select', tools.selBest)
 	toolbox.register('mate', gp.cxOnePoint)
-	toolbox.register('mutate', gp.mutUniform, expr=toolbox.expr, pset=pset)
-
-	toolbox.register('map', pool.map)
+	toolbox.register('mutate', mutationFunction, expr=toolbox.expr, pset=pset)
 
 	#for the single uct individual
 	toolbox.register('create_initial_uct', originalMCTSFunc)
 	toolbox.register('initial_uct', tools.initIterate, creator.Individual, toolbox.create_initial_uct)
 
-	initial_uct_indiv = toolbox.initial_uct()
-	#s =toolbox.evaluate(initial_uct_indiv)
-	#print(s)
+def mutateConstant(individual, expr, pset):
+	candidates = []
+	for term in individual:
+		if isinstance(term, gp.Terminal) and 'ARG' not in term.name:
+			candidates.append((term, individual.index(term)))
+    
+	if len(candidates) == 0:
+		return gp.mutUniform(individual, expr=expr, pset=pset)[0]
+    
+	chosen, index = random.choice(candidates)
+	new_candidate = gp.PrimitiveTree(gp.genFull(pset=pset, max_=0, min_=0))
+	while chosen.name == new_candidate[0].name or 'ARG' in new_candidate[0].name:
+		new_candidate = gp.PrimitiveTree(gp.genFull(pset=pset, max_=0, min_=0))
+        
+	return gp.PrimitiveTree(individual[:index] + [new_candidate[0]] + individual[index+1:])
 
-	#then test generations
-	#population of 5 so computer doesnt cry
-	pop_size = 5
-	pop = toolbox.population (pop_size-1)
-	pop.append(initial_uct_indiv)
+def mutationFunction(individual, expr, pset):
+	r = random.uniform(0, 1)
+	if r > 0.5:
+		return mutateConstant(individual, expr, pset)
+        
+	return gp.mutUniform(individual, expr=expr, pset=pset)[0]
 
-	#final_pop = algorithms.eaSimple(pop, toolbox=toolbox, cxpb=0.5, mutpb=0.2, ngen=2)
-	
-	results_file = open('gen-results.csv.txt', 'w')
-	results_file.write('Original Individual;\n')
-	for p in pop:
-		results_file.write(str(p) + ';\n')
-		results_file.write(prettyPrint(p) + ';\n\n')
-	results_file.write('\n\n')
-	results_file.close()
+def individualCreation(pset, min_, max_):
+	return simplifyFunction(gp.PrimitiveTree(toolbox.expr()))
 
-	cxpb=0.5
-	mutpb=0.2
-	ngen=5
+def simplifyFunction(tree):
+	global toolbox
+	result = list(tree)
+    
+	offset = 0
+    
+	for i in range(0, len(tree)):
+		index = i
+		p = tree[i]
+		subtree_slice = tree.searchSubtree(index)
+		diff_index = subtree_slice.stop - subtree_slice.start - 1
+		if diff_index <= 2 and diff_index > 0:
+			temp = tree[subtree_slice.start+1:subtree_slice.stop]
+            
+			isReducible = True
+            
+			for i in temp:
+				if not isinstance(i, gp.Terminal):
+					isReducible = False
+					break
+				else:
+					try:
+						float(i.name)
+					except:
+						isReducible = False
+						break
+            
+			if isReducible:
+				subtree = [p] + temp
+				subtree_ind = gp.PrimitiveTree(subtree)
+				subtree_func = toolbox.compile(subtree_ind)
+				subtree_result = subtree_func(0,0,0)
+                
+				new_terminal = gp.Terminal(subtree_result, False, float)
+                
+				result = result[:subtree_slice.start-offset] + [new_terminal] + result[subtree_slice.stop-offset:]
+                
+				offset += diff_index
+    
+	if len(tree) == len(result):
+		return tree
 
+	return creator.Individual(simplifyFunction(gp.PrimitiveTree(result)))
+
+def produceCompiledPop(pop):
 	func_globals = globals()
 	func_globals['add'] = operator.add
 	func_globals['mul'] = operator.mul
 	func_globals['truediv'] = operator.truediv
 	func_globals['sqrt'] = math.sqrt
-	func_globals['log'] = math.log
+	#func_globals['log'] = math.log
 
 	compiled_pop = []
 	for i in range(len(pop)):
-	    UCBFunc_code = marshal.dumps(toolbox.compile(pop[i]).__code__)
+		UCBFunc_code = marshal.dumps(toolbox.compile(pop[i]).__code__)
+		compiled_pop.append(UCBFunc_code)
 
-	    compiled_pop.append(UCBFunc_code)
+	# data_buffer = ""
+	# for i in range(0, len(compiled_pop)):
+	# 	data_buffer += str(compiled_pop[i])
+	# 	if i < len(compiled_pop) - 1:
+	# 		data_buffer += "\n"
 
-	#output_file = open('output.csv.txt', 'w')
-	#output_file.write('GEN;num-sims;pop-size;max-fitness;ellapsed-time;\n')
-	#output_file.close()
-	eachGenResultsToWrite(toWriteHeader=True)
+	return compiled_pop
 
-	print("before map")
-	evals = toolbox.map(toolbox.evaluate, compiled_pop)
-	print("after map")
-	for i in range(len(compiled_pop)):
-	    pop[i].fitness = evals[i]
+def initialPop():
+	#create population
+	#population of 5 so computer doesnt cry
+	pop = toolbox.population (pop_size)
+	#initial_uct_indiv = toolbox.initial_uct()
+	#pop.append(initial_uct_indiv)
+	# writeOriginalEquations(pop)
+	return pop
+
+
+if __name__ == "__main__":
+	results_filename = str(uuid.uuid4()) + ".txt"
+	temp_file = createFile(results_filename)
+
+	eachGenResultsToWrite(True)
+
+	pool = mp.Pool()
+	#set up
+	createThePset()
+	createTheCreator()
+	createTheToolbox()
+
+	#then test generations
+	#population of 5 so computer doesnt cry
+	pop = initialPop()
+
+	pop_data_buffer = ""
+	for i in range(0, len(pop)):
+		pop_data_buffer += str(pop[i])
+		if i < len(pop) - 1:
+			pop_data_buffer += "\n"
+	output_file_pop = createFile("starting_gen_pop.txt")
+	writeToFile(output_file_pop, 'Original Individual;')
+	writeToFile(output_file_pop, pop_data_buffer)
+	closeFile(output_file_pop)
+
+	current_time = time.time()
 
 	for g in range(ngen):
-	    print('gen started')
-	    current_time = time.time()
-	    pop = toolbox.select(pop, len(pop))
+		compiled_pop = produceCompiledPop(pop)
+		print("before map for gen", g)
+		evals = toolbox.map(toolbox.evaluate, compiled_pop)
+		print("after map for gen", g)
+		for i in range(len(compiled_pop)):
+			pop[i].fitness = evals[i]
 
-	    offspring = toolbox.clone(pop)
-	    i = 0
-	    while i < len(offspring) - 1:
-	        random_n = random.uniform(0, 1)
-	        if random_n <= cxpb:
-	            ind1, ind2 = toolbox.mate(offspring[i], offspring[i+1])
-	            offspring[i] = ind1
-	            offspring[i+1] = ind2
+		eachGenResultsToWrite(False, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop=pop, current_time=current_time)
+		addToFileWithBreakline(results_filename, "Best for Generation " + str(g))
+		for fp in toolbox.select(pop, k = int(len(pop))):
+			addToFileWithBreakline(results_filename, (str(fp) + ";" + str(fp.fitness) + "; " + str(time.time() - current_time) + ";") )
+		addToFile(results_filename, "\n")
 
-	        i += 2
+		print('gen started')
+		current_time = time.time()
 
-	    for i in range(len(offspring)):
-	        random_n = random.uniform(0, 1)
-	        if random_n <= mutpb:
-	            offspring[i] = toolbox.mutate(offspring[i])[0]
+		elite_size = int(len(pop) / 10)
+		mutation_size = int(elite_size * 4.5)
+		crossover_size = int(len(pop) - elite_size - mutation_size)
+	
+		elite = toolbox.select(pop, elite_size)
 
-	    compiled_offspring = []
-	    for i in range(len(offspring)):
-	        UCBFunc_code = marshal.dumps(toolbox.compile(offspring[i]).__code__)
+		candidates = toolbox.select(pop, int(len(pop) / 2))
+		candidates = toolbox.clone(candidates)
 
-	        compiled_offspring.append(UCBFunc_code)
+		mutation_individuals = []
+		sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
+		for i in sample_individuals_indexes:
+			mutation_individuals.append(simplifyFunction(toolbox.mutate(candidates[i])))
 
-	    evals = toolbox.map(toolbox.evaluate, compiled_offspring)
-	    for i in range(len(compiled_offspring)):
-	        offspring[i].fitness = evals[i]
+		candidates = toolbox.select(pop, int(len(pop) / 2))
+		candidates = toolbox.clone(candidates)
 
-	    pop = offspring
+		crossover_individuals = []
+		pairings = tuple(itertools.combinations(candidates, 2))
+			
+		selected = random.sample(pairings, crossover_size)
+		for pair in selected:
+			try:
+				child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
+				crossover_individuals.append(simplifyFunction(child1))
+				if len(crossover_individuals) <= crossover_size - 1:
+					crossover_individuals.append(simplifyFunction(child2))
+				if len(crossover_individuals) == crossover_size:
+					break
+			except:
+				raise
 
-	    print('gen done')
+		pop = elite + mutation_individuals + crossover_individuals
 
-	    eachGenResultsToWrite(False, g=g, num_sims=num_sims+1, pop_size=pop_size, pop=pop, current_time=current_time)
-	    # output_file = open('output.csv.txt', 'a')
-	    # output_file.write(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(max([p.fitness for p in pop])) + ';' + str(time.time()-current_time) + ';\n')
-	    # output_file.close()
+		print('gen done')
 
-	results_file = open('gen-results.csv.txt', 'a')
+	#the very last produced gen needs to be played
+	print("playing last gen")
+	compiled_pop = produceCompiledPop(pop)
+	print("before map for gen", ngen)
+	evals = toolbox.map(toolbox.evaluate, compiled_pop)
+	print("after map for gen", ngen)
+	for i in range(len(compiled_pop)):
+		pop[i].fitness = evals[i]
+
+	eachGenResultsToWrite(False, g=ngen, num_sims=number_of_games_per_worker, pop_size=pop_size, pop=pop, current_time=current_time)
+
+	results_file = open('data/gen-results.csv.txt', 'a')
 	results_file.write('Individual;Fitness;\n')
-	for fp in toolbox.select(pop, k = 3):
+	for fp in toolbox.select(pop, k = len(pop)):
 		results_file.write(str(fp) + ";" + str(fp.fitness) + ";\n")
 		results_file.write(str(prettyPrint(fp)) + ";" + str(fp.fitness) + ";\n\n")
 	results_file.close()
+
+	for fp in toolbox.select(pop, k = int(len(pop))):
+		addToFileWithBreakline(results_filename, (str(fp) + ";" + str(fp.fitness) + "; " + str(time.time() - current_time) + ";") )
 
 	pool.terminate()
 

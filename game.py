@@ -15,8 +15,6 @@ import types
 
 import operator, math
 
-import gpTesting
-
 def makeMove():
 	valid_move_made = False
 	input_valid_move = False
