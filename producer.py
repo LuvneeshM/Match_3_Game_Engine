@@ -98,11 +98,10 @@ def writeFinalEquations(pop):
 def createThePset():
 	global pset
 
-	# pset = gp.PrimitiveSetTyped('MAIN', [float, float, float, float], float)
-	# pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count', ARG3='total_number_of_available_moves')
-	
-	pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
-	pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
+	pset = gp.PrimitiveSetTyped('MAIN', [float, float, float, float], float)
+	pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count', ARG3='total_number_of_available_moves')
+	# pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
+	# pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
 	pset.addPrimitive(operator.add, [float, float], float)
 	pset.addPrimitive(operator.mul, [float, float], float)
 	pset.addPrimitive(operator.truediv, [float, float], float)
@@ -158,7 +157,12 @@ def mutationFunction(individual, expr, pset):
 	return gp.mutUniform(individual, expr=expr, pset=pset)[0]
 
 def individualCreation(pset, min_, max_):
-	return simplifyFunction(gp.PrimitiveTree(toolbox.expr()))
+	indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+	
+	while(isinstance(indiv[0], gp.Terminal)):
+		indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+		
+	return indiv
 
 def simplifyFunction(tree):
 	global toolbox
@@ -191,7 +195,7 @@ def simplifyFunction(tree):
 				subtree = [p] + temp
 				subtree_ind = gp.PrimitiveTree(subtree)
 				subtree_func = toolbox.compile(subtree_ind)
-				subtree_result = subtree_func(0,0,0)
+				subtree_result = subtree_func(0,0,0, 0)
                 
 				new_terminal = gp.Terminal(subtree_result, False, float)
                 
@@ -384,7 +388,12 @@ if __name__ == "__main__":
 			mutation_individuals = []
 			sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
 			for i in sample_individuals_indexes:
-				mutation_individuals.append(simplifyFunction(toolbox.mutate(candidates[i])))
+				mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
+
+				while( isinstance(mutated_individual[0], gp.Terminal) ):
+					mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
+
+				mutation_individuals.append(mutated_individual)
     
 			candidates = toolbox.select(pop, int(len(pop) / 2))
 			candidates = toolbox.clone(candidates)
@@ -392,17 +401,28 @@ if __name__ == "__main__":
 			crossover_individuals = []
 			pairings = tuple(itertools.combinations(candidates, 2))
 			
-			selected = random.sample(pairings, crossover_size)
-			for pair in selected:
-				try:
-					child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
-					crossover_individuals.append(simplifyFunction(child1))
-					if len(crossover_individuals) <= crossover_size - 1:
-						crossover_individuals.append(simplifyFunction(child2))
-					if len(crossover_individuals) == crossover_size:
-						break
-				except:
-					raise
+			random.shuffle(pairings)
+			selected = pairings
+			crossover_size_copy = crossover_size
+			counter = 0
+			while counter < crossover_size_copy:
+				child1, child2 = toolbox.mate(toolbox.clone(selected[counter][0]), toolbox.clone(selected[counter][1]))
+				child1 = simplifyFunction(child1)
+				child2 = simplifyFunction(child2)
+				while(isinstance(child1[0], gp.Terminal) or isinstance(child2[0], gp.Terminal) ):
+					counter += 1
+					crossover_size_copy += 1
+					child1, child2 = toolbox.mate(toolbox.clone(selected[counter][0]), toolbox.clone(selected[counter][1]))
+					child1 = simplifyFunction(child1)
+					child2 = simplifyFunction(child2)
+
+				crossover_individuals.append(simplifyFunction(child1))
+				if len(crossover_individuals) <= crossover_size - 1:
+					crossover_individuals.append(simplifyFunction(child2))
+				if len(crossover_individuals) == crossover_size:
+					break
+
+				counter +=1
 
 			pop = elite + mutation_individuals + crossover_individuals
 
