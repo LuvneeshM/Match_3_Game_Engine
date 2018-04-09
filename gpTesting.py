@@ -274,8 +274,8 @@ if __name__ == "__main__":
 	for g in range(ngen):
 		compiled_pop = produceCompiledPop(pop)
 		print("before map for gen", g)
-		# evals = toolbox.map(toolbox.evaluate, compiled_pop)
-		evals = [random.uniform(1000, 4000) for _ in range(len(compiled_pop))]
+		evals = toolbox.map(toolbox.evaluate, compiled_pop)
+		# evals = [random.uniform(1000, 4000) for _ in range(len(compiled_pop))]
 		print("after map for gen", g)
 		for i in range(len(compiled_pop)):
 			pop[i].fitness = evals[i]
@@ -358,8 +358,8 @@ if __name__ == "__main__":
 	print("playing last gen")
 	compiled_pop = produceCompiledPop(pop)
 	print("before map for gen", ngen)
-	# evals = toolbox.map(toolbox.evaluate, compiled_pop)
-	evals = [random.uniform(1000, 4000) for _ in range(len(compiled_pop))]
+	evals = toolbox.map(toolbox.evaluate, compiled_pop)
+	# evals = [random.uniform(1000, 4000) for _ in range(len(compiled_pop))]
 	print("after map for gen", ngen)
 	for i in range(len(compiled_pop)):
 		pop[i].fitness = evals[i]
