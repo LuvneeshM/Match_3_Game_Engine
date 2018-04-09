@@ -6,6 +6,7 @@ from cythoned import *
 
 import operator
 import math
+import numbers
 # import game
 import marshal
 import random
@@ -82,11 +83,11 @@ def writeFinalEquations(pop):
 def createThePset():
 	global pset
 
-	# pset = gp.PrimitiveSetTyped('MAIN', [float, float, float, float], float)
-	# pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count', ARG3='total_number_of_available_moves')
+	pset = gp.PrimitiveSetTyped('MAIN', [float, float, float, float], float)
+	pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count', ARG3='total_number_of_available_moves')
+	# pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
+	# pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
 	
-	pset = gp.PrimitiveSetTyped('MAIN', [float, float, float], float)
-	pset.renameArguments(ARG0='child_win_score', ARG1='child_visit_count', ARG2='current_visit_count')
 	pset.addPrimitive(operator.add, [float, float], float)
 	pset.addPrimitive(operator.mul, [float, float], float)
 	pset.addPrimitive(operator.truediv, [float, float], float)
@@ -145,7 +146,13 @@ def mutationFunction(individual, expr, pset):
 	return gp.mutUniform(individual, expr=expr, pset=pset)[0]
 
 def individualCreation(pset, min_, max_):
-	return simplifyFunction(gp.PrimitiveTree(toolbox.expr()))
+	indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+	indiv_list = list(indiv)
+	
+	while(len(indiv_list) == 1 and str(type(indiv_list[0])) == '<class \'deap.gp.Terminal\'>'):
+		indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+		indiv_list = list(indiv)
+	return indiv
 
 def simplifyFunction(tree):
 	global toolbox
@@ -178,7 +185,7 @@ def simplifyFunction(tree):
 				subtree = [p] + temp
 				subtree_ind = gp.PrimitiveTree(subtree)
 				subtree_func = toolbox.compile(subtree_ind)
-				subtree_result = subtree_func(0,0,0)
+				subtree_result = subtree_func(0,0,0, 0)
                 
 				new_terminal = gp.Terminal(subtree_result, False, float)
                 
@@ -239,14 +246,23 @@ if __name__ == "__main__":
 	pop = initialPop()
 
 	pop_data_buffer = ""
+	pretty_pop_data_buffer = ""
 	for i in range(0, len(pop)):
 		pop_data_buffer += str(pop[i])
+		pretty_pop_data_buffer += str(prettyPrint(pop[i]))
 		if i < len(pop) - 1:
 			pop_data_buffer += "\n"
+			pretty_pop_data_buffer += "\n"
 	output_file_pop = createFile("starting_gen_pop.txt")
 	writeToFile(output_file_pop, 'Original Individual;')
 	writeToFile(output_file_pop, pop_data_buffer)
 	closeFile(output_file_pop)
+
+	output_file_pop = createFile("starting_gen_pop_pretty.txt")
+	writeToFile(output_file_pop, 'Original Individual;')
+	writeToFile(output_file_pop, pretty_pop_data_buffer)
+	closeFile(output_file_pop)
+
 
 	current_time = time.time()
 
@@ -321,6 +337,7 @@ if __name__ == "__main__":
 		results_file.write(str(prettyPrint(fp)) + ";" + str(fp.fitness) + ";\n\n")
 	results_file.close()
 
+	addToFileWithBreakline(results_filename, "Best for Generation " + str(g))
 	for fp in toolbox.select(pop, k = int(len(pop))):
 		addToFileWithBreakline(results_filename, (str(fp) + ";" + str(fp.fitness) + "; " + str(time.time() - current_time) + ";") )
 

@@ -1,11 +1,11 @@
 Original Individual;
-mul(truediv(mul(child_win_score, 8.33826152303092), 79.46268135888877), sqrt(truediv(8.33826152303092, child_win_score)))
-122.15053923723771
-mul(truediv(10.017774440769303, truediv(add(sqrt(child_visit_count), 77.23439105217226), 2.4965332742402806)), 1.0533401177835426)
-add(add(8.144554154448, child_win_score), 33.0336563266504)
-sqrt(mul(3.3857956750377447, child_visit_count))
-159.81464608450167
-sqrt(mul(3.3857956750377447, child_win_score))
-12.439347671905884
-truediv(truediv(truediv(mul(child_win_score, current_visit_count), 7.490763620954272), sqrt(add(2.296666853022625, current_visit_count))), 6.495336013320101)
-truediv(truediv(truediv(add(child_visit_count, child_win_score), 0.6034450726200912), mul(10.212831645766132, mul(child_visit_count, child_visit_count))), 1.1520915768420992)
+add(65.41771265034211, truediv(8.973103589213666, current_visit_count))
+sqrt(sqrt(current_visit_count))
+truediv(8.837203783235859, add(truediv(7.290422093084831, current_visit_count), 0.906633810959081))
+sqrt(truediv(0.26443948187802996, add(3.0742166918399385, sqrt(child_visit_count))))
+truediv(add(3.0346101668782954, sqrt(truediv(truediv(child_win_score, 9.308357294453083), 0.6056735023712178))), truediv(add(mul(2.062700683822987, add(current_visit_count, 4.2547341110438195)), mul(mul(7.290422093084831, current_visit_count), 0.28222252406992165)), mul(mul(add(7.024798169948815, child_win_score), 2.700078164254663), add(add(child_win_score, 9.450808268387295), 87.97150008352038))))
+truediv(add(51.213743777656724, mul(child_visit_count, 8.973103589213666)), 3.016417675530845)
+truediv(add(0.9162019547444992, sqrt(current_visit_count)), 1.1301976897705142)
+add(0.35450247395644446, truediv(child_visit_count, 8.973103589213666))
+sqrt(add(mul(add(current_visit_count, 4.2547341110438195), truediv(child_visit_count, 9.89716408184853)), mul(sqrt(child_visit_count), 89.31777692581765)))
+mul(add(add(0.5954011034222597, mul(2.9955139107027473, add(child_win_score, 9.89716408184853))), 2.7515159946084298), add(sqrt(add(truediv(total_number_of_available_moves, 9.450808268387295), 2.6504335815011126)), mul(mul(18.28146088366675, add(child_visit_count, 7.290422093084831)), sqrt(sqrt(total_number_of_available_moves)))))
