@@ -148,7 +148,7 @@ def mutationFunction(individual, expr, pset):
 def individualCreation(pset, min_, max_):
 	indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
 	
-	while(isinstance(indiv, gp.Terminal)):
+	while(isinstance(indiv[0], gp.Terminal)):
 		indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
 		
 	return indiv
@@ -244,6 +244,12 @@ if __name__ == "__main__":
 	#population of 5 so computer doesnt cry
 	pop = initialPop()
 
+	# for p in pop:
+	# 	if(isinstance(p, gp.Terminal)):
+	# 		print("original",p)
+	# 		input()
+
+
 	pop_data_buffer = ""
 	pretty_pop_data_buffer = ""
 	for i in range(0, len(pop)):
@@ -268,7 +274,8 @@ if __name__ == "__main__":
 	for g in range(ngen):
 		compiled_pop = produceCompiledPop(pop)
 		print("before map for gen", g)
-		evals = toolbox.map(toolbox.evaluate, compiled_pop)
+		# evals = toolbox.map(toolbox.evaluate, compiled_pop)
+		evals = [random.uniform(1000, 4000) for _ in range(len(compiled_pop))]
 		print("after map for gen", g)
 		for i in range(len(compiled_pop)):
 			pop[i].fitness = evals[i]
@@ -296,33 +303,52 @@ if __name__ == "__main__":
 		for i in sample_individuals_indexes:
 			mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
 
-			while( isinstance(mutated_individual, gp.Terminal) ):
+			while( isinstance(mutated_individual[0], gp.Terminal) ):
 				mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
 
-			mutation_individuals.append(simplifyFunction(toolbox.mutate(candidates[i])))
+			mutation_individuals.append(mutated_individual)
+
+		# for m in mutation_individuals:
+		# 	if(isinstance(m[0], gp.Terminal)):
+		# 		print("mutated", m)
+		# 		input()
+
 
 		candidates = toolbox.select(pop, int(len(pop) / 2))
 		candidates = toolbox.clone(candidates)
 
 		crossover_individuals = []
-		pairings = tuple(itertools.combinations(candidates, 2))
+		pairings = list(itertools.combinations(candidates, 2))
 			
-		selected = random.sample(pairings, crossover_size)
-		for pair in selected:
-			try:
-				child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
-				
-				while(isinstance(child1, gp.Terminal) and isinstance(child2, gp.Terminal) ):
-					child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
-					
+		# selected = random.sample(pairings, crossover_size)
+		random.shuffle(pairings)
+		selected = pairings
+		crossover_size_copy = crossover_size
+		counter = 0
+		while counter < crossover_size_copy:
+			child1, child2 = toolbox.mate(toolbox.clone(selected[counter][0]), toolbox.clone(selected[counter][1]))
+			child1 = simplifyFunction(child1)
+			child2 = simplifyFunction(child2)
+			while(isinstance(child1[0], gp.Terminal) or isinstance(child2[0], gp.Terminal) ):
+				counter += 1
+				crossover_size_copy += 1
+				child1, child2 = toolbox.mate(toolbox.clone(selected[counter][0]), toolbox.clone(selected[counter][1]))
+				child1 = simplifyFunction(child1)
+				child2 = simplifyFunction(child2)
 
-				crossover_individuals.append(simplifyFunction(child1))
-				if len(crossover_individuals) <= crossover_size - 1:
-					crossover_individuals.append(simplifyFunction(child2))
-				if len(crossover_individuals) == crossover_size:
-					break
-			except:
-				raise
+			crossover_individuals.append(simplifyFunction(child1))
+			if len(crossover_individuals) <= crossover_size - 1:
+				crossover_individuals.append(simplifyFunction(child2))
+			if len(crossover_individuals) == crossover_size:
+				break
+
+			counter +=1
+
+		# for c in crossover_individuals:
+		# 	if(isinstance(c[0], gp.Terminal)):
+		# 		print("crossover", c)
+		# 		input()
+
 
 		pop = elite + mutation_individuals + crossover_individuals
 
@@ -332,16 +358,20 @@ if __name__ == "__main__":
 	print("playing last gen")
 	compiled_pop = produceCompiledPop(pop)
 	print("before map for gen", ngen)
-	evals = toolbox.map(toolbox.evaluate, compiled_pop)
+	# evals = toolbox.map(toolbox.evaluate, compiled_pop)
+	evals = [random.uniform(1000, 4000) for _ in range(len(compiled_pop))]
 	print("after map for gen", ngen)
 	for i in range(len(compiled_pop)):
 		pop[i].fitness = evals[i]
 
 	eachGenResultsToWrite(False, g=ngen, num_sims=number_of_games_per_worker, pop_size=pop_size, pop=pop, current_time=current_time)
 
-	results_file = open('data/gen-results.csv.txt', 'a')
+	results_file = open('data/gen-results.csv.txt', 'w')
 	results_file.write('Individual;Fitness;\n')
 	for fp in toolbox.select(pop, k = len(pop)):
+		print("for generation", g, " len of indiv is", len(fp))
+		if(len(fp) == 1):
+			print(fp)
 		results_file.write(str(fp) + ";" + str(fp.fitness) + ";\n")
 		results_file.write(str(prettyPrint(fp)) + ";" + str(fp.fitness) + ";\n\n")
 	results_file.close()
