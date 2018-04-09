@@ -147,11 +147,10 @@ def mutationFunction(individual, expr, pset):
 
 def individualCreation(pset, min_, max_):
 	indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
-	indiv_list = list(indiv)
 	
-	while(len(indiv_list) == 1 and str(type(indiv_list[0])) == '<class \'deap.gp.Terminal\'>'):
+	while(isinstance(indiv, gp.Terminal)):
 		indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
-		indiv_list = list(indiv)
+		
 	return indiv
 
 def simplifyFunction(tree):
@@ -295,6 +294,11 @@ if __name__ == "__main__":
 		mutation_individuals = []
 		sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
 		for i in sample_individuals_indexes:
+			mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
+
+			while( isinstance(mutated_individual, gp.Terminal) ):
+				mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
+
 			mutation_individuals.append(simplifyFunction(toolbox.mutate(candidates[i])))
 
 		candidates = toolbox.select(pop, int(len(pop) / 2))
@@ -307,6 +311,11 @@ if __name__ == "__main__":
 		for pair in selected:
 			try:
 				child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
+				
+				while(isinstance(child1, gp.Terminal) and isinstance(child2, gp.Terminal) ):
+					child1, child2 = toolbox.mate(toolbox.clone(pair[0]), toolbox.clone(pair[1]))
+					
+
 				crossover_individuals.append(simplifyFunction(child1))
 				if len(crossover_individuals) <= crossover_size - 1:
 					crossover_individuals.append(simplifyFunction(child2))

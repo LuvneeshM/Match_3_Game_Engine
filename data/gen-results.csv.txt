@@ -1,31 +1,31 @@
 Individual;Fitness;
-mul(add(add(0.5954011034222597, mul(2.9955139107027473, add(child_win_score, 9.89716408184853))), 2.7515159946084298), add(sqrt(add(truediv(total_number_of_available_moves, 8.973103589213666), 13.591636892294154)), mul(mul(18.28146088366675, add(child_visit_count, 7.290422093084831)), sqrt(sqrt(total_number_of_available_moves)))));(3360.0,);
-(((0.5954011034222597 + (2.9955139107027473 * (child_win_score + 9.89716408184853))) + 2.7515159946084298) * (sqrt(((ARG3 / 8.973103589213666) + 13.591636892294154)) + ((18.28146088366675 * (child_visit_count + 7.290422093084831)) * sqrt(sqrt(ARG3)))));(3360.0,);
+sqrt(mul(truediv(add(2.1797382510879117, current_visit_count), 1.168333754133623), current_visit_count));(3840.0,);
+sqrt((((2.1797382510879117 + current_visit_count) / 1.168333754133623) * current_visit_count));(3840.0,);
 
-mul(add(add(0.5954011034222597, mul(2.9955139107027473, add(child_win_score, 9.89716408184853))), 2.7515159946084298), add(sqrt(add(truediv(total_number_of_available_moves, 8.973103589213666), 2.6504335815011126)), mul(mul(sqrt(truediv(truediv(child_win_score, 9.308357294453083), 0.6056735023712178)), add(child_visit_count, 7.290422093084831)), sqrt(sqrt(total_number_of_available_moves)))));(3360.0,);
-(((0.5954011034222597 + (2.9955139107027473 * (child_win_score + 9.89716408184853))) + 2.7515159946084298) * (sqrt(((ARG3 / 8.973103589213666) + 2.6504335815011126)) + ((sqrt(((child_win_score / 9.308357294453083) / 0.6056735023712178)) * (child_visit_count + 7.290422093084831)) * sqrt(sqrt(ARG3)))));(3360.0,);
+sqrt(truediv(truediv(60.991051371363554, mul(child_visit_count, current_visit_count)), 1.4076726654276661));(3420.0,);
+sqrt(((60.991051371363554 / (child_visit_count * current_visit_count)) / 1.4076726654276661));(3420.0,);
 
-truediv(21.316071050545045, sqrt(total_number_of_available_moves));(3120.0,);
-(21.316071050545045 / sqrt(ARG3));(3120.0,);
+sqrt(sqrt(mul(child_win_score, total_number_of_available_moves)));(3300.0,);
+sqrt(sqrt((child_win_score * ARG3)));(3300.0,);
 
-sqrt(child_visit_count);(3120.0,);
-sqrt(child_visit_count);(3120.0,);
+0.17770139375847355;(2920.0,);
+0.17770139375847355;(2920.0,);
 
-sqrt(truediv(0.26443948187802996, add(9.450808268387295, sqrt(child_visit_count))));(3100.0,);
-sqrt((0.26443948187802996 / (9.450808268387295 + sqrt(child_visit_count))));(3100.0,);
+6.663977408743854;(2880.0,);
+6.663977408743854;(2880.0,);
 
-truediv(3.6953703452251148, sqrt(total_number_of_available_moves));(2800.0,);
-(3.6953703452251148 / sqrt(ARG3));(2800.0,);
+sqrt(truediv(truediv(60.991051371363554, mul(child_visit_count, child_visit_count)), 1.4076726654276661));(2760.0,);
+sqrt(((60.991051371363554 / (child_visit_count * child_visit_count)) / 1.4076726654276661));(2760.0,);
 
-truediv(add(9.450808268387295, truediv(truediv(child_win_score, child_visit_count), add(child_win_score, 9.450808268387295))), 1.1301976897705142);(2340.0,);
-((9.450808268387295 + ((child_win_score / child_visit_count) / (child_win_score + 9.450808268387295))) / 1.1301976897705142);(2340.0,);
+sqrt(truediv(truediv(60.991051371363554, truediv(mul(2.1797382510879117, child_visit_count), child_visit_count)), 4.003415617587097));(2220.0,);
+sqrt(((60.991051371363554 / ((2.1797382510879117 * child_visit_count) / child_visit_count)) / 4.003415617587097));(2220.0,);
 
-truediv(add(9.450808268387295, sqrt(truediv(truediv(child_win_score, 9.308357294453083), 0.6056735023712178))), sqrt(total_number_of_available_moves));(2320.0,);
-((9.450808268387295 + sqrt(((child_win_score / 9.308357294453083) / 0.6056735023712178))) / sqrt(ARG3));(2320.0,);
+sqrt(mul(current_visit_count, current_visit_count));(2220.0,);
+sqrt((current_visit_count * current_visit_count));(2220.0,);
 
-truediv(9.450808268387295, sqrt(total_number_of_available_moves));(2100.0,);
-(9.450808268387295 / sqrt(ARG3));(2100.0,);
+sqrt(mul(child_visit_count, current_visit_count));(1860.0,);
+sqrt((child_visit_count * current_visit_count));(1860.0,);
 
-sqrt(truediv(truediv(child_win_score, 9.308357294453083), add(0.15655052002868208, sqrt(child_visit_count))));(1620.0,);
-sqrt(((child_win_score / 9.308357294453083) / (0.15655052002868208 + sqrt(child_visit_count))));(1620.0,);
+sqrt(mul(child_visit_count, current_visit_count));(1800.0,);
+sqrt((child_visit_count * current_visit_count));(1800.0,);
 
