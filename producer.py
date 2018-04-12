@@ -69,7 +69,7 @@ def originalMCTSFunc():
 	new_individual = gp.PrimitiveTree.from_string("add(truediv(child_win_score, child_visit_count), (mul(1.414,sqrt(mul(2.0,truediv(log(current_visit_count),child_visit_count))))) )", pset)
 	return new_individual
 
-def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, pop=None, current_time=None):
+def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, pop_highscore=None, current_time=None):
 	if(toWriteHeader):
 		sys.stdout = open(eachGenResults_file, 'w')
 		print('GEN;num-sims;pop-size;max-fitness;ellapsed-time;')
@@ -364,8 +364,13 @@ if __name__ == "__main__":
 			addToFileWithBreakline(results_filename, "Best for Generation " + str(current_iteration))
 			for fp in toolbox.select(pop, k = int(len(pop))):
 				addToFileWithBreakline(results_filename, (str(fp) + ";" + str(fp.fitness) + "; " + str(time.time() - start) + ";") )
+
+			max_score = max([p.fitness for p in pop])
+			print("old max", Board.winning_score)
+			Board.winning_score = max_score
+			print("new max", Board.winning_score)
 			addToFile(results_filename, "\n")
-			eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims, pop_size=pop_size, pop=pop, current_time=str(time.time() - start))
+			eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims, pop_size=pop_size, pop_highscore=max_score, current_time=str(time.time() - start))
 			start = time.time()
 			current_iteration += 1
 
@@ -399,7 +404,7 @@ if __name__ == "__main__":
 			candidates = toolbox.clone(candidates)
 
 			crossover_individuals = []
-			pairings = tuple(itertools.combinations(candidates, 2))
+			pairings = list(itertools.combinations(candidates, 2))
 			
 			random.shuffle(pairings)
 			selected = pairings

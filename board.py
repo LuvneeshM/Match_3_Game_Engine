@@ -5,7 +5,7 @@ import gmpy2
 from moveList import MoveList
 
 class Board:
-
+	winning_score = 3294.3275
 	#player move will make a match 3
 	#make the swap and update board, give points, etc
 	#player move --> ((#,#), (#,#))
@@ -22,7 +22,7 @@ class Board:
 		###print("SCORE",self.points)
 
 	def isWinner(self):
-		if(self.points >= 3294.3275):
+		if(self.points >= Board.winning_score):
 			return True
 		else: return False
 
