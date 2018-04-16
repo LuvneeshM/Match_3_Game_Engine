@@ -9,8 +9,7 @@ import ast
 import random
 
 def playGame(individual):
-	seeds = random.sample(range(10000), number_of_games_per_worker)
-	score = main(seeds, individual, False) #main function from game in the cythoned.pyx file
+	score = main(number_of_games_per_worker, individual, False) #main function from game in the cythoned.pyx file
 	return score
 
 

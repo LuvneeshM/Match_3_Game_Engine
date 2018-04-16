@@ -7,4 +7,4 @@ START python consumer.py 6
 START python consumer.py 7
 START python consumer.py 8
 START python consumer.py 9
-START python consumer.py 10 
+START python consumer.py 0

@@ -31,7 +31,7 @@ pool = None
 pset = None
 toolbox = None
 
-num_sims = -1
+num_sims = number_of_games_per_worker
 pop_size = number_of_individuals
 
 cxpb=0.5
@@ -75,7 +75,7 @@ def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, p
 		print('GEN;num-sims;pop-size;max-fitness;ellapsed-time;')
 	else:
 		sys.stdout = open(eachGenResults_file, 'a')
-		print(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(max([p.fitness for p in pop])) + ';' + str(current_time) + ';')
+		print(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(pop_highscore) + ';' + str(current_time) + ';')
 	sys.stdout = sys.__stdout__
 
 def writeOriginalEquations(pop):
@@ -332,12 +332,15 @@ if __name__ == "__main__":
 		# length_of_data_1 = 0
 		# length_of_data_2 = 0
 		length_of_data_array = [0] * spacing_from_total_games_worker_play
+		failed = 0
 		try:
 			for i in range(0, spacing_from_total_games_worker_play):
+				failed = i
 				test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals-i-1) + ".txt")
 				test_data = readLineFromFile(test_pointer)
 				closeFile(test_pointer)
 				length_of_data_array[i] = len(test_data)
+				print(len(test_data))
 			# test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals-1) + ".txt")
 			# test_data = readLineFromFile(test_pointer)
 			# closeFile(test_pointer)
@@ -348,11 +351,12 @@ if __name__ == "__main__":
 			# closeFile(test_pointer)
 			# length_of_data_2 = len(test_data)
 		except:
-			print ("File", current_directory + "ind-" + str(number_of_individuals-1) + ".txt", " doesn't exist")
+			print ("File", current_directory + "ind-" + str(failed) + ".txt", " doesn't exist")
 			time.sleep(SLEEP_TIME_PRODUCER)
 			continue
 
 		print ("Data len: ", float(sum(length_of_data_array)) / len(length_of_data_array))
+		print ("all done", all(i >= number_of_simulations for i in length_of_data_array))
 		if all(i >= number_of_simulations for i in length_of_data_array):
 		#if length_of_data_1 >= number_of_simulations and length_of_data_2 >= number_of_simulations:
 			print("Compiling generation ", current_iteration)
@@ -367,7 +371,9 @@ if __name__ == "__main__":
 
 			max_score = max([p.fitness for p in pop])
 			print("old max", Board.winning_score)
-			Board.winning_score = max_score
+			if (max_score[0] > Board.winning_score):
+				Board.winning_score = max_score[0]
+				print("change to score")
 			print("new max", Board.winning_score)
 			addToFile(results_filename, "\n")
 			eachGenResultsToWrite(False, g=current_iteration, num_sims=num_sims, pop_size=pop_size, pop_highscore=max_score, current_time=str(time.time() - start))

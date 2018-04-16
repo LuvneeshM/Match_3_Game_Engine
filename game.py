@@ -178,7 +178,6 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 	UCBFunc_code = marshal.loads(UCBFunctionToGet)
 	UCBFunc = types.FunctionType(UCBFunc_code, func_globals)
 	mcts_ai = MCTSAgent(UCBFunc)
-	random_ai = RandomAgent()
 
 	#mcts
 	board = Board(7,7)

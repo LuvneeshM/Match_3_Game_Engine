@@ -1177,9 +1177,10 @@ class Node:
 		self.move_count = parent_move_count		
 
 class Tree:
-	def __init__(self):
+	def __init__(self, move_count):
 		#Node root;
 		self.root = Node()
+		self.root.move_count = move_count
 
 	def get_root_node(self):
 		return self.root
@@ -1198,8 +1199,8 @@ class MCTSAgent():
 
 	#board is current game board
 	#will return the
-	def find_next_move(self, board):
-		tree = Tree()
+	def find_next_move(self, board, current_move):
+		tree = Tree(current_move)
 		#get the root node
 		self.rootNode = tree.get_root_node()
 		#set the state of the board
@@ -1396,7 +1397,7 @@ def matchMade(board, player_move):
 
 #Function for only running the mcts dude
 #will return the score of each mcts
-def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
+def runMCTSONLYGame(UCBFunctionToGet):
 	game_id = uuid.uuid4()
 
 	results = []
@@ -1405,7 +1406,7 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 
 	finalScoreForMCTS = 0
 
-	random.seed(randomSeedNumber)
+	# random.seed(randomSeedNumber)
 
 	func_globals = globals()
 	func_globals['add'] = operator.add
@@ -1421,34 +1422,36 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
-		results_list = []
-		
-		mct_move = mcts_ai.find_next_move(board)
-		
-		#which trial we on
-		results_list.append(str(game_id))
-		#which move
-		results_list.append(str(i))
-		#type of ai
-		results_list.append("MCTS")
-		#time
-		results_list.append(str(mcts_ai.end_time))
-		#move ai makes
-		results_list.append(str(mct_move))		
-		#list of moves on the root
-		results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list)+ "\n")
-		#board
-		#print(board.board)
-		results_list.append(str(board.board))
+		# results_list = []
+		start_time = time.time()
+		mct_move = mcts_ai.find_next_move(board, i)
+		print("ellapsed time for move", i, "is",time.time()-start_time)
+		print("move", i, mcts_ai.rootNode.get_move_count())
+		# #which trial we on
+		# results_list.append(str(game_id))
+		# #which move
+		# results_list.append(str(i))
+		# #type of ai
+		# results_list.append("MCTS")
+		# #time
+		# results_list.append(str(mcts_ai.end_time))
+		# #move ai makes
+		# results_list.append(str(mct_move))		
+		# #list of moves on the root
+		# results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list)+ "\n")
+		# #board
+		# #print(board.board)
+		# results_list.append(str(board.board))
 		
 		matchMade(board, mct_move)
-		#point after turn
-		results_list.append(board.points)
 
-		results_list.append(str(mcts_ai.getRootNode_VisitCount()))
+		# #point after turn
+		# results_list.append(board.points)
 
-		#print(results_list)
-		results.append(results_list)
+		# results_list.append(str(mcts_ai.getRootNode_VisitCount()))
+
+		# #print(results_list)
+		# results.append(results_list)
 		
 		#grab the final score
 		if(i == 19):
@@ -1468,10 +1471,12 @@ def main(val, UCBFunctionToGet, logData):
 
 	list_of_results = []
 
-	seeds = val
-	mcts_points_result = [0 for x in range(len(seeds))]
-	for i in range(len(seeds)):
-		mcts_points_result[i] = runMCTSONLYGame(seeds[i], UCBFunctionToGet=UCBFunctionToGet)
+	num_games_to_play = val
+	mcts_points_result = [0 for x in range(num_games_to_play)]
+	for i in range(num_games_to_play):
+		start_time = time.time()
+		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet)
+		print("ellapsed time is",time.time()-start_time)
 
 	#calc the avg of the mcts_points
 	mcts_avg = calcMCTSAvg(np.array(mcts_points_result))
