@@ -4,7 +4,7 @@ import copy
 from moveList import MoveList
 
 class Board:
-
+	winning_score = 3294.3275
 	#player move will make a match 3
 	#make the swap and update board, give points, etc
 	#player move --> ((#,#), (#,#))
@@ -12,11 +12,6 @@ class Board:
 		#get the positions
 		first_pos = player_move[0]
 		second_pos = player_move[1]
-		#make the swap
-		#if(first_pos[0] >= self.rows or first_pos[1] >= self.rows):
-		#	print("ARG")
-		#	print(self.possible_moves_to_make.move_list)
-		#cm	input()
 
 		temp_val = board[first_pos[0]][first_pos[1]]
 		board[first_pos[0]][first_pos[1]] = board[second_pos[0]][second_pos[1]]
@@ -26,7 +21,7 @@ class Board:
 		###print("SCORE",self.points)
 
 	def isWinner(self):
-		if(self.points >= 3294.3275):
+		if(self.points >= Board.winning_score):
 			return True
 		else: return False
 
