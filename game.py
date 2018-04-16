@@ -158,7 +158,7 @@ def runGame(randomSeedNumber, UCBFunctionToGet):
 
 #Function for only running the mcts dude
 #will return the score of each mcts
-def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
+def runMCTSONLYGame(UCBFunctionToGet):
 	game_id = uuid.uuid4()
 
 	results = []
@@ -166,8 +166,6 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 	number_of_moves_to_make = 20
 
 	finalScoreForMCTS = 0
-
-	random.seed(randomSeedNumber)
 
 	func_globals = globals()
 	func_globals['add'] = operator.add
@@ -178,40 +176,39 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 	UCBFunc_code = marshal.loads(UCBFunctionToGet)
 	UCBFunc = types.FunctionType(UCBFunc_code, func_globals)
 	mcts_ai = MCTSAgent(UCBFunc)
-	random_ai = RandomAgent()
-
+	
 	#mcts
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
-		results_list = []
+		# results_list = []
 		
 		mct_move = mcts_ai.find_next_move(board)
 		
-		#which trial we on
-		results_list.append(str(game_id))
-		#which move
-		results_list.append(str(i))
-		#type of ai
-		results_list.append("MCTS")
-		#time
-		results_list.append(str(mcts_ai.end_time))
-		#move ai makes
-		results_list.append(str(mct_move))		
-		#list of moves on the root
-		results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list)+ "\n")
-		#board
-		#print(board.board)
-		results_list.append(str(board.board))
+		# #which trial we on
+		# results_list.append(str(game_id))
+		# #which move
+		# results_list.append(str(i))
+		# #type of ai
+		# results_list.append("MCTS")
+		# #time
+		# results_list.append(str(mcts_ai.end_time))
+		# #move ai makes
+		# results_list.append(str(mct_move))		
+		# #list of moves on the root
+		# results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list)+ "\n")
+		# #board
+		# #print(board.board)
+		# results_list.append(str(board.board))
 		
 		matchMade(board, mct_move)
-		#point after turn
-		results_list.append(board.points)
+		# #point after turn
+		# results_list.append(board.points)
 
-		results_list.append(str(mcts_ai.getRootNode_VisitCount()))
+		# results_list.append(str(mcts_ai.getRootNode_VisitCount()))
 
-		#print(results_list)
-		results.append(results_list)
+		# #print(results_list)
+		# results.append(results_list)
 		
 		#grab the final score
 		if(i == 19):
@@ -233,13 +230,13 @@ def main(val, UCBFunctionToGet, logData):
 
 	#seed = 40
 	#try:
-	seeds = val
+	num_games_to_play = val
 	#pool = mp.Pool(mp.cpu_count())
 	#list_of_results = pool.map(partial(runGame, UCBFunctionToGet=marshal.dumps(UCBFunctionToGet.__code__)), seeds)
 	#mcts_points_result = map(partial(runMCTSONLYGame, UCBFunctionToGet=marshal.dumps(UCBFunctionToGet.__code__)), seeds)
-	mcts_points_result = [0 for x in range(len(seeds))]
-	for i in range(len(seeds)):
-		mcts_points_result[i] = runMCTSONLYGame(seeds[i], UCBFunctionToGet=UCBFunctionToGet)
+	mcts_points_result = [0 for x in range(num_games_to_play)]
+	for i in range(num_games_to_play):
+		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet)
 	#pool.terminate()
 
 	#calc the avg of the mcts_points

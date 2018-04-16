@@ -115,10 +115,10 @@ class Node:
 		child_to_return = None
 		max_score = 0
 		for child in self.childArray:
-			if child.state.score > max_score: 
-				max_score = child.state.score
+			if child.get_win_score() > max_score: 
+				max_score = child.get_win_score()
 				child_to_return = child
-				
+
 		return child_to_return
 		pass
 
@@ -147,9 +147,10 @@ class Node:
 		self.move_count = parent_move_count		
 
 class Tree:
-	def __init__(self):
+	def __init__(self, move_count):
 		#Node root;
 		self.root = Node()
+		self.root.move_count = move_count
 
 	def get_root_node(self):
 		return self.root

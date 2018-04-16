@@ -17,8 +17,8 @@ class MCTSAgent():
 
 	#board is current game board
 	#will return the
-	def find_next_move(self, board):
-		tree = Tree()
+	def find_next_move(self, board, current_move):
+		tree = Tree(current_move)
 		#get the root node
 		self.rootNode = tree.get_root_node()
 		#set the state of the board
@@ -29,7 +29,7 @@ class MCTSAgent():
 		start_time = time.time()
 		elapsed = 0
 		#while(elapsed < self.end_time):
-		while (self.rootNode.get_visit_count() < 5):
+		while (self.rootNode.get_visit_count() < 250):
 			#pick the promising node
 			
 			promising_node = self.select_promising_node(self.rootNode)

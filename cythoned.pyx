@@ -56,7 +56,7 @@ class MoveList(object):
 		return False
     
 class Board:
-
+	winning_score = 3294.3275
 	#player move will make a match 3
 	#make the swap and update board, give points, etc
 	#player move --> ((#,#), (#,#))
@@ -73,7 +73,7 @@ class Board:
 		###print("SCORE",self.points)
 
 	def isWinner(self):
-		if(self.points >= 3294.3275):
+		if(self.points >= Board.winning_score):
 			return True
 		else: return False
 
@@ -1396,7 +1396,7 @@ def matchMade(board, player_move):
 
 #Function for only running the mcts dude
 #will return the score of each mcts
-def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
+def runMCTSONLYGame(UCBFunctionToGet):
 	game_id = uuid.uuid4()
 
 	results = []
@@ -1404,8 +1404,6 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 	number_of_moves_to_make = 20
 
 	finalScoreForMCTS = 0
-
-	random.seed(randomSeedNumber)
 
 	func_globals = globals()
 	func_globals['add'] = operator.add
@@ -1416,39 +1414,16 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 	UCBFunc_code = marshal.loads(UCBFunctionToGet)
 	UCBFunc = types.FunctionType(UCBFunc_code, func_globals)
 	mcts_ai = MCTSAgent(UCBFunc)
-
+	
 	#mcts
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
-		results_list = []
+		# results_list = []
 		
 		mct_move = mcts_ai.find_next_move(board)
 		
-		#which trial we on
-		results_list.append(str(game_id))
-		#which move
-		results_list.append(str(i))
-		#type of ai
-		results_list.append("MCTS")
-		#time
-		results_list.append(str(mcts_ai.end_time))
-		#move ai makes
-		results_list.append(str(mct_move))		
-		#list of moves on the root
-		results_list.append(str(mcts_ai.rootNode.get_state().list_of_possible_moves.move_list)+ "\n")
-		#board
-		#print(board.board)
-		results_list.append(str(board.board))
-		
 		matchMade(board, mct_move)
-		#point after turn
-		results_list.append(board.points)
-
-		results_list.append(str(mcts_ai.getRootNode_VisitCount()))
-
-		#print(results_list)
-		results.append(results_list)
 		
 		#grab the final score
 		if(i == 19):
@@ -1468,10 +1443,10 @@ def main(val, UCBFunctionToGet, logData):
 
 	list_of_results = []
 
-	seeds = val
-	mcts_points_result = [0 for x in range(len(seeds))]
-	for i in range(len(seeds)):
-		mcts_points_result[i] = runMCTSONLYGame(seeds[i], UCBFunctionToGet=UCBFunctionToGet)
+	num_games_to_play = val
+	mcts_points_result = [0 for x in range(num_games_to_play)]
+	for i in range(num_games_to_play):
+		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet)
 
 	#calc the avg of the mcts_points
 	mcts_avg = calcMCTSAvg(np.array(mcts_points_result))
