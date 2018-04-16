@@ -4,7 +4,7 @@
 #SBATCH --nodes=1 --ntasks-per-node=1
 #SBATCH --mail-type=END
 #SBATCH --mail-user=lm3300@nyu.edu
-#SBATCH --time=44:00:00
+#SBATCH --time=60:00:00
 #SBATCH --mem=2GB
 module purge
 module load python3/intel/3.6.3

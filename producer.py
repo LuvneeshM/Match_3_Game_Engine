@@ -340,7 +340,7 @@ if __name__ == "__main__":
 				test_data = readLineFromFile(test_pointer)
 				closeFile(test_pointer)
 				length_of_data_array[i] = len(test_data)
-				print(len(test_data))
+				# print(len(test_data))
 			# test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals-1) + ".txt")
 			# test_data = readLineFromFile(test_pointer)
 			# closeFile(test_pointer)

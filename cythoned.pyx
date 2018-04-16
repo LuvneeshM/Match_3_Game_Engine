@@ -1145,8 +1145,8 @@ class Node:
 		child_to_return = None
 		max_score = 0
 		for child in self.childArray:
-			if child.get_win_score > max_score: 
-				max_score = child.get_win_score
+			if child.get_win_score() > max_score: 
+				max_score = child.get_win_score()
 				child_to_return = child
 
 		return child_to_return
@@ -1425,8 +1425,8 @@ def runMCTSONLYGame(UCBFunctionToGet):
 		# results_list = []
 		start_time = time.time()
 		mct_move = mcts_ai.find_next_move(board, i)
-		print("ellapsed time for move", i, "is",time.time()-start_time)
-		print("move", i, mcts_ai.rootNode.get_move_count())
+		# print("ellapsed time for move", i, "is",time.time()-start_time)
+		# print("move", i, mcts_ai.rootNode.get_move_count())
 		# #which trial we on
 		# results_list.append(str(game_id))
 		# #which move
@@ -1474,9 +1474,9 @@ def main(val, UCBFunctionToGet, logData):
 	num_games_to_play = val
 	mcts_points_result = [0 for x in range(num_games_to_play)]
 	for i in range(num_games_to_play):
-		start_time = time.time()
+		# start_time = time.time()
 		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet)
-		print("ellapsed time is",time.time()-start_time)
+		# print("ellapsed time is",time.time()-start_time)
 
 	#calc the avg of the mcts_points
 	mcts_avg = calcMCTSAvg(np.array(mcts_points_result))

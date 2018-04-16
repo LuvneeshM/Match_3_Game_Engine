@@ -4,4 +4,4 @@ SLEEP_TIME_PRODUCER = 30 #in seconds
 number_of_generations = 100
 number_of_individuals = 100
 number_of_games_per_worker = 1
-number_of_simulations = 50
+number_of_simulations = 25

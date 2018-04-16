@@ -57,7 +57,7 @@ while True:
 		evaluated_pop = [ast.literal_eval(file_data[i+1]) for i in range(0, len(file_data)-1) if (i % number_of_total_games_I_play) == (id % number_of_total_games_I_play)]
 
 		print(id, "is playing Games")
-		print(len(evaluated_pop))
+		print("num gmaes playing", len(evaluated_pop))
 		result = list(map(playGame, evaluated_pop))
 		print(id, "finished playing Games")
 
