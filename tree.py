@@ -151,9 +151,10 @@ class Node:
 		self.move_count = parent_move_count		
 
 class Tree:
-	def __init__(self):
+	def __init__(self, move_count):
 		#Node root;
 		self.root = Node()
+		self.root.move_count = move_count
 
 	def get_root_node(self):
 		return self.root

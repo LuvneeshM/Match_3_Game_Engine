@@ -158,7 +158,7 @@ def runGame(randomSeedNumber, UCBFunctionToGet):
 
 #Function for only running the mcts dude
 #will return the score of each mcts
-def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
+def runMCTSONLYGame(UCBFunctionToGet):
 	game_id = uuid.uuid4()
 
 	results = []
@@ -167,7 +167,7 @@ def runMCTSONLYGame(randomSeedNumber, UCBFunctionToGet):
 
 	finalScoreForMCTS = 0
 
-	random.seed(randomSeedNumber)
+	# random.seed(randomSeedNumber)
 
 	func_globals = globals()
 	func_globals['add'] = operator.add
@@ -232,13 +232,13 @@ def main(val, UCBFunctionToGet, logData):
 
 	#seed = 40
 	#try:
-	seeds = val
+	num_games_to_play = val
 	#pool = mp.Pool(mp.cpu_count())
 	#list_of_results = pool.map(partial(runGame, UCBFunctionToGet=marshal.dumps(UCBFunctionToGet.__code__)), seeds)
 	#mcts_points_result = map(partial(runMCTSONLYGame, UCBFunctionToGet=marshal.dumps(UCBFunctionToGet.__code__)), seeds)
-	mcts_points_result = [0 for x in range(len(seeds))]
-	for i in range(len(seeds)):
-		mcts_points_result[i] = runMCTSONLYGame(seeds[i], UCBFunctionToGet=UCBFunctionToGet)
+	mcts_points_result = [0 for x in range(num_games_to_play)]
+	for i in range(num_games_to_play):
+		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet)
 	#pool.terminate()
 
 	#calc the avg of the mcts_points

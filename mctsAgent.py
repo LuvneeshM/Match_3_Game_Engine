@@ -17,8 +17,8 @@ class MCTSAgent():
 
 	#board is current game board
 	#will return the
-	def find_next_move(self, board):
-		tree = Tree()
+	def find_next_move(self, board, current_move):
+		tree = Tree(current_move)
 		#get the root node
 		self.rootNode = tree.get_root_node()
 		#set the state of the board
