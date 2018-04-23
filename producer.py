@@ -21,10 +21,11 @@ from prettyPrintTree import prettyPrint
 from global_functions import *
 from config import *
 
-#from contextlib import redirect_stdout
 import sys
-# from lockfile import LockFile
 
+import sympy
+from sympy import Symbol, sqrt
+from sympy.parsing.sympy_parser import parse_expr
 
 #global variables
 pool = None
@@ -64,6 +65,12 @@ eachGenResults_file = 'data/output.csv.txt'
 originalEq_file = 'data/original_population_eqs.csv.txt'
 finalEq_file = 'data/gen-results.csv.txt'
 
+
+child_win_score = Symbol('child_win_score')
+child_visit_count = Symbol('child_visit_count')
+current_visit_count = Symbol('current_visit_count')
+total_number_of_available_moves = Symbol('total_number_of_available_moves')
+ARG3 = Symbol('ARG3')
 
 def originalMCTSFunc():
 	new_individual = gp.PrimitiveTree.from_string("add(truediv(child_win_score, child_visit_count), (mul(1.414,sqrt(mul(2.0,truediv(log(current_visit_count),child_visit_count))))) )", pset)
@@ -161,7 +168,7 @@ def individualCreation(pset, min_, max_):
 	
 	while(isinstance(indiv[0], gp.Terminal)):
 		indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
-		
+	
 	return indiv
 
 def simplifyFunction(tree):
@@ -246,10 +253,37 @@ def initialPop():
 	#create population
 	#population of 5 so computer doesnt cry
 	pop = toolbox.population (number_of_individuals)
+	
+	#check for duplicates
+	indiv_to_pop = []
+	for i in range(1, len(pop)):
+		indiv_1 = parse_expr(prettyPrint(pop[i]))
+		for j in range(0, i):
+			indiv_2 = parse_expr(prettyPrint(pop[j]))
+			if indiv_1 - indiv_2 == 0:
+				indiv_to_pop.append(pop[i])
+	
+	for i in indiv_to_pop:
+		pop.remove(i)
+
+	while(len(pop) < number_of_individuals):
+		indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+		while(isinstance(indiv[0], gp.Terminal)):
+			indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+		add_to_pop = True
+		indiv_to_check = parse_expr(prettyPrint(indiv))
+		for i in pop:
+			indiv_before = parse_expr(prettyPrint(i))
+			if indiv_to_check - indiv_before == 0:
+				add_to_pop = False
+				break
+		if add_to_pop:
+			pop.append(indiv)
 	#initial_uct_indiv = toolbox.initial_uct()
 	#pop.append(initial_uct_indiv)
 	# writeOriginalEquations(pop)
 	return pop
+
 
 def getResultsFromFiles():
 	evals = []
@@ -340,16 +374,7 @@ if __name__ == "__main__":
 				test_data = readLineFromFile(test_pointer)
 				closeFile(test_pointer)
 				length_of_data_array[i] = len(test_data)
-				# print(len(test_data))
-			# test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals-1) + ".txt")
-			# test_data = readLineFromFile(test_pointer)
-			# closeFile(test_pointer)
-			# length_of_data_1 = len(test_data)
-
-			# test_pointer = openFile(current_directory + "ind-" + str(number_of_individuals-2) + ".txt")
-			# test_data = readLineFromFile(test_pointer)
-			# closeFile(test_pointer)
-			# length_of_data_2 = len(test_data)
+			
 		except:
 			print ("File", current_directory + "ind-" + str(failed) + ".txt", " doesn't exist")
 			time.sleep(SLEEP_TIME_PRODUCER)
@@ -363,7 +388,8 @@ if __name__ == "__main__":
 			evals = getResultsFromFiles()
 
 			for i in range(len(evals)):
-				pop[i].fitness = (evals[i],)
+				# pop[i].fitness = (evals[i],)	#for maximizing score
+				pop[i].fitness = (-1 * evals[i],) #for minimizing score
 
 			addToFileWithBreakline(results_filename, "Best for Generation " + str(current_iteration))
 			for fp in toolbox.select(pop, k = int(len(pop))):
@@ -398,14 +424,36 @@ if __name__ == "__main__":
 
 			mutation_individuals = []
 			sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
-			for i in sample_individuals_indexes:
+			curr_index = 0
+			while curr_index < len(sample_individuals_indexes):
+			# for i in sample_individuals_indexes:
+				i = sample_individuals_indexes[curr_index]
 				mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
 
 				while( isinstance(mutated_individual[0], gp.Terminal) ):
 					mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
 
-				mutation_individuals.append(mutated_individual)
-    
+				#check the mutated_indiv against previous guys and elitist
+				mutated_individual_dup = parse_expr(prettyPrint(mutated_individual))
+				passed_elitist = True
+				for e in elite:
+					elitist = parse_expr(prettyPrint(e))
+					if mutated_individual_dup - elitist == 0:
+						passed_elitist = False
+						break
+
+				add_to_mutated = True
+				if passed_elitist:
+					if len(mutation_individuals) > 0:
+						for m in mutation_individuals:
+							curr_m = parse_expr(prettyPrint(m))
+							if mutated_individual_dup - curr_m == 0:
+								add_to_mutated = False
+								break
+					if add_to_mutated:
+						mutation_individuals.append(mutated_individual)
+						curr_index += 1
+
 			candidates = toolbox.select(pop, int(len(pop) / 2))
 			candidates = toolbox.clone(candidates)
 
@@ -427,13 +475,39 @@ if __name__ == "__main__":
 					child1 = simplifyFunction(child1)
 					child2 = simplifyFunction(child2)
 
-				crossover_individuals.append(simplifyFunction(child1))
-				if len(crossover_individuals) <= crossover_size - 1:
-					crossover_individuals.append(simplifyFunction(child2))
-				if len(crossover_individuals) == crossover_size:
-					break
+				child1_dup = parse_expr(prettyPrint(child1))
+				child2_dup = parse_expr(prettyPrint(child2))
+				#check cross over guys against elitist
+				passed_elitist = True
+				passed_mutated = True
+				for e in elite:
+					elitist = parse_expr(prettyPrint(e))
+					if child1_dup - elitist == 0 or child2_dup - elitist == 0:
+						passed_elitist = False
+						break
+				#check against mutated
+				if passed_elitist:
+					for m in mutation_individuals:
+						curr_m = parse_expr(prettyPrint(m))
+						if child1_dup - curr_m == 0 or child2_dup - elitist == 0:
+							passed_mutated = False
+							break
+					add_to_crossover = True
+					#check against prev cross overs
+					if passed_mutated:
+						for c in crossover_individuals:
+							curr_c = parse_expr(prettyPrint(c))
+							if child1_dup - curr_c == 0 or child2_dup - curr_c == 0:
+								add_to_crossover = False
+								break
+						if add_to_crossover:
+							crossover_individuals.append(simplifyFunction(child1))
+							if len(crossover_individuals) <= crossover_size - 1:
+								crossover_individuals.append(simplifyFunction(child2))
+							if len(crossover_individuals) == crossover_size:
+								break
 
-				counter +=1
+							counter +=1
 
 			pop = elite + mutation_individuals + crossover_individuals
 
