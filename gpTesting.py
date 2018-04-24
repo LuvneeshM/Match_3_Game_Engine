@@ -26,6 +26,10 @@ import sys
 from global_functions import *
 from config import *
 
+import sympy
+from sympy import Symbol, sqrt
+from sympy.parsing.sympy_parser import parse_expr
+
 #global variables
 pool = None
 pset = None
@@ -40,6 +44,12 @@ ngen=number_of_generations
 eachGenResults_file = 'data/output.csv.txt'
 originalEq_file = 'data/original_population_eqs.csv.txt'
 finalEq_file = 'data/gen-results.csv.txt'
+
+child_win_score = Symbol('child_win_score')
+child_visit_count = Symbol('child_visit_count')
+current_visit_count = Symbol('current_visit_count')
+total_number_of_available_moves = Symbol('total_number_of_available_moves')
+ARG3 = Symbol('ARG3')
 
 def evalFunc(individual):
     #pass UCBFunctionToGet
@@ -219,7 +229,33 @@ def produceCompiledPop(pop):
 def initialPop():
 	#create population
 	#population of 5 so computer doesnt cry
-	pop = toolbox.population (pop_size)
+	pop = toolbox.population (number_of_individuals)
+	
+	#check for duplicates
+	indiv_to_pop = []
+	for i in range(1, len(pop)):
+		indiv_1 = parse_expr(prettyPrint(pop[i]))
+		for j in range(0, i):
+			indiv_2 = parse_expr(prettyPrint(pop[j]))
+			if indiv_1 - indiv_2 == 0:
+				indiv_to_pop.append(pop[i])
+	
+	for i in indiv_to_pop:
+		pop.remove(i)
+
+	while(len(pop) < number_of_individuals):
+		indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+		while(isinstance(indiv[0], gp.Terminal)):
+			indiv = simplifyFunction(gp.PrimitiveTree(toolbox.expr())) 
+		add_to_pop = True
+		indiv_to_check = parse_expr(prettyPrint(indiv))
+		for i in pop:
+			indiv_before = parse_expr(prettyPrint(i))
+			if indiv_to_check - indiv_before == 0:
+				add_to_pop = False
+				break
+		if add_to_pop:
+			pop.append(indiv)
 	#initial_uct_indiv = toolbox.initial_uct()
 	#pop.append(initial_uct_indiv)
 	# writeOriginalEquations(pop)
@@ -273,7 +309,7 @@ if __name__ == "__main__":
 		compiled_pop = produceCompiledPop(pop)
 		print("before map for gen", g)
 		evals = toolbox.map(toolbox.evaluate, compiled_pop)
-		# evals = [random.uniform(1000, 4000) for _ in range(len(compiled_pop))]
+		# evals = [(random.uniform(1000, 4000),) for _ in range(len(compiled_pop))]
 		print("after map for gen", g)
 		for i in range(len(compiled_pop)):
 			pop[i].fitness = evals[i]
@@ -284,6 +320,7 @@ if __name__ == "__main__":
 			addToFileWithBreakline(results_filename, (str(fp) + ";" + str(fp.fitness) + "; " + str(time.time() - current_time) + ";") )
 		
 		max_score = max([p.fitness for p in pop])
+		print(max_score)
 		print("old max", Board.winning_score)
 		if (max_score[0] > Board.winning_score):
 			Board.winning_score = max_score[0]
@@ -299,6 +336,7 @@ if __name__ == "__main__":
 		mutation_size = int(elite_size * 4.5)
 		crossover_size = int(len(pop) - elite_size - mutation_size)
 	
+		current_time = time.time()
 		elite = toolbox.select(pop, elite_size)
 
 		candidates = toolbox.select(pop, int(len(pop) / 2))
@@ -306,27 +344,44 @@ if __name__ == "__main__":
 
 		mutation_individuals = []
 		sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
-		for i in sample_individuals_indexes:
+		curr_index = 0
+		while curr_index < len(sample_individuals_indexes):
+		# for i in sample_individuals_indexes:
+			i = sample_individuals_indexes[curr_index]
 			mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
 
 			while( isinstance(mutated_individual[0], gp.Terminal) ):
 				mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
 
-			mutation_individuals.append(mutated_individual)
+			#check the mutated_indiv against previous guys and elitist
+			# print("mut", prettyPrint(mutated_individual))
+			# print("mutEV", type(prettyPrint(mutated_individual)))
+			mutated_individual_dup = parse_expr(prettyPrint(mutated_individual))
+			passed_elitist = True
+			for e in elite:
+				elitist = parse_expr(prettyPrint(e))
+				if mutated_individual_dup - elitist == 0:
+					passed_elitist = False
+					break
 
-		# for m in mutation_individuals:
-		# 	if(isinstance(m[0], gp.Terminal)):
-		# 		print("mutated", m)
-		# 		input()
-
+			add_to_mutated = True
+			if passed_elitist:
+				if len(mutation_individuals) > 0:
+					for m in mutation_individuals:
+						curr_m = parse_expr(prettyPrint(m))
+						if mutated_individual_dup - curr_m == 0:
+							add_to_mutated = False
+							break
+				if add_to_mutated:
+					mutation_individuals.append(mutated_individual)
+					curr_index += 1
 
 		candidates = toolbox.select(pop, int(len(pop) / 2))
 		candidates = toolbox.clone(candidates)
 
 		crossover_individuals = []
 		pairings = list(itertools.combinations(candidates, 2))
-			
-		# selected = random.sample(pairings, crossover_size)
+		
 		random.shuffle(pairings)
 		selected = pairings
 		crossover_size_copy = crossover_size
@@ -342,21 +397,104 @@ if __name__ == "__main__":
 				child1 = simplifyFunction(child1)
 				child2 = simplifyFunction(child2)
 
-			crossover_individuals.append(simplifyFunction(child1))
-			if len(crossover_individuals) <= crossover_size - 1:
-				crossover_individuals.append(simplifyFunction(child2))
-			if len(crossover_individuals) == crossover_size:
-				break
+			child1_dup = parse_expr(prettyPrint(child1))
+			child2_dup = parse_expr(prettyPrint(child2))
+			#check cross over guys against elitist
+			passed_elitist = True
+			passed_mutated = True
+			for e in elite:
+				elitist = parse_expr(prettyPrint(e))
+				if child1_dup - elitist == 0 or child2_dup - elitist == 0:
+					passed_elitist = False
+					break
+			#check against mutated
+			if passed_elitist:
+				for m in mutation_individuals:
+					curr_m = parse_expr(prettyPrint(m))
+					if child1_dup - curr_m == 0 or child2_dup - elitist == 0:
+						passed_mutated = False
+						break
+				add_to_crossover = True
+				#check against prev cross overs
+				if passed_mutated:
+					for c in crossover_individuals:
+						curr_c = parse_expr(prettyPrint(c))
+						if child1_dup - curr_c == 0 or child2_dup - curr_c == 0:
+							add_to_crossover = False
+							break
+					if add_to_crossover:
+						crossover_individuals.append(simplifyFunction(child1))
+						if len(crossover_individuals) <= crossover_size - 1:
+							crossover_individuals.append(simplifyFunction(child2))
+						if len(crossover_individuals) == crossover_size:
+							break
 
-			counter +=1
-
-		# for c in crossover_individuals:
-		# 	if(isinstance(c[0], gp.Terminal)):
-		# 		print("crossover", c)
-		# 		input()
-
+						counter +=1
 
 		pop = elite + mutation_individuals + crossover_individuals
+
+		# elite_size = int(len(pop) / 10)
+		# mutation_size = int(elite_size * 4.5)
+		# crossover_size = int(len(pop) - elite_size - mutation_size)
+	
+		# elite = toolbox.select(pop, elite_size)
+
+		# candidates = toolbox.select(pop, int(len(pop) / 2))
+		# candidates = toolbox.clone(candidates)
+
+		# mutation_individuals = []
+		# sample_individuals_indexes = random.sample(range(int(len(pop) / 2)), mutation_size)
+		# for i in sample_individuals_indexes:
+		# 	mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
+
+		# 	while( isinstance(mutated_individual[0], gp.Terminal) ):
+		# 		mutated_individual = simplifyFunction(toolbox.mutate(candidates[i]))
+
+		# 	mutation_individuals.append(mutated_individual)
+
+		# # for m in mutation_individuals:
+		# # 	if(isinstance(m[0], gp.Terminal)):
+		# # 		print("mutated", m)
+		# # 		input()
+
+
+		# candidates = toolbox.select(pop, int(len(pop) / 2))
+		# candidates = toolbox.clone(candidates)
+
+		# crossover_individuals = []
+		# pairings = list(itertools.combinations(candidates, 2))
+			
+		# # selected = random.sample(pairings, crossover_size)
+		# random.shuffle(pairings)
+		# selected = pairings
+		# crossover_size_copy = crossover_size
+		# counter = 0
+		# while counter < crossover_size_copy:
+		# 	child1, child2 = toolbox.mate(toolbox.clone(selected[counter][0]), toolbox.clone(selected[counter][1]))
+		# 	child1 = simplifyFunction(child1)
+		# 	child2 = simplifyFunction(child2)
+		# 	while(isinstance(child1[0], gp.Terminal) or isinstance(child2[0], gp.Terminal) ):
+		# 		counter += 1
+		# 		crossover_size_copy += 1
+		# 		child1, child2 = toolbox.mate(toolbox.clone(selected[counter][0]), toolbox.clone(selected[counter][1]))
+		# 		child1 = simplifyFunction(child1)
+		# 		child2 = simplifyFunction(child2)
+
+		# 	crossover_individuals.append(simplifyFunction(child1))
+		# 	if len(crossover_individuals) <= crossover_size - 1:
+		# 		crossover_individuals.append(simplifyFunction(child2))
+		# 	if len(crossover_individuals) == crossover_size:
+		# 		break
+
+		# 	counter +=1
+
+		# # for c in crossover_individuals:
+		# # 	if(isinstance(c[0], gp.Terminal)):
+		# # 		print("crossover", c)
+		# # 		input()
+
+
+		# pop = elite + mutation_individuals + crossover_individuals
 
 		print('gen done')
 
