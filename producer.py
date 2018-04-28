@@ -323,15 +323,24 @@ if __name__ == "__main__":
 		
 	start = time.time()
 
-	start_from_previous_gen = False
+	start_from_previous_gen = True
 
 	if start_from_previous_gen:
 		if current_iteration == 1:
 			current_directory = "data/generation-" + str(current_iteration) + "/"
-			if not os.path.exists(current_directory):
-				os.makedirs(current_directory)
-			#produce(); read data from file named starting_gen_pop.txt
-			test_pointer = openFile("starting_gen_pop.txt")
+			#find the generation we left off at + 1
+			while(os.path.exists(current_directory)):
+				current_iteration += 1
+				current_directory = "data/generation-" + str(current_iteration) + "/"
+			#for example, we stopped at generation 72
+			#generation 71 is finished and we were in middle of generation 72
+			#so current_iteration will be 73
+			#go back one to finish up generation 72
+			current_iteration -= 1
+			current_directory = "data/generation-" + str(current_iteration) + "/"
+
+			#produce(); read data from file named my_pop.txt
+			test_pointer = openFile("data/generation-" + str(current_iteration) + "/" + "my_pop.txt")
 			pop = readFromFile(test_pointer)
 			closeFile(test_pointer)
 			for i in range(0, len(pop)):
@@ -343,23 +352,25 @@ if __name__ == "__main__":
 				os.makedirs(current_directory)
 			#produce()
 			pop = initialPop()
+			#create the file for the population
+			pop_data_buffer = ""
+			for i in range(0, len(pop)):
+				pop_data_buffer += str(pop[i])
+				if i < len(pop) - 1:
+					pop_data_buffer += "\n"
+			output_file_pop = createFile(current_directory + "my_pop.txt")
+			writeToFile(output_file_pop, pop_data_buffer)
+			closeFile(output_file_pop)
+
+			compiled_pop = produceCompiledPop(pop, current_iteration)
+			output_file = createFile(current_directory + output_filename)
+			writeToFile(output_file, compiled_pop)
+			closeFile(output_file)
+
 	
 	last_iteration = current_iteration
 	
-	pop_data_buffer = ""
-	for i in range(0, len(pop)):
-		pop_data_buffer += str(pop[i])
-		if i < len(pop) - 1:
-			pop_data_buffer += "\n"
-	output_file_pop = createFile(current_directory + "starting_gen_pop.txt")
-	writeToFile(output_file_pop, pop_data_buffer)
-	closeFile(output_file_pop)
-
-	compiled_pop = produceCompiledPop(pop, current_iteration)
-	output_file = createFile(current_directory + output_filename)
-	writeToFile(output_file, compiled_pop)
-	closeFile(output_file)
-
+	
 	spacing_from_total_games_worker_play = 20 # 100 / 5 = 20
 
 	while True:
@@ -388,8 +399,8 @@ if __name__ == "__main__":
 			evals = getResultsFromFiles()
 
 			for i in range(len(evals)):
-				# pop[i].fitness = (evals[i],)	#for maximizing score
-				pop[i].fitness = (-1 * evals[i],) #for minimizing score
+				pop[i].fitness = (evals[i],)	#for maximizing score
+				# pop[i].fitness = (-1 * evals[i],) #for minimizing score
 
 			addToFileWithBreakline(results_filename, "Best for Generation " + str(current_iteration))
 			for fp in toolbox.select(pop, k = int(len(pop))):
