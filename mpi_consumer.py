@@ -58,8 +58,8 @@ def consumerFunc():
 
 			print(id, "is playing Games")
 			print("num gmaes playing", len(evaluated_pop))
-			result = random.sample(range(1000,4000), len(evaluated_pop))
-			# result = list(map(playGame, evaluated_pop))
+			# result = random.sample(range(1000,4000), len(evaluated_pop))
+			result = list(map(playGame, evaluated_pop))
 			print(id, "finished playing Games")
 
 			comm.send(result, dest=0, tag=tags.DONE)

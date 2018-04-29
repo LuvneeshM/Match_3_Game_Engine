@@ -352,6 +352,7 @@ if __name__ == "__main__":
 			list_of_summed_scores_for_each_indiv = [0 for i in range(number_of_individuals)]
 			#generation is over once all the indexes of list_seeds_number_times_given_out equals number_of_simulations
 			#else we still have to keep playing while these is at least one index less than number_of_simulations
+			print ("about to do open mpi stuff")
 			while any(i < number_of_simulations for i in list_seeds_number_times_given_out):
 				data = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
 				source = status.Get_source() #source is also the id of that worker, starts from 1
@@ -361,8 +362,8 @@ if __name__ == "__main__":
 				#i.e. worker 21 maps to 1, worker 49 maps to 9, etc
 				first_indiv = id % spacing_from_total_games_worker_play
 				#worker is ready to ply another round of games
-				print("GOT WORKER", id)
-				print(list_seeds_number_times_given_out)
+				# print("GOT WORKER", id)
+				# print(list_seeds_number_times_given_out)
 				if tag == tags.READY:
 					#only let worker play if his seeds are < number_of_simulations
 					#we will send him the seed to play
@@ -371,8 +372,8 @@ if __name__ == "__main__":
 						seed = seeds_for_iteration[list_seeds_number_times_given_out[first_indiv]]
 						comm.send((seed,current_iteration), dest=source, tag=tags.START)
 						list_seeds_number_times_given_out[first_indiv] += 1
-						print("Sending task %d to worker %d" % (seed, id))
-						print("the number of times for ", first_indiv, "is", list_seeds_number_times_given_out[first_indiv])
+						# print("Sending task %d to worker %d" % (seed, id))
+						# print("the number of times for ", first_indiv, "is", list_seeds_number_times_given_out[first_indiv])
 					#else we will tell the worker to sleep for SLEEP_TIME_CONSUMER
 					else:
 						#if we are on the last generation, worker exit
