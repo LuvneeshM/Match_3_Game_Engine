@@ -307,8 +307,6 @@ def getResultsFromFiles():
 	return evals
 
 if __name__ == "__main__":
-	eachGenResultsToWrite(True)
-
 	#set up
 	createThePset()
 	createTheCreator()
@@ -347,6 +345,8 @@ if __name__ == "__main__":
 				pop[i] = creator.Individual(gp.PrimitiveTree.from_string(pop[i], pset))
 	else:
 		if current_iteration == 1:
+			eachGenResultsToWrite(True)
+			
 			current_directory = "data/generation-" + str(current_iteration) + "/"
 			if not os.path.exists(current_directory):
 				os.makedirs(current_directory)
