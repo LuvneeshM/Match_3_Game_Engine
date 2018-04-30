@@ -15,6 +15,9 @@ module load gcc/6.3.0
 module load openmpi/intel/1.8.8
 
 pip3 install --user numpy
+pip3 install --user gmpy2
+pip3 install --user cython
+pip3 install --user sympy
 pip3 install --user mpi4py
 
 #mpirun -np 5 python3 producer.py
