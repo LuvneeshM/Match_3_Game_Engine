@@ -11,11 +11,12 @@ import sys
 
 import ast
 
-
 from mpi4py import MPI
 
-def playGame(individual):
-	score = main(number_of_games_per_worker, individual, False) #main function from game in the cythoned.pyx file
+import functools
+
+def playGame(individual, seed):
+	score = main(number_of_games_per_worker, individual, False, seed) #main function from game in the cythoned.pyx file
 	return score
 
 id = rank - 1
@@ -59,7 +60,7 @@ def consumerFunc():
 			print(id, "is playing Games")
 			print("num gmaes playing", len(evaluated_pop))
 			# result = random.sample(range(1000,4000), len(evaluated_pop))
-			result = list(map(playGame, evaluated_pop))
+			result = list(map( functools.partial(playGame, seed=seed), evaluated_pop)
 			print(id, "finished playing Games")
 
 			comm.send(result, dest=0, tag=tags.DONE)

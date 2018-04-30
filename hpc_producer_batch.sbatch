@@ -1,10 +1,13 @@
 #!/bin/bash
 #
 #SBATCH --job-name=MPI_M3
-#SBATCH --nodes=10 --ntasks-per-node=10
+#SBATCH --ntasks=420
+#SBATCH --ntasks-per-node=20
+#SBATCH --cpus-per-task=1
 #SBATCH --time=40:00:00
-#SBATCH --mem=2GB
+#SBATCH --mem=18GB
 #SBATCH --mail-type=END
+#SBATCH --mail-type=BEGIN
 #SBATCH --mail-user=lm3300@nyu.edu
 module purge
 module load python3/intel/3.6.3
@@ -15,5 +18,5 @@ pip3 install --user numpy
 pip3 install --user mpi4py
 
 #mpirun -np 5 python3 producer.py
-mpiexec -n 101 python3 mpi_producer.py
+mpiexec python3 mpi_producer.py
 #BLANK LINE UNDER THS LINE. SACRIFICE TO THE CARRIAGE RETURN GODS.

@@ -1397,7 +1397,7 @@ def matchMade(board, player_move):
 
 #Function for only running the mcts dude
 #will return the score of each mcts
-def runMCTSONLYGame(UCBFunctionToGet):
+def runMCTSONLYGame(UCBFunctionToGet, randomSeedNumber):
 	game_id = uuid.uuid4()
 
 	results = []
@@ -1405,8 +1405,6 @@ def runMCTSONLYGame(UCBFunctionToGet):
 	number_of_moves_to_make = 20
 
 	finalScoreForMCTS = 0
-
-	# random.seed(randomSeedNumber)
 
 	func_globals = globals()
 	func_globals['add'] = operator.add
@@ -1419,6 +1417,8 @@ def runMCTSONLYGame(UCBFunctionToGet):
 	mcts_ai = MCTSAgent(UCBFunc)
 
 	#mcts
+	#set to argument random seed 
+	random.seed(randomSeedNumber)
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
@@ -1442,7 +1442,8 @@ def runMCTSONLYGame(UCBFunctionToGet):
 		# #board
 		# #print(board.board)
 		# results_list.append(str(board.board))
-		
+		#set random seed to argument_seed + ((i + 1) * argument_seed)
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		matchMade(board, mct_move)
 
 		# #point after turn
@@ -1467,7 +1468,7 @@ def runMCTSONLYGame(UCBFunctionToGet):
 def calcMCTSAvg(mcts_points_list):
 	return np.mean(mcts_points_list)
 
-def main(val, UCBFunctionToGet, logData):
+def main(val, UCBFunctionToGet, logData, seed):
 
 	list_of_results = []
 
@@ -1475,7 +1476,7 @@ def main(val, UCBFunctionToGet, logData):
 	mcts_points_result = [0 for x in range(num_games_to_play)]
 	for i in range(num_games_to_play):
 		# start_time = time.time()
-		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet)
+		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet, seed)
 		# print("ellapsed time is",time.time()-start_time)
 
 	#calc the avg of the mcts_points
