@@ -1,4 +1,4 @@
-import pyximport; pyximport.install()
+#import pyximport; pyximport.install()
 from cythoned import *
 
 import operator
@@ -255,8 +255,6 @@ if __name__ == "__main__":
 		eachGenResults_file = 'data/output.csv.txt'
 
 
-		
-
 		#set up
 		createThePset()
 		createTheCreator()
@@ -277,6 +275,12 @@ if __name__ == "__main__":
 		#will output into a new results_filename
 		if start_from_previous_gen:
 			if current_iteration == 1:
+				#grab the previous highscore, set the  Board.winning_score to it
+				fp = openFile("data/curr_high_score.txt")
+				curr_h_score = readFromFile(fp)
+				curr_h_score_float = float(curr_h_score[0])
+				Board.winning_score = curr_h_score_float
+
 				current_directory = "data/generation-" + str(current_iteration) + "/"
 				#find the generation we left off at + 1
 				while(os.path.exists(current_directory)):
@@ -299,6 +303,9 @@ if __name__ == "__main__":
 		else:
 			if current_iteration == 1:
 				eachGenResultsToWrite(True)
+				score_fp = createFile('data/' + "curr_high_score.txt")
+				writeToFile(score_fp, str(Board.winning_score))
+				closeFile(score_fp)
 
 				current_directory = "data/generation-" + str(current_iteration) + "/"
 				if not os.path.exists(current_directory):
@@ -324,7 +331,7 @@ if __name__ == "__main__":
 
 		spacing_from_total_games_worker_play = 20 # 100 / 5 = 20
 
-		list_of_seeds = [i for i in range(999)] #list of seeds
+		list_of_seeds = [i for i in range(99999)] #list of seeds
 		num_workers = number_of_individuals
 
 		print("about to start the while loop")
@@ -342,18 +349,19 @@ if __name__ == "__main__":
 			output_file_pop = createFile(current_directory + "my_seeds.txt")
 			writeToFile(output_file_pop, seed_buffer)
 			closeFile(output_file_pop)
-
+			print ("about to do prep stuff")
 			#track seeds I have out
 			#size is equal to spacing_from_total_games_worker_play
 			#since worker 1 and worker 21 will play games for same 5 inviduals
 			list_seeds_number_times_given_out = [0 for i in range(spacing_from_total_games_worker_play)]
+			list_seeds_number_times_given_out_got_score_back = [0 for i in range(spacing_from_total_games_worker_play)]
 			sleeping_workers = 0
 			workers_I_already_put_sleep = set()
 			list_of_summed_scores_for_each_indiv = [0 for i in range(number_of_individuals)]
 			#generation is over once all the indexes of list_seeds_number_times_given_out equals number_of_simulations
 			#else we still have to keep playing while these is at least one index less than number_of_simulations
 			print ("about to do open mpi stuff")
-			while any(i < number_of_simulations for i in list_seeds_number_times_given_out):
+			while any(i < number_of_simulations for i in list_seeds_number_times_given_out_got_score_back):
 				data = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
 				source = status.Get_source() #source is also the id of that worker, starts from 1
 				id = source-1
@@ -391,34 +399,58 @@ if __name__ == "__main__":
 				#worker is done playing, lets grab the results?
 				elif tag == tags.DONE:
 					results = data #len of results should be size 5
-					print("LENGTH OF DATA FROM", id, "IS", len(results))
+
 					i = (id % spacing_from_total_games_worker_play)
+					list_seeds_number_times_given_out_got_score_back[i] += 1
 					index = 0
 					while i < (len(results) * spacing_from_total_games_worker_play):
 						list_of_summed_scores_for_each_indiv[i] = list_of_summed_scores_for_each_indiv[i] + results[index]
 						i += spacing_from_total_games_worker_play
 						index += 1
+
+					# sys.stdout = open("data/prod_data", 'a')
+					# print("LENGTH OF DATA FROM", id, "IS", len(results))
+					# print("list_seeds_number_times_given_out\n",list_seeds_number_times_given_out)
+					# print("list_of_summed_scores_for_each_indiv\n",list_of_summed_scores_for_each_indiv)
+					# print("list_seeds_number_times_given_out_got_score_back",list_seeds_number_times_given_out_got_score_back)
+					# print("last indiv added to",i-spacing_from_total_games_worker_play)
+					# print("results from consumer",results)
+					# sys.stdout = sys.__stdout__
+
 				elif tag == tags.EXIT:
 					print("Worker %d exited" % id)
 			
 			#got all the info for the generation
 			#now I calc this info and create my next genation
 			if all(i >= number_of_simulations for i in list_seeds_number_times_given_out):
+				
+				# sys.stdout = open("data/prod_delme", 'a')
+				# print("FINISHED PLAYING GAMES, NEXT GEN TIME")
+				# print("list_seeds_number_times_given_out\n",list_seeds_number_times_given_out)
+				# print("list_of_summed_scores_for_each_indiv\n",list_of_summed_scores_for_each_indiv)
+				# print("list_seeds_number_times_given_out_got_score_back",list_seeds_number_times_given_out_got_score_back)
+				# print("")
+				# sys.stdout = sys.__stdout__
+				
 				print("finished playing, time to calc the data")
 				for i in range(len(list_of_summed_scores_for_each_indiv)):
-					len_of_number_times_seed_given = list_seeds_number_times_given_out[i % spacing_from_total_games_worker_play]
+					len_of_number_times_seed_given = list_seeds_number_times_given_out_got_score_back[i % spacing_from_total_games_worker_play]
 					score = list_of_summed_scores_for_each_indiv[i]
 					avg_score_for_indiv = score / len_of_number_times_seed_given
-					pop[i].fitness = -1 * (avg_score_for_indiv,)
+					pop[i].fitness = (avg_score_for_indiv,)
 
 				addToFileWithBreakline(results_filename, "Best for Generation " + str(current_iteration))
 				for fp in toolbox.select(pop, k = int(len(pop))):
 					addToFileWithBreakline(results_filename, (str(fp) + ";" + str(fp.fitness) + "; " + str(time.time() - start) + ";") )
 
+				temp_file = createFile(current_directory + "results_for_this_pop.txt")
+				closeFile(temp_file)
 				addToFileWithBreakline(current_directory + "results_for_this_pop.txt", "Best for Generation " + str(current_iteration))
 				for fp in toolbox.select(pop, k = int(len(pop))):
 					addToFileWithBreakline(current_directory + "results_for_this_pop.txt", (str(fp) + ";" + str(fp.fitness)) )
 
+				temp_file = createFile(current_directory + "only_scores.txt")
+				closeFile(temp_file)
 				addToFileWithBreakline(current_directory + "only_scores.txt", "Scores in order of my_pop.txt " + str(current_iteration))
 				for i in range(len(list_of_summed_scores_for_each_indiv)):
 					len_of_number_times_seed_given = list_seeds_number_times_given_out[i % spacing_from_total_games_worker_play]
@@ -431,6 +463,10 @@ if __name__ == "__main__":
 				print("old max", Board.winning_score)
 				if (max_score[0] > Board.winning_score):
 					Board.winning_score = max_score[0]
+					#save the score, so we can restart from last saved highscore
+					score_fp = createFile('data/' + "curr_high_score.txt")
+					writeToFile(score_fp, str(max_score[0]))
+					closeFile(score_fp)
 					print("change to score")
 				print("new max", Board.winning_score)
 				addToFile(results_filename, "\n")

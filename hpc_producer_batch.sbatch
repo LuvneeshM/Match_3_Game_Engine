@@ -20,6 +20,8 @@ pip3 install --user cython
 pip3 install --user sympy
 pip3 install --user mpi4py
 
+python setup.py build_ext --inplace
+
 #mpirun -np 5 python3 producer.py
 mpiexec python3 mpi_producer.py
 #BLANK LINE UNDER THS LINE. SACRIFICE TO THE CARRIAGE RETURN GODS.

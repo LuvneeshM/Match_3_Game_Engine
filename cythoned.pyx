@@ -1241,8 +1241,8 @@ class MCTSAgent():
 		winner_node = None
 		max_ucb = float('-inf')
 		for child in self.rootNode.childArray:
-			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
-			# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(self.child.state.board.possible_moves_to_make.move_list))
+			# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
+			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(child.state.board.possible_moves_to_make.move_list))
 			
 			#print("child_win_score",child.get_win_score())
 			#print("child_visit_count", child.get_visit_count())
@@ -1260,10 +1260,10 @@ class MCTSAgent():
 		#print("Root visit count: ", rootNode.get_visit_count())
 		return winner_node.get_state().move
 
-	def selectionFuntion(self,child_win_score, child_visit_count, current_visit_count):
+	def selectionFuntion(self,child_win_score, child_visit_count, current_visit_count, num_moves_avail):
 		try:
-			#return self.func(child_win_score, child_visit_count, current_visit_count)
-			return self.UCB(child_win_score, child_visit_count, current_visit_count)
+			return self.func(child_win_score, child_visit_count, current_visit_count, num_moves_avail)
+			# return self.UCB(child_win_score, child_visit_count, current_visit_count)
 		except ZeroDivisionError:
 			#python 3 doesnt have max int value....
 			return float('inf')
@@ -1291,7 +1291,8 @@ class MCTSAgent():
 			best = 0
 			best_node = None
 			for child in currentNode.get_child_array():
-				UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), currentNode.get_visit_count())
+				# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), currentNode.get_visit_count())
+				UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(child.state.board.possible_moves_to_make.move_list))
 				#UCB1 = (child.get_win_score() / child.get_visit_count()) + 1.414 * math.sqrt(2.0 * math.log(currentNode.get_visit_count())/child.get_visit_count())
 				if UCB1 > best or best_node == None:
 					best = UCB1
@@ -1471,7 +1472,6 @@ def calcMCTSAvg(mcts_points_list):
 def main(val, UCBFunctionToGet, logData, seed):
 
 	list_of_results = []
-
 	num_games_to_play = val
 	mcts_points_result = [0 for x in range(num_games_to_play)]
 	for i in range(num_games_to_play):

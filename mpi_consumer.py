@@ -1,8 +1,6 @@
 import time
 import random
-# time.sleep(random.uniform(1,10))
-
-import pyximport; pyximport.install()
+#import pyximport; pyximport.install()
 from cythoned import *
 
 from global_functions import *
@@ -60,9 +58,11 @@ def consumerFunc():
 			print(id, "is playing Games")
 			print("num gmaes playing", len(evaluated_pop))
 			# result = random.sample(range(1000,4000), len(evaluated_pop))
-			result = list(map( functools.partial(playGame, seed=seed), evaluated_pop)
+			result = list(map( functools.partial(playGame, seed=seed), evaluated_pop))
 			print(id, "finished playing Games")
-
+			# sys.stdout = open("data/mpi_consumer_data", 'a')
+			# print("gen", str(current_iteration), "id is", str(id), ", results", result, "for seed", seed)
+			# sys.stdout = sys.__stdout__
 			comm.send(result, dest=0, tag=tags.DONE)
 
 			# i = (id % number_of_total_games_I_play)
