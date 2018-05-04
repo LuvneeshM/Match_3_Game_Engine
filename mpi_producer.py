@@ -437,7 +437,7 @@ if __name__ == "__main__":
 					len_of_number_times_seed_given = list_seeds_number_times_given_out_got_score_back[i % spacing_from_total_games_worker_play]
 					score = list_of_summed_scores_for_each_indiv[i]
 					avg_score_for_indiv = score / len_of_number_times_seed_given
-					pop[i].fitness = (avg_score_for_indiv,)
+					pop[i].fitness = ( -1 * avg_score_for_indiv,)
 
 				addToFileWithBreakline(results_filename, "Best for Generation " + str(current_iteration))
 				for fp in toolbox.select(pop, k = int(len(pop))):
