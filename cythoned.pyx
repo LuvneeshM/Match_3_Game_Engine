@@ -1211,7 +1211,7 @@ class MCTSAgent():
 		start_time = time.time()
 		elapsed = 0
 		#while(elapsed < self.end_time):
-		while (self.rootNode.get_visit_count() < 250):
+		while (self.rootNode.get_visit_count() < 2):
 			#pick the promising node
 			
 			promising_node = self.select_promising_node(self.rootNode)

@@ -67,7 +67,19 @@ if __name__ == "__main__":
 
 	vanilla_file_name = "vanilla_game_results.txt"
 
+	start_from_previous_gen = False
+
+	vanilla_score_file_name = "vanilla_mct_scores.txt"
+
 	for g in range(1, ngen):
+		
+
+		if start_from_previous_gen:
+			current_directory = "generation-" + str(g) + "/"
+			if os.path.exists("data/" + current_directory + vanilla_score_file_name):
+				print("gen", str(g), "finished before")
+				continue
+		
 		start = time.time()
 		#current generation directory
 		current_directory = "generation-" + str(g) + "/"
@@ -77,13 +89,13 @@ if __name__ == "__main__":
 		file_name = "my_seeds.txt"
 		fp_my_seeds = openFile(current_directory + file_name)
 		seeds_list = readFromFile(fp_my_seeds)
-		print("for gen", str(g), "seed list len is", len(seeds_list))
+
 		#will be a list of scores for those 50 seeds for that generation
-		print("playing games with", pool)
+		print("playing games for gen", str(g))
 		scores = pool.map(evalFunc, seeds_list)
-		print("done playing games")
+		print("done playing games for gen", str(g))
 		#lets save that value in  a txt for each gen
-		temp_file = createFile(current_directory + "vanilla_mct_scores.txt")
+		temp_file = createFile(current_directory + vanilla_score_file_name)
 		score_buffer = ""
 		for i in range(0, len(scores)):
 			score_buffer += str(scores[i])

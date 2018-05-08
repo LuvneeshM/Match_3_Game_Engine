@@ -1,2 +1,2 @@
 GEN;num-sims;pop-size;max-fitness;ellapsed-time;
-1;1;50;3680.0;36.48966121673584;
+3;1;50;5180.0;34.05290722846985;
