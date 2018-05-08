@@ -1145,8 +1145,8 @@ class Node:
 		child_to_return = None
 		max_score = 0
 		for child in self.childArray:
-			if child.get_win_score > max_score: 
-				max_score = child.get_win_score
+			if child.get_win_score() > max_score: 
+				max_score = child.get_win_score()
 				child_to_return = child
 
 		return child_to_return
@@ -1191,8 +1191,8 @@ class Tree:
 class MCTSAgent():
 	level = 0
 
-	def __init__(self, ubcReplacementFunc):
-		self.func = ubcReplacementFunc
+	# def __init__(self):
+	# 	self.func = ubcReplacementFunc
 
 	def getRootNode_VisitCount(self):
 		return self.rootNode.get_visit_count()
@@ -1241,8 +1241,8 @@ class MCTSAgent():
 		winner_node = None
 		max_ucb = float('-inf')
 		for child in self.rootNode.childArray:
-			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
-			# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(self.child.state.board.possible_moves_to_make.move_list))
+			# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
+			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(child.state.board.possible_moves_to_make.move_list))
 			
 			#print("child_win_score",child.get_win_score())
 			#print("child_visit_count", child.get_visit_count())
@@ -1260,9 +1260,9 @@ class MCTSAgent():
 		#print("Root visit count: ", rootNode.get_visit_count())
 		return winner_node.get_state().move
 
-	def selectionFuntion(self,child_win_score, child_visit_count, current_visit_count):
+	def selectionFuntion(self,child_win_score, child_visit_count, current_visit_count, num_moves_avail):
 		try:
-			#return self.func(child_win_score, child_visit_count, current_visit_count)
+			# return self.func(child_win_score, child_visit_count, current_visit_count, num_moves_avail)
 			return self.UCB(child_win_score, child_visit_count, current_visit_count)
 		except ZeroDivisionError:
 			#python 3 doesnt have max int value....
@@ -1291,7 +1291,8 @@ class MCTSAgent():
 			best = 0
 			best_node = None
 			for child in currentNode.get_child_array():
-				UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), currentNode.get_visit_count())
+				# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), currentNode.get_visit_count())
+				UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(child.state.board.possible_moves_to_make.move_list))
 				#UCB1 = (child.get_win_score() / child.get_visit_count()) + 1.414 * math.sqrt(2.0 * math.log(currentNode.get_visit_count())/child.get_visit_count())
 				if UCB1 > best or best_node == None:
 					best = UCB1
@@ -1397,7 +1398,7 @@ def matchMade(board, player_move):
 
 #Function for only running the mcts dude
 #will return the score of each mcts
-def runMCTSONLYGame(UCBFunctionToGet):
+def runMCTSONLYGame(randomSeedNumber):
 	game_id = uuid.uuid4()
 
 	results = []
@@ -1406,26 +1407,21 @@ def runMCTSONLYGame(UCBFunctionToGet):
 
 	finalScoreForMCTS = 0
 
-	func_globals = globals()
-	func_globals['add'] = operator.add
-	func_globals['mul'] = operator.mul
-	func_globals['truediv'] = operator.truediv
-	func_globals['sqrt'] = math.sqrt
-	func_globals['log'] = math.log
-	UCBFunc_code = marshal.loads(UCBFunctionToGet)
-	UCBFunc = types.FunctionType(UCBFunc_code, func_globals)
-	mcts_ai = MCTSAgent(UCBFunc)
-	
+	mcts_ai = MCTSAgent()
+
 	#mcts
+	#set to argument random seed 
+	random.seed(randomSeedNumber)
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
 		# results_list = []
-		
-		mct_move = mcts_ai.find_next_move(board)
-		
+		start_time = time.time()
+		mct_move = mcts_ai.find_next_move(board, i)
+	
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		matchMade(board, mct_move)
-		
+	
 		#grab the final score
 		if(i == 19):
 			finalScoreForMCTS += board.points
@@ -1440,35 +1436,16 @@ def runMCTSONLYGame(UCBFunctionToGet):
 def calcMCTSAvg(mcts_points_list):
 	return np.mean(mcts_points_list)
 
-def main(val, UCBFunctionToGet, logData):
+def main(val, logData, seed):
 
 	list_of_results = []
-
 	num_games_to_play = val
 	mcts_points_result = [0 for x in range(num_games_to_play)]
 	for i in range(num_games_to_play):
-		mcts_points_result[i] = runMCTSONLYGame(UCBFunctionToGet)
+		mcts_points_result[i] = runMCTSONLYGame(seed)
 
 	#calc the avg of the mcts_points
 	mcts_avg = calcMCTSAvg(np.array(mcts_points_result))
-
-	if (logData):
-		file_name = 'testing2.csv'
-		file = None
-
-		if not os.path.isfile(file_name):
-			file = open(file_name, 'a')
-			header = "Game_Id;Turn_#;Agent;Time_Limit;Move_Made;List_Of_Moves;Board;Points;\n"
-			file.write(header)
-		else:
-			file = open(file_name, 'a')
-
-		wr = csv.writer(file, delimiter=";")
-
-		for each_trial in list_of_results:
-			wr.writerows(each_trial)
-		
-		file.close()	
 
 	return mcts_avg
 
