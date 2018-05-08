@@ -69,14 +69,14 @@ if __name__ == "__main__":
 
 	start_from_previous_gen = False
 
-	vanilla_score_file_name = "vanilla_mct_scores.txt"
-
+	vanilla_mcts_score_file_name = "vanilla_mcts_scores.txt"
+	random_score_file_name = "random_scores.txt"
 	for g in range(1, ngen):
 		
 
 		if start_from_previous_gen:
 			current_directory = "generation-" + str(g) + "/"
-			if os.path.exists("data/" + current_directory + vanilla_score_file_name):
+			if os.path.exists("data/" + current_directory + vanilla_mcts_score_file_name):
 				print("gen", str(g), "finished before")
 				continue
 		
@@ -93,19 +93,38 @@ if __name__ == "__main__":
 		#will be a list of scores for those 50 seeds for that generation
 		print("playing games for gen", str(g))
 		scores = pool.map(evalFunc, seeds_list)
+		mcts_scores = []
+		rand_scores = []
+		for i in scores:
+			#i = ((1,2),)
+			#r[0] -> (1,2)
+			#r[0][0] -> 1
+			mcts_scores.append(i[0][0])
+			rand_scores.append(i[0][1])
+
 		print("done playing games for gen", str(g))
 		#lets save that value in  a txt for each gen
-		temp_file = createFile(current_directory + vanilla_score_file_name)
-		score_buffer = ""
-		for i in range(0, len(scores)):
-			score_buffer += str(scores[i])
+		temp_file = createFile(current_directory + vanilla_mcts_score_file_name)
+		
+		score_buffer_mcts = ""
+		for i in range(0, len(mcts_scores)):
+			score_buffer_mcts += str(mcts_scores[i])
 			if i < len(scores) - 1:
-				score_buffer += "\n"
-		writeToFile(temp_file, score_buffer)
+				score_buffer_mcts += "\n"
+		writeToFile(temp_file, score_buffer_mcts)
 		closeFile(temp_file)
 		
+		temp_file = createFile(current_directory + random_score_file_name)
+		score_buffer_ran = ""
+		for i in range(0, len(scores)):
+			score_buffer_ran += str(rand_scores[i])
+			if i < len(scores) - 1:
+				score_buffer_ran += "\n"
+		writeToFile(temp_file, score_buffer_ran)
+		closeFile(temp_file)
+
 		#write the max to a file too
-		eachGenResultsToWrite(False, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop_highscore=np.max(scores), current_time=str(time.time() - start))
+		eachGenResultsToWrite(False, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop_highscore=np.max(mcts_scores), current_time=str(time.time() - start))
 
 
 	pool.terminate()

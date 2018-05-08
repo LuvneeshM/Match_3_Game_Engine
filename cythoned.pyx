@@ -1348,6 +1348,17 @@ class MCTSAgent():
 			parent.visit_count += 1
 			parent.win_score += win
 
+class RandomAgent:
+	#def __init__(self):
+		#uuhhh
+	def pick_random_move(self, list_of_possible_moves):
+		tuple_1 = random.choice(list(list_of_possible_moves.move_list))
+		tuple_2 = random.choice(list(list_of_possible_moves.move_list[tuple_1]))
+
+		move = (tuple_1,tuple_2)
+		#print("MY MOVE IS", move)
+		return move
+
 def makeMove():
 	valid_move_made = False
 	input_valid_move = False
@@ -1389,12 +1400,57 @@ def checkMove(list_of_moves, player_move):
 	is_move_a_match = list_of_moves.does_move_exist(player_move)
 	return is_move_a_match
 
-
 #will make the player move
 #swaps the positions (then that method will auto-update board and take care of points and stuff)
 def matchMade(board, player_move):
 	#will call the board swap_positions
 	board.swap_positions(player_move)
+
+def runGame(randomSeedNumber):
+	
+	finalScoreForMCTS = 0
+	finalScoreForRand = 0
+
+	number_of_moves_to_make = 20
+
+	random.seed(randomSeedNumber)
+	mcts_ai = MCTSAgent()
+	random_ai = RandomAgent()
+	#set to argument random seed 
+	random.seed(randomSeedNumber)
+
+	#MCTS
+	board = Board(7,7)
+	board.init()
+	for i in range(number_of_moves_to_make):
+		mct_move = mcts_ai.find_next_move(board, i)
+	
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
+		matchMade(board, mct_move)
+	
+		#grab the final score
+		if(i == 19):
+			finalScoreForMCTS += board.points
+		
+	#Random
+	random.seed(randomSeedNumber)
+	board = Board(7,7)
+	board.init()
+	for i in range(number_of_moves_to_make):
+		#list of possible moves
+		list_of_moves = board.possible_moves_to_make
+		
+		#ai_move is (tuple_1, tuple_2)
+		#tuple_1 and tuple_2 are the positions of the numbers to swap
+		ai_move = random_ai.pick_random_move(list_of_moves)
+
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
+		matchMade(board, ai_move)
+		#point after turn		
+		if(i == 19):
+			finalScoreForRand += board.points
+	
+	return  (finalScoreForMCTS, finalScoreForRand)
 
 #Function for only running the mcts dude
 #will return the score of each mcts
@@ -1436,16 +1492,26 @@ def runMCTSONLYGame(randomSeedNumber):
 def calcMCTSAvg(mcts_points_list):
 	return np.mean(mcts_points_list)
 
+def calcRandAvg(random_points_list):
+	return np.mean(random_points_list)
+
 def main(val, logData, seed):
 
 	list_of_results = []
 	num_games_to_play = val
-	mcts_points_result = [0 for x in range(num_games_to_play)]
+	results = [0 for x in range(num_games_to_play)]
 	for i in range(num_games_to_play):
-		mcts_points_result[i] = runMCTSONLYGame(seed)
-
+		# mcts_points_result[i] = runMCTSONLYGame(seed)
+		results[i] = runGame(seed)
+	
+	mcts_points_result = [0 for x in range(num_games_to_play)]
+	rand_points_result = [0 for x in range(num_games_to_play)]
+	for i in range(num_games_to_play):
+		mcts_points_result[i] = results[i][0]
+		rand_points_result[i] = results[i][1]
 	#calc the avg of the mcts_points
 	mcts_avg = calcMCTSAvg(np.array(mcts_points_result))
-
-	return mcts_avg
+	rand_avg = calcRandAvg(np.array(rand_points_result))
+	
+	return (mcts_avg, rand_avg)
 
