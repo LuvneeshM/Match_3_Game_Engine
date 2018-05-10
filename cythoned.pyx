@@ -1429,7 +1429,8 @@ def runGame(randomSeedNumber):
 		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		random.setstate(seed_state)
 		matchMade(board, mct_move)
-	
+		seed_state = random.getstate()
+		
 		#grab the final score
 		if(i == 19):
 			finalScoreForMCTS += board.points
