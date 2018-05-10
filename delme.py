@@ -14,7 +14,6 @@ from datetime import datetime
 import time
 import math
 import operator
-import datetime
 
 class MoveList(object):
 	def __init__(self):
@@ -1418,16 +1417,14 @@ def runGame(randomSeedNumber):
 	random_ai = RandomAgent()
 	#set to argument random seed 
 	random.seed(randomSeedNumber)
-	seed_state = random.get_state()
+
 	#MCTS
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
-		random.seed(datetime.datetime.now())
 		mct_move = mcts_ai.find_next_move(board, i)
 	
-		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
-		seed_state = random.seed_state(seed_state)
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		matchMade(board, mct_move)
 	
 		#grab the final score
@@ -1436,7 +1433,6 @@ def runGame(randomSeedNumber):
 		
 	#Random
 	random.seed(randomSeedNumber)
-	seed_state = random.get_state()
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
@@ -1447,8 +1443,7 @@ def runGame(randomSeedNumber):
 		#tuple_1 and tuple_2 are the positions of the numbers to swap
 		ai_move = random_ai.pick_random_move(list_of_moves)
 
-		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
-		seed_state = random.seed_state(seed_state)
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		matchMade(board, ai_move)
 		#point after turn		
 		if(i == 19):
@@ -1500,15 +1495,6 @@ def calcRandAvg(random_points_list):
 	return np.mean(random_points_list)
 
 def main(val, logData, seed):
-	# print ("seed", seed)
-	# m_res = []
-	# num_games_to_play = val
-	# for i in range(num_games_to_play):
-	# 	print(i)
-	# 	m_res.append(runMCTSONLYGame(seed))
-
-	# print("m_res avg")	
-	# print(calcMCTSAvg(np.array(m_res)))
 
 	list_of_results = []
 	num_games_to_play = val

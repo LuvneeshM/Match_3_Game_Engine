@@ -14,7 +14,6 @@ from datetime import datetime
 import time
 import math
 import operator
-import datetime
 
 class MoveList(object):
 	def __init__(self):
@@ -1192,7 +1191,7 @@ class Tree:
 class MCTSAgent():
 	level = 0
 
-	# def __init__(self):
+	# def __init__(self, ubcReplacementFunc):
 	# 	self.func = ubcReplacementFunc
 
 	def getRootNode_VisitCount(self):
@@ -1418,16 +1417,14 @@ def runGame(randomSeedNumber):
 	random_ai = RandomAgent()
 	#set to argument random seed 
 	random.seed(randomSeedNumber)
-	seed_state = random.get_state()
+
 	#MCTS
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
-		random.seed(datetime.datetime.now())
 		mct_move = mcts_ai.find_next_move(board, i)
 	
-		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
-		seed_state = random.seed_state(seed_state)
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		matchMade(board, mct_move)
 	
 		#grab the final score
@@ -1436,7 +1433,6 @@ def runGame(randomSeedNumber):
 		
 	#Random
 	random.seed(randomSeedNumber)
-	seed_state = random.get_state()
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
@@ -1447,14 +1443,15 @@ def runGame(randomSeedNumber):
 		#tuple_1 and tuple_2 are the positions of the numbers to swap
 		ai_move = random_ai.pick_random_move(list_of_moves)
 
-		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
-		seed_state = random.seed_state(seed_state)
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		matchMade(board, ai_move)
 		#point after turn		
 		if(i == 19):
 			finalScoreForRand += board.points
 	
 	return  (finalScoreForMCTS, finalScoreForRand)
+
+
 
 #Function for only running the mcts dude
 #will return the score of each mcts
@@ -1478,10 +1475,10 @@ def runMCTSONLYGame(randomSeedNumber):
 		# results_list = []
 		start_time = time.time()
 		mct_move = mcts_ai.find_next_move(board, i)
-	
-		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
+		
+		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		matchMade(board, mct_move)
-	
+
 		#grab the final score
 		if(i == 19):
 			finalScoreForMCTS += board.points
@@ -1496,35 +1493,19 @@ def runMCTSONLYGame(randomSeedNumber):
 def calcMCTSAvg(mcts_points_list):
 	return np.mean(mcts_points_list)
 
-def calcRandAvg(random_points_list):
-	return np.mean(random_points_list)
-
 def main(val, logData, seed):
-	# print ("seed", seed)
-	# m_res = []
-	# num_games_to_play = val
-	# for i in range(num_games_to_play):
-	# 	print(i)
-	# 	m_res.append(runMCTSONLYGame(seed))
-
-	# print("m_res avg")	
-	# print(calcMCTSAvg(np.array(m_res)))
 
 	list_of_results = []
 	num_games_to_play = val
-	results = [0 for x in range(num_games_to_play)]
-	for i in range(num_games_to_play):
-		# mcts_points_result[i] = runMCTSONLYGame(seed)
-		results[i] = runGame(seed)
-	
 	mcts_points_result = [0 for x in range(num_games_to_play)]
-	rand_points_result = [0 for x in range(num_games_to_play)]
 	for i in range(num_games_to_play):
-		mcts_points_result[i] = results[i][0]
-		rand_points_result[i] = results[i][1]
+		# start_time = time.time()
+		mcts_points_result[i] = runMCTSONLYGame(seed)
+		# print("ellapsed time is",time.time()-start_time)
+
 	#calc the avg of the mcts_points
 	mcts_avg = calcMCTSAvg(np.array(mcts_points_result))
-	rand_avg = calcRandAvg(np.array(rand_points_result))
-	
-	return (mcts_avg, rand_avg)
+	print("m_res avg")	
+	print(mcts_avg)
+	return mcts_avg
 
