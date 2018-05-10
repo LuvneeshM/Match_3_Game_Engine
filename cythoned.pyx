@@ -1418,7 +1418,7 @@ def runGame(randomSeedNumber):
 	random_ai = RandomAgent()
 	#set to argument random seed 
 	random.seed(randomSeedNumber)
-	seed_state = random.get_state()
+	seed_state = random.getstate()
 	#MCTS
 	board = Board(7,7)
 	board.init()
@@ -1427,7 +1427,7 @@ def runGame(randomSeedNumber):
 		mct_move = mcts_ai.find_next_move(board, i)
 	
 		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
-		seed_state = random.seed_state(seed_state)
+		random.setstate(seed_state)
 		matchMade(board, mct_move)
 	
 		#grab the final score
@@ -1436,7 +1436,7 @@ def runGame(randomSeedNumber):
 		
 	#Random
 	random.seed(randomSeedNumber)
-	seed_state = random.get_state()
+	seed_state = random.getstate()
 	board = Board(7,7)
 	board.init()
 	for i in range(number_of_moves_to_make):
@@ -1448,7 +1448,7 @@ def runGame(randomSeedNumber):
 		ai_move = random_ai.pick_random_move(list_of_moves)
 
 		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
-		seed_state = random.seed_state(seed_state)
+		random.setstate(seed_state)
 		matchMade(board, ai_move)
 		#point after turn		
 		if(i == 19):
