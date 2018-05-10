@@ -36,7 +36,7 @@ def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, p
 def readSeedsFromFile(fp):
 	result = []
 	
-	for line in file_pointer:
+	for line in fp:
 		value_str = line.split('\n')[0]
 		result.append(float(line.split('\n')[0]))
 	
