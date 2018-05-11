@@ -1242,8 +1242,11 @@ class MCTSAgent():
 		winner_node = None
 		max_ucb = float('-inf')
 		for child in self.rootNode.childArray:
+			list_num_moves = [len(v) for v in child.state.board.possible_moves_to_make.move_list.values()]
+			len_num_moves = np.sum(list_num_moves)
 			# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count())
-			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(child.state.board.possible_moves_to_make.move_list))
+			UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len_num_moves)
+
 			
 			#print("child_win_score",child.get_win_score())
 			#print("child_visit_count", child.get_visit_count())
@@ -1292,8 +1295,10 @@ class MCTSAgent():
 			best = 0
 			best_node = None
 			for child in currentNode.get_child_array():
+				list_num_moves = [len(v) for v in child.state.board.possible_moves_to_make.move_list.values()]
+				len_num_moves = np.sum(list_num_moves)
 				# UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), currentNode.get_visit_count())
-				UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len(child.state.board.possible_moves_to_make.move_list))
+				UCB1 = self.selectionFuntion(child.get_win_score(), child.get_visit_count(), self.rootNode.get_visit_count(), len_num_moves)
 				#UCB1 = (child.get_win_score() / child.get_visit_count()) + 1.414 * math.sqrt(2.0 * math.log(currentNode.get_visit_count())/child.get_visit_count())
 				if UCB1 > best or best_node == None:
 					best = UCB1
