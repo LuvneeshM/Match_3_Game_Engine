@@ -1453,7 +1453,7 @@ def runGame(randomSeedNumber):
 		#tuple_1 and tuple_2 are the positions of the numbers to swap
 		ai_move = random_ai.pick_random_move(list_of_moves)
 
-		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
 		# random.setstate(seed_state)
 		matchMade(board, ai_move)
 		#point after turn		

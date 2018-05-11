@@ -1,1 +1,0 @@
-GEN;num-sims;pop-size;max-fitness;ellapsed-time;

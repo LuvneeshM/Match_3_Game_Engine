@@ -17,6 +17,7 @@ pop_size = number_of_individuals
 ngen=number_of_generations
 
 eachGenResults_file = 'data/vanilla_output.csv.txt'
+eachGenRandom_file = 'data/random_output.csv.txt'
 
 def evalFunc(seed):
     #pass UCBFunctionToGet
@@ -24,12 +25,12 @@ def evalFunc(seed):
     score = main(number_of_games_per_worker, False, seed) 
     return score,
 
-def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, pop_highscore=None, current_time=None):
+def eachGenResultsToWrite(toWriteHeader, file_name, g=None, num_sims=None, pop_size=None, pop_highscore=None, current_time=None):
 	if(toWriteHeader):
-		sys.stdout = open(eachGenResults_file, 'w')
+		sys.stdout = open(file_name, 'w')
 		print('GEN;num-sims;pop-size;avg-fitness;ellapsed-time;')
 	else:
-		sys.stdout = open(eachGenResults_file, 'a')
+		sys.stdout = open(file_name, 'a')
 		print(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(pop_highscore) + ';' + str(current_time) + ';')
 	sys.stdout = sys.__stdout__
 
@@ -43,12 +44,12 @@ def readSeedsFromFile(fp):
 	return result
 
 if __name__ == "__main__":
-	# seed = 10321
-	# res = evalFunc(seed)
-	# print("score for mct, random", res)
-	
-	eachGenResultsToWrite(True)
-
+	seed = 10321
+	res = evalFunc(seed)
+	print("score for mct, random", res)
+	input()
+	eachGenResultsToWrite(True, eachGenResults_file)
+	eachGenResultsToWrite(True, eachGenRandom_file)
 	pool = mp.Pool(mp.cpu_count())
 
 	number_of_seeds = 50
@@ -105,7 +106,7 @@ if __name__ == "__main__":
 		
 		temp_file = createFile(current_directory + random_score_file_name)
 		score_buffer_ran = ""
-		for i in range(0, len(scores)):
+		for i in range(0, len(rand_scores)):
 			score_buffer_ran += str(rand_scores[i])
 			if i < len(scores) - 1:
 				score_buffer_ran += "\n"
@@ -113,8 +114,8 @@ if __name__ == "__main__":
 		closeFile(temp_file)
 
 		#write the max to a file too
-		eachGenResultsToWrite(False, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop_highscore=np.mean(mcts_scores), current_time=str(time.time() - start))
-
+		eachGenResultsToWrite(False,eachGenResults_file, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop_highscore=np.mean(mcts_scores), current_time=str(time.time() - start))
+		eachGenResultsToWrite(False,eachGenRandom_file, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop_highscore=np.mean(rand_scores), current_time=str(time.time() - start))
 
 	pool.terminate()
 
