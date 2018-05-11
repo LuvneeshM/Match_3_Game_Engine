@@ -44,10 +44,10 @@ def readSeedsFromFile(fp):
 	return result
 
 if __name__ == "__main__":
-	seed = 10321
-	res = evalFunc(seed)
-	print("score for mct, random", res)
-	input()
+	# seed = 10321
+	# res = evalFunc(seed)
+	# print("score for mct, random", res)
+	# input()
 	eachGenResultsToWrite(True, eachGenResults_file)
 	eachGenResultsToWrite(True, eachGenRandom_file)
 	pool = mp.Pool(mp.cpu_count())
