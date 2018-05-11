@@ -1421,15 +1421,15 @@ def runGame(randomSeedNumber):
 	#MCTS
 	board = Board(7,7)
 	board.init()
-	seed_state = random.getstate()
+	# seed_state = random.getstate()
 	for i in range(number_of_moves_to_make):
-		random.seed(datetime.datetime.now())
+		# random.seed(datetime.datetime.now())
 		mct_move = mcts_ai.find_next_move(board, i)
 	
-		# random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
-		random.setstate(seed_state)
+		random.seed(randomSeedNumber + (i+1) * randomSeedNumber)
+		# random.setstate(seed_state)
 		matchMade(board, mct_move)
-		seed_state = random.getstate()
+		# seed_state = random.getstate()
 		
 		#grab the final score
 		if(i == 19):

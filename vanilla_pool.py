@@ -27,7 +27,7 @@ def evalFunc(seed):
 def eachGenResultsToWrite(toWriteHeader, g=None, num_sims=None, pop_size=None, pop_highscore=None, current_time=None):
 	if(toWriteHeader):
 		sys.stdout = open(eachGenResults_file, 'w')
-		print('GEN;num-sims;pop-size;max-fitness;ellapsed-time;')
+		print('GEN;num-sims;pop-size;avg-fitness;ellapsed-time;')
 	else:
 		sys.stdout = open(eachGenResults_file, 'a')
 		print(str(g) + ';' + str(num_sims) + ";" + str(pop_size) + ";" + str(pop_highscore) + ';' + str(current_time) + ';')
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 		closeFile(temp_file)
 
 		#write the max to a file too
-		eachGenResultsToWrite(False, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop_highscore=np.max(mcts_scores), current_time=str(time.time() - start))
+		eachGenResultsToWrite(False, g=g, num_sims=number_of_games_per_worker, pop_size=pop_size, pop_highscore=np.mean(mcts_scores), current_time=str(time.time() - start))
 
 
 	pool.terminate()
