@@ -48,15 +48,20 @@ if __name__ == "__main__":
 	# res = evalFunc(seed)
 	# print("score for mct, random", res)
 	# input()
-	eachGenResultsToWrite(True, eachGenResults_file)
-	eachGenResultsToWrite(True, eachGenRandom_file)
+	
+	start_from_previous_gen = False
+
+	if start_from_previous_gen == False:
+		eachGenResultsToWrite(True, eachGenResults_file)
+		eachGenResultsToWrite(True, eachGenRandom_file)
+	
 	pool = mp.Pool(mp.cpu_count())
 
 	number_of_seeds = 50
 
 	vanilla_file_name = "vanilla_game_results.txt"
 
-	start_from_previous_gen = False
+	
 
 	vanilla_mcts_score_file_name = "vanilla_mcts_scores.txt"
 	random_score_file_name = "random_scores.txt"
