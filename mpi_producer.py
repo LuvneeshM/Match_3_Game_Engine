@@ -361,6 +361,7 @@ if __name__ == "__main__":
 			#generation is over once all the indexes of list_seeds_number_times_given_out equals number_of_simulations
 			#else we still have to keep playing while these is at least one index less than number_of_simulations
 			print ("about to do open mpi stuff")
+			play_games_for_id = 0
 			while any(i < number_of_simulations for i in list_seeds_number_times_given_out_got_score_back):
 				data = comm.recv(source=MPI.ANY_SOURCE, tag=MPI.ANY_TAG, status=status)
 				source = status.Get_source() #source is also the id of that worker, starts from 1
@@ -368,22 +369,45 @@ if __name__ == "__main__":
 				tag = status.Get_tag()
 				#cal the original indiv worker maps to
 				#i.e. worker 21 maps to 1, worker 49 maps to 9, etc
-				first_indiv = id % spacing_from_total_games_worker_play
+				# first_indiv = id % spacing_from_total_games_worker_play
+
 				#worker is ready to ply another round of games
 				# print("GOT WORKER", id)
 				# print(list_seeds_number_times_given_out)
 				if tag == tags.READY:
+					num_times_seed_given = list_seeds_number_times_given_out[play_games_for_id]
+					temp_loop_checker = play_games_for_id
+					while (num_times_seed_given >= number_of_simulations):
+						play_games_for_id = (play_games_for_id + 1) % spacing_from_total_games_worker_play
+						num_times_seed_given = list_seeds_number_times_given_out[play_games_for_id]
+						#made a full circle, so all seeds have been played for all individuals
+						if (temp_loop_checker == play_games_for_id):
+							print("I will now put a worker to sleep since list_seeds_number_times_given_out is all 100")
+							print(list_seeds_number_times_given_out)
+							break
+					if (num_times_seed_given < number_of_simulations):
+						seed = seeds_for_iteration[num_times_seed_given]
+						comm.send((seed, current_iteration, play_games_for_id), dest=source, tag=tags.START)
+						list_seeds_number_times_given_out[play_games_for_id] += 1
 					#only let worker play if his seeds are < number_of_simulations
 					#we will send him the seed to play
-					num_times_seed_given = list_seeds_number_times_given_out[first_indiv]
-					if (num_times_seed_given < number_of_simulations):
-						seed = seeds_for_iteration[list_seeds_number_times_given_out[first_indiv]]
-						comm.send((seed,current_iteration), dest=source, tag=tags.START)
-						list_seeds_number_times_given_out[first_indiv] += 1
-						# print("Sending task %d to worker %d" % (seed, id))
-						# print("the number of times for ", first_indiv, "is", list_seeds_number_times_given_out[first_indiv])
+					# num_times_seed_given = list_seeds_number_times_given_out[first_indiv]
+					# if (num_times_seed_given < number_of_simulations):
+					# 	seed = seeds_for_iteration[num_times_seed_given]
+					# 	comm.send((seed,current_iteration), dest=source, tag=tags.START)
+					# 	list_seeds_number_times_given_out[first_indiv] += 1
+						print("Sending task %d to worker %d" % (seed, play_games_for_id))
+						print("the number of times for (mapped % 20 first indiv)", play_games_for_id, "is", num_times_seed_given)
+						print("list_seeds_number)times_given_out")
+						print(list_seeds_number_times_given_out)
 					#else we will tell the worker to sleep for SLEEP_TIME_CONSUMER
 					else:
+						# print("list_seeds_number_times_given_out")
+						# print(list_seeds_number_times_given_out)
+						# print("mapped to first indiv", first_indiv, "given out", list_seeds_number_times_given_out[first_indiv])
+						print("WORKER GOING TO SLEEP")
+						print("list_seeds_number_times_given_out_got_score_back")
+						print(list_seeds_number_times_given_out_got_score_back)
 						#if we are on the last generation, worker exit
 						if current_iteration == number_of_generations:
 							comm.send(None, dest=source, tag = tags.EXIT)
@@ -398,7 +422,10 @@ if __name__ == "__main__":
 
 				#worker is done playing, lets grab the results?
 				elif tag == tags.DONE:
-					results = data #len of results should be size 5
+					#data = (results, the id I was told to play as)
+					#results is a list
+					results = data[0] #len of results should be size 5
+					id = data[1]
 
 					i = (id % spacing_from_total_games_worker_play)
 					list_seeds_number_times_given_out_got_score_back[i] += 1
@@ -437,7 +464,7 @@ if __name__ == "__main__":
 					len_of_number_times_seed_given = list_seeds_number_times_given_out_got_score_back[i % spacing_from_total_games_worker_play]
 					score = list_of_summed_scores_for_each_indiv[i]
 					avg_score_for_indiv = score / len_of_number_times_seed_given
-					pop[i].fitness = ( -1 * avg_score_for_indiv,)
+					pop[i].fitness = (avg_score_for_indiv,)
 
 				addToFileWithBreakline(results_filename, "Best for Generation " + str(current_iteration))
 				for fp in toolbox.select(pop, k = int(len(pop))):

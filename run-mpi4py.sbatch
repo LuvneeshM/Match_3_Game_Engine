@@ -1,11 +1,11 @@
 #!/bin/bash
 #
-#SBATCH --job-name=FMPI_M3
-##SBATCH --ntasks=200
-#SBATCH --nodes=10
+#SBATCH --job-name=J100_MaxMPI
+##SBATCH --ntasks=400
+#SBATCH --nodes=20
 #SBATCH --ntasks-per-node=20
 #SBATCH --cpus-per-task=1
-#SBATCH --time=42:00:00
+#SBATCH --time=44:00:00
 #SBATCH --mem=10GB
 #SBATCH --mail-type=END
 #SBATCH --mail-type=BEGIN

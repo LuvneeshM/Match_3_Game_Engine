@@ -33,6 +33,7 @@ def consumerFunc():
 	while True:
 		comm.send(None, dest=0, tag=tags.READY)
 		#task is a tuple: seed and current generation number
+		#task = (seed, current_iteration, what my id this time is)
 		task = comm.recv(source=0, tag=MPI.ANY_TAG, status=status)
 		tag = status.Get_tag()
 
@@ -41,6 +42,8 @@ def consumerFunc():
 			
 			seed = task[0]
 			current_iteration = task[1]
+			#my id has been changed, I am being told play for this individual
+			id = task[2]
 			current_directory = "data/generation-" + str(current_iteration) + "/"
 			try:
 				file_pointer = openFile(current_directory + input_file)
@@ -56,14 +59,14 @@ def consumerFunc():
 			evaluated_pop = [ast.literal_eval(file_data[i+1]) for i in range(0, len(file_data)-1) if (i % number_of_total_games_I_play) == (id % number_of_total_games_I_play)]
 
 			print(id, "is playing Games")
-			print("num gmaes playing", len(evaluated_pop))
+			print("num games playing", len(evaluated_pop))
 			# result = random.sample(range(1000,4000), len(evaluated_pop))
 			result = list(map( functools.partial(playGame, seed=seed), evaluated_pop))
 			print(id, "finished playing Games")
 			# sys.stdout = open("data/mpi_consumer_data", 'a')
 			# print("gen", str(current_iteration), "id is", str(id), ", results", result, "for seed", seed)
 			# sys.stdout = sys.__stdout__
-			comm.send(result, dest=0, tag=tags.DONE)
+			comm.send((result, id), dest=0, tag=tags.DONE)
 
 			# i = (id % number_of_total_games_I_play)
 			# index = 0

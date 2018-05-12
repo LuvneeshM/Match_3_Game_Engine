@@ -4,7 +4,7 @@ SLEEP_TIME_PRODUCER = 30 #in seconds
 number_of_generations = 100 #number of generations
 number_of_individuals = 100 #number of indivduals
 number_of_games_per_worker = 1 #number of games a worker will play for single run through for a single game
-number_of_simulations = 50 #number of games each indiv will play
+number_of_simulations = 100 #number of games each indiv will play
 
 
 from mpi4py import MPI
